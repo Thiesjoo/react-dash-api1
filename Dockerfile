@@ -3,7 +3,7 @@ FROM node:12-alpine
 # Create app directory
 WORKDIR /usr/src/api1
 
-COPY ./data/api1/package*.json ./
+COPY ./package*.json ./
 
 # Install app dependencies (All this apk stuff is needed to build bcrypt succesfully.) 
 # FIXME: Find a better alternative for this
@@ -24,7 +24,7 @@ RUN npm rebuild bcrypt --build-from-source
 #RUN apk del .gyp
 
 # Copy the app source
-COPY ./data/api1/ .
+COPY ./ .
 
 EXPOSE 8080
 CMD [ "npm", "start" ]
