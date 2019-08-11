@@ -21,7 +21,6 @@ RUN apk add --virtual .gyp \
 RUN npm install
 # Rebuild bcrypt so it doesnt crash on hash
 RUN npm rebuild bcrypt --build-from-source
-#RUN apk del .gyp
 
 # Copy the app source
 COPY ./ .
