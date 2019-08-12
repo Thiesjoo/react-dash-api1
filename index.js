@@ -53,7 +53,7 @@ app.use(function (req, res, next) {
     res.setHeader("Try", "Again another time")
     res.setHeader("Server", "Try again another time")
 
-    if (!isdocker) {
+    if (process.env.NODE_ENV || "dev") {
         //These are the functional headers that enable CORS when in test mode
         console.log("Using access control headers")
         res.setHeader("Access-Control-Allow-Origin", "*")
