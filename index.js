@@ -53,7 +53,7 @@ app.use(function (req, res, next) {
     res.setHeader("Try", "Again another time")
     res.setHeader("Server", "Try again another time")
 
-    if (process.env.NODE_ENV || "dev") {
+    if (process.env.NODE_ENV === "dev") {
         //These are the functional headers that enable CORS when in test mode
         console.log("Using access control headers")
         res.setHeader("Access-Control-Allow-Origin", "*")
@@ -131,7 +131,7 @@ app.get('/', (req, res) => {
     res.send("test")
 })
 
-if (process.env.NODE_ENV || "dev") {
+if (process.env.NODE_ENV === "dev") {
     console.error("USING DEV ROUTES. IF YOU SEE THIS IN PROD YOUR FUCKEd")
     app.get("/delete", (req, res) => {
         simpleQuery("TRUNCATE users;")
@@ -167,7 +167,8 @@ app.post('/user/login', (req, res) => {
                             let refreshtoken = randomstring.generate();
                             var query = "UPDATE users SET token = '" + refreshtoken + "' WHERE email = '" + body.email + "'"
                             simpleQuery(query)
-                            if (process.env.NODE_ENV == "dev") {
+                            if (process.env.NODE_ENV === "dev") {
+                                console.log("Dev cookies")
                                 res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + 900000), httpOnly: true, path: "/user/profile" })
                                 res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + 900000000), httpOnly: true, path: "/user/refreshAccess" })
                             } else {
