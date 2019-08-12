@@ -167,8 +167,13 @@ app.post('/user/login', (req, res) => {
                             let refreshtoken = randomstring.generate();
                             var query = "UPDATE users SET token = '" + refreshtoken + "' WHERE email = '" + body.email + "'"
                             simpleQuery(query)
-                            res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + 900000), httpOnly: true, path: "/user/profile" })
-                            res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + 900000000), httpOnly: true, path: "/user/refreshAccess" })
+                            if (process.env.NODE_ENV || "dev") {
+                                res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + 900000), httpOnly: true, path: "/user/profile" })
+                                res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + 900000000), httpOnly: true, path: "/user/refreshAccess" })
+                            } else {
+                                res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + 900000), httpOnly: true, path: "/api1/user/profile", secure: true })
+                                res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + 900000000), httpOnly: true, path: "/api1/user/refreshAccess", secure: true })
+                            }
                             res.send({ ok: true, data: result[0].data, firstname: result[0].firstname, lastname: result[0].lastname })
                         } else {
                             res.send({ ok: false, msg: "Wrong password" })
