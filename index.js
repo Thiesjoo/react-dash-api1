@@ -129,13 +129,7 @@ app.use(xss());
 
 //ROUTES
 app.get('/', (req, res) => {
-    //This is a simple route that select all users and passes them (ONLY FOR TESTING)
-    //FIXME: REMOVE ON PUBLISH
-    con.query("SELECT * FROM users", function (err, result) {
-        if (err) throw err;
-        //console.log(result)
-        res.send('Hello World! ' + JSON.stringify(result))
-    });
+    res.send("test")
 })
 
 app.post('/user/login', (req, res) => {
