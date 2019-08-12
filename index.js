@@ -37,12 +37,14 @@ function simpleQuery(query) {
 
 
 //SECURITY
+var randomstring = require("randomstring");
+
 //-BCRYPT SETUP
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 //-CHANGING HEADERS AND FUN STUFF
-var fun = [ "Nice try FBI", "Not today, CIA",   "Dirty tricks, MI6" , "Not deceptive enough for me, KGB", "Cease to liten what I say, NSA","Good attempt at obscurity, Department of Homeland Security"]
+var fun = ["Nice try FBI", "Not today, CIA", "Dirty tricks, MI6", "Not deceptive enough for me, KGB", "Cease to liten what I say, NSA", "Good attempt at obscurity, Department of Homeland Security"]
 app.use(function (req, res, next) {
     console.log("Got request here")
     //THESE ARE JUST FUNNY HEADERS
@@ -70,23 +72,20 @@ const passwordRegex = RegExp(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[0-9]).{5,100}$/
 )
 
-//-JWT Setup
+//-JWT AND COOKIE Setup
 let jwt = require('jsonwebtoken');
 const config = require('./config.js');
+var cookieParser = require('cookie-parser')
+app.use(cookieParser())
 
 let checkToken = (req, res, next) => {
     var body = req.body
-    //CHECK IF THERE IS A TOKEN
-    console.log(req.headers["authorization"])
-    let token = req.headers['authorization']; // Express headers are auto converted to lowercase
-    if (token.startsWith('Bearer ')) {
-        // Remove Bearer from string
-        token = token.slice(7, token.length);
-    }
-    console.log()
+    var cookies = req.cookies
+    console.log("Koekjes: ", cookies)
+    var token = cookies.accesstoken
     if (token && body.email) {
         if (emailRegex.test(body.email)) {
-            jwt.verify(token, config.secret+body.email, (err, decoded) => {
+            jwt.verify(token, config.secret + body.email, (err, decoded) => {
                 if (err) {
                     return res.json({
                         ok: false,
@@ -99,7 +98,7 @@ let checkToken = (req, res, next) => {
                 }
             });
         } else {
-            res.send({ ok: false, msg:fun[Math.floor(Math.random() * fun.length)]})
+            res.send({ ok: false, msg: fun[Math.floor(Math.random() * fun.length)] })
         }
     } else {
         return res.json({
@@ -132,11 +131,18 @@ app.get('/', (req, res) => {
     res.send("test")
 })
 
+if (process.env.NODE_ENV || "dev") {
+    console.error("USING DEV ROUTES. IF YOU SEE THIS IN PROD YOUR FUCKEd")
+    app.get("/delete", (req, res) => {
+        simpleQuery("TRUNCATE users;")
+        res.send("OK")
+    })
+}
+
 app.post('/user/login', (req, res) => {
     var body = req.body
     if (body.email && body.password) {
-        //FIXME: CHECK IF REGEX IS CORRRECT
-        //FIrst check if user exists
+        //First check if user exists
         if (emailRegex.test(body.email) && passwordRegex.test(body.password)) {
             con.query("SELECT * FROM users WHERE email = ?", [body.email], function (err, result) {
                 if (err) {
@@ -152,15 +158,18 @@ app.post('/user/login', (req, res) => {
                         }
                         if (result2) {
                             //FIXME: Put useful data here
-                            let token = jwt.sign({ email: body.email },
+                            let accesstoken = jwt.sign({ email: body.email },
                                 config.secret + body.email,
                                 {
-                                    expiresIn: '24h' // expires in 24 hours
+                                    expiresIn: '15m' // expires in 24 hours
                                 }
                             );
-                            var query = "UPDATE users SET token = '" + token + "' WHERE email = '" + body.email + "'"
+                            let refreshtoken = randomstring.generate();
+                            var query = "UPDATE users SET token = '" + refreshtoken + "' WHERE email = '" + body.email + "'"
                             simpleQuery(query)
-                            res.send({ ok: true, data: result[0].data, token: token, firstname: result[0].firstname, lastname: result[0].lastname })
+                            res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + 900000), httpOnly: true, path: "/user/profile" })
+                            res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + 900000000), httpOnly: true, path: "/user/refreshAccess" })
+                            res.send({ ok: true, data: result[0].data, firstname: result[0].firstname, lastname: result[0].lastname })
                         } else {
                             res.send({ ok: false, msg: "Wrong password" })
                         }
@@ -169,6 +178,41 @@ app.post('/user/login', (req, res) => {
                     res.send({ ok: false, msg: "Account doesn't exist" })
                 }
             });
+        } else {
+            res.send({ ok: false, msg: fun[Math.floor(Math.random() * fun.length)] })
+        }
+    } else {
+        res.send({ ok: false, msg: "Not enough data" })
+    }
+})
+
+app.post("/user/refreshAccess", (req, res) => {
+    var body = req.body
+    console.log(req.cookies)
+    if (body.email && req.cookies.refreshtoken) {
+        //First check if user exists
+        if (emailRegex.test(body.email)) {
+            con.query("SELECT * FROM users WHERE email = ?", [body.email], function (err, result) {
+                if (err) {
+                    res.status(404).end()
+                    throw err
+                }
+                console.log(result)
+                if (result[0].token == req.cookies.refreshtoken) {
+                    console.log("Cookie verified")
+                    let accesstoken = jwt.sign({ email: body.email },
+                        config.secret + body.email,
+                        {
+                            expiresIn: '15m' // expires in 24 hours
+                        }
+                    );
+                    res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + 900000), httpOnly: true, path: "/user/profile" })
+                    res.send({ ok: true })
+                } else {
+                    res.send({ ok: false, msg: "Refresh token does not exists" })
+
+                }
+            })
         } else {
             res.send({ ok: false, msg: fun[Math.floor(Math.random() * fun.length)] })
         }
