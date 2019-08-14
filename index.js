@@ -1,3 +1,9 @@
+//ONLY LOAD ENV FILE WHEN NOT IN PRODUCTION
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config()
+}
+const config = require('./config.js');
+console.log(config)
 //EXPRESS SETUP
 const express = require('express')
 const app = express()
@@ -18,7 +24,7 @@ var mysql = require('mysql');
 var con = mysql.createConnection({
     host: ip,
     user: "nodejs",
-    password: "NodeJsPassword",
+    password: config.mysqlPassword,
     database: "users_test"
 });
 
@@ -41,7 +47,7 @@ var randomstring = require("randomstring");
 
 //-BCRYPT SETUP
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
+const saltRounds = config.saltRounds;
 
 //-CHANGING HEADERS AND FUN STUFF
 var fun = ["Nice try FBI", "Not today, CIA", "Dirty tricks, MI6", "Not deceptive enough for me, KGB", "Cease to liten what I say, NSA", "Good attempt at obscurity, Department of Homeland Security"]
@@ -74,7 +80,6 @@ const passwordRegex = RegExp(
 
 //-JWT AND COOKIE Setup
 let jwt = require('jsonwebtoken');
-const config = require('./config.js');
 var cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
@@ -169,13 +174,13 @@ app.post('/user/login', (req, res) => {
                             simpleQuery(query)
                             if (process.env.NODE_ENV === "dev") {
                                 console.log("Dev cookies")
-                                res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + 900000), httpOnly: true, path: "/user/profile" })
-                                res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + 900000000), httpOnly: true, path: "/user/refreshAccess" })
+                                res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
+                                res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refreshAccess" })
                             } else {
-                                res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + 900000), httpOnly: true, path: "/api1/user/profile", secure: true })
-                                res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + 900000000), httpOnly: true, path: "/api1/user/refreshAccess", secure: true })
+                                res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/api1/user/", secure: true })
+                                res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/api1/user/refreshAccess", secure: true })
                             }
-                            res.send({ ok: true, data: result[0].data, firstname: result[0].firstname, lastname: result[0].lastname })
+                            res.send({ ok: true, firstname: result[0].firstname, lastname: result[0].lastname })
                         } else {
                             res.send({ ok: false, msg: "Wrong password" })
                         }
@@ -209,14 +214,13 @@ app.post("/user/refreshAccess", (req, res) => {
                     let accesstoken = jwt.sign({ email: body.email },
                         config.secret + body.email,
                         {
-                            expiresIn: '15m' // expires in 24 hours
+                            expiresIn: config.jwtExpiry
                         }
                     );
-                    res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + 900000), httpOnly: true, path: "/user/profile" })
+                    res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/profile" })
                     res.send({ ok: true })
                 } else {
                     res.send({ ok: false, msg: "Refresh token does not exists" })
-
                 }
             })
         } else {
@@ -233,8 +237,6 @@ app.post('/user/signup', (req, res) => {
     if (body.email && body.password && body.firstname && body.lastname) {
         //FIXME: CHECK IF REGEX IS CORRRECT
         if (emailRegex.test(body.email) && passwordRegex.test(body.password)) {
-
-
             con.query("SELECT * FROM users WHERE email = ?", [body.email], function (err, result) {
                 if (err) {
                     res.status(404).end()
@@ -248,21 +250,30 @@ app.post('/user/signup', (req, res) => {
 
                         // Store hash in your password DB.
                         //FIXME: Generate a token with time build in
-                        let token = jwt.sign({ email: body.email },
-                            config.secret,
+                        let accesstoken = jwt.sign({ email: body.email },
+                            config.secret + body.email,
                             {
-                                expiresIn: '24h' // expires in 24 hours
+                                expiresIn: config.jwtExpiry
                             }
                         );
-                        console.log(hash.length, token.length)
+                        let refreshtoken = randomstring.generate();
+                        
                         var query = "INSERT INTO users (email, firstname,lastname,password,token) VALUES (?,?,?,?,?)";
-                        con.query(query, [body.email, body.firstname, body.lastname, hash, token], function (err, result) {
+                        con.query(query, [body.email, body.firstname, body.lastname, hash, refreshtoken], function (err, result) {
                             if (err) {
                                 res.status(404).end()
                                 throw err
                             }
                             if (result) {
-                                res.send({ ok: true, data: null, token: token, firstname: result.firstname, lastname: result.lastname })
+                                if (process.env.NODE_ENV === "dev") {
+                                    console.log("Dev cookies")
+                                    res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
+                                    res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refreshAccess" })
+                                } else {
+                                    res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/api1/user/", secure: true })
+                                    res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/api1/user/refreshAccess", secure: true })
+                                }
+                                res.send({ ok: true, firstname: result.firstname, lastname: result.lastname })
                             } else {
                                 res.send({ ok: false, msg: "Something went wrong with the database" })
                             }
