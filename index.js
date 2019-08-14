@@ -235,7 +235,6 @@ app.post('/user/signup', (req, res) => {
     var body = req.body
 
     if (body.email && body.password && body.firstname && body.lastname) {
-        //FIXME: CHECK IF REGEX IS CORRRECT
         if (emailRegex.test(body.email) && passwordRegex.test(body.password)) {
             con.query("SELECT * FROM users WHERE email = ?", [body.email], function (err, result) {
                 if (err) {
@@ -247,9 +246,7 @@ app.post('/user/signup', (req, res) => {
                 } else {
                     //Same as login but also adding the user to database
                     bcrypt.hash(body.password, saltRounds, function (err, hash) {
-
                         // Store hash in your password DB.
-                        //FIXME: Generate a token with time build in
                         let accesstoken = jwt.sign({ email: body.email },
                             config.secret + body.email,
                             {
