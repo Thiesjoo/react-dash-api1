@@ -25,7 +25,6 @@ console.log("Connecting to mysql with: ",ip,":",port)
 var mysql = require('mysql');
 var con = mysql.createConnection({
     host: ip,
-    port: port,
     user: "nodejs",
     password: config.mysqlPassword,
     database: "users_test"
