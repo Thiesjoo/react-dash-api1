@@ -17,7 +17,8 @@ RUN apk add --virtual .gyp \
     nasm \
     python \
     git \
-    mysql-client
+    mysql-client \
+    netcat
 RUN npm install
 # Rebuild bcrypt so it doesnt crash on hash
 RUN npm rebuild bcrypt --build-from-source
