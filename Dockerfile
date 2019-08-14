@@ -16,9 +16,7 @@ RUN apk add --virtual .gyp \
     make \
     nasm \
     python \
-    git \
-    mysql-client \
-    netcat
+    git 
 RUN npm install
 # Rebuild bcrypt so it doesnt crash on hash
 RUN npm rebuild bcrypt --build-from-source
@@ -26,5 +24,8 @@ RUN npm rebuild bcrypt --build-from-source
 # Copy the app source
 COPY ./ .
 
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.2.1/wait /wait
+RUN chmod +x /wait
+
 EXPOSE 8080
-CMD [ "npm", "start" ]
+CMD /wait && npm start
