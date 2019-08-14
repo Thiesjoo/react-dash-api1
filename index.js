@@ -17,6 +17,7 @@ var isdocker = isDocker()
 if (isdocker) {
     console.log("Is in docker")
     ip = "db"
+    port = 3307
 }
 
 //MYSQL
