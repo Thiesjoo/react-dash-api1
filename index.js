@@ -17,23 +17,21 @@ var isdocker = isDocker()
 if (isdocker) {
     console.log("Is in docker")
     ip = "db"
-    // port = 3307
 }
 
 //MYSQL
-console.log("Connecting to mysql with: ",ip,":",port)
 var mysql = require('mysql');
 var con = mysql.createConnection({
     host: ip,
     user: "nodejs",
     password: config.mysqlPassword,
-    database: "users_test"
+    database: config.database_name
 });
 
 con.connect(function (err) {
     if (err) throw err;
     console.log("Connected to db! at ip", ip);
-    var create = "create table if not exists users(email varchar(255), firstname varchar(255),lastname varchar(255),password varchar(255),token varchar(255),data varchar(255))"
+    var create = "create table if not exists users(id INT AUTO_INCREMENT PRIMARY KEY, email varchar(255), firstname varchar(255),lastname varchar(255),password varchar(255),token varchar(255))"
     simpleQuery(create)
 });
 
@@ -45,6 +43,7 @@ function simpleQuery(query) {
 
 
 //SECURITY
+
 var randomstring = require("randomstring");
 
 //-BCRYPT SETUP
@@ -57,11 +56,10 @@ app.use(function (req, res, next) {
     console.log("Got request here")
     //THESE ARE JUST FUNNY HEADERS
     res.setHeader('X-Powered-By', 'Commodore 64')
-    res.setHeader('If-You-Read-This', "you're really good at going into developer tools and pressing network")
-    res.setHeader("Try", "Again another time")
-    res.setHeader("Server", "Try again another time")
+    res.setHeader('If-You-Read-This', "you're 'smart'")
+    res.setHeader("Server", "Commodore 64")
 
-    if (process.env.NODE_ENV === "dev") {
+    if (process.env.NODE_ENV !== "production") {
         //These are the functional headers that enable CORS when in test mode
         console.log("Using access control headers")
         res.setHeader("Access-Control-Allow-Origin", "*")
@@ -71,6 +69,8 @@ app.use(function (req, res, next) {
     }
     next()
 })
+var errors = {notFound: "Account not found", wrongPassword: "Password is wrong", invalidToken: "Token is invalid", notEnoughInfo: "There is not enough info", noRefresh: "Refresh token doesn't exist", general: "Something went wrong", alreadyExists: "Account already exists", regexNotMatch: "The regex is not valid"}
+// /fun[Math.floor(Math.random() * fun.length)]
 
 //-Regex's
 const emailRegex = RegExp(
@@ -96,7 +96,7 @@ let checkToken = (req, res, next) => {
                 if (err) {
                     return res.json({
                         ok: false,
-                        message: 'Token is not valid'
+                        message: errors.invalidToken
                     });
                 } else {
                     //If the decoded token is valid copy it to request and continue
@@ -105,12 +105,12 @@ let checkToken = (req, res, next) => {
                 }
             });
         } else {
-            res.send({ ok: false, msg: fun[Math.floor(Math.random() * fun.length)] })
+            res.send({ ok: false, msg: errors.regexNotMatch })
         }
     } else {
         return res.json({
             ok: false,
-            message: 'Token or email is not supplied'
+            message: errors.notEnoughInfo
         });
     }
 };
@@ -138,11 +138,20 @@ app.get('/', (req, res) => {
     res.send("test")
 })
 
-if (process.env.NODE_ENV === "dev") {
+if (process.env.NODE_ENV !== "production") {
     console.error("USING DEV ROUTES. IF YOU SEE THIS IN PROD YOUR FUCKEd")
     app.get("/delete", (req, res) => {
         simpleQuery("TRUNCATE users;")
         res.send("OK")
+    })
+    app.get("/list", (req, res) => {
+        con.query("SELECT * FROM users",function (err, result) {
+            if (err) {
+                res.status(404).end()
+                throw err
+            }
+            res.send(result)
+        })
     })
 }
 
@@ -174,7 +183,7 @@ app.post('/user/login', (req, res) => {
                             let refreshtoken = randomstring.generate();
                             var query = "UPDATE users SET token = '" + refreshtoken + "' WHERE email = '" + body.email + "'"
                             simpleQuery(query)
-                            if (process.env.NODE_ENV === "dev") {
+                            if (process.env.NODE_ENV !== "production") {
                                 console.log("Dev cookies")
                                 res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
                                 res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refreshAccess" })
@@ -184,18 +193,18 @@ app.post('/user/login', (req, res) => {
                             }
                             res.send({ ok: true, firstname: result[0].firstname, lastname: result[0].lastname })
                         } else {
-                            res.send({ ok: false, msg: "Wrong password" })
+                            res.send({ ok: false, msg: errors.wrongPassword })
                         }
                     });
                 } else {
-                    res.send({ ok: false, msg: "Account doesn't exist" })
+                    res.send({ ok: false, msg: errors.notFound })
                 }
             });
         } else {
-            res.send({ ok: false, msg: fun[Math.floor(Math.random() * fun.length)] })
+            res.send({ ok: false, msg: errors.regexNotMatch })
         }
     } else {
-        res.send({ ok: false, msg: "Not enough data" })
+        res.send({ ok: false, msg: errors.notEnoughInfo })
     }
 })
 
@@ -222,14 +231,14 @@ app.post("/user/refreshAccess", (req, res) => {
                     res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/profile" })
                     res.send({ ok: true })
                 } else {
-                    res.send({ ok: false, msg: "Refresh token does not exists" })
+                    res.send({ ok: false, msg: errors.noRefresh })
                 }
             })
         } else {
-            res.send({ ok: false, msg: fun[Math.floor(Math.random() * fun.length)] })
+            res.send({ ok: false, msg: errors.regexNotMatch})
         }
     } else {
-        res.send({ ok: false, msg: "Not enough data" })
+        res.send({ ok: false, msg: errors.notEnoughInfo })
     }
 })
 
@@ -244,7 +253,7 @@ app.post('/user/signup', (req, res) => {
                     throw err
                 }
                 if (result[0]) {
-                    res.send({ ok: false, msg: "Account already exists" })
+                    res.send({ ok: false, msg: errors.alreadyExists })
                 } else {
                     //Same as login but also adding the user to database
                     bcrypt.hash(body.password, saltRounds, function (err, hash) {
@@ -264,7 +273,7 @@ app.post('/user/signup', (req, res) => {
                                 throw err
                             }
                             if (result) {
-                                if (process.env.NODE_ENV === "dev") {
+                                if (process.env.NODE_ENV !== "production") {
                                     console.log("Dev cookies")
                                     res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
                                     res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refreshAccess" })
@@ -274,7 +283,7 @@ app.post('/user/signup', (req, res) => {
                                 }
                                 res.send({ ok: true, firstname: result.firstname, lastname: result.lastname })
                             } else {
-                                res.send({ ok: false, msg: "Something went wrong with the database" })
+                                res.send({ ok: false, msg: errors.general })
                             }
                         })
                     });
@@ -282,10 +291,10 @@ app.post('/user/signup', (req, res) => {
                 }
             })
         } else {
-            res.send({ ok: false, msg: fun[Math.floor(Math.random() * fun.length)] })
+            res.send({ ok: false, msg: errors.regexNotMatch })
         }
     } else {
-        res.send({ ok: false, msg: "Not enough data" })
+        res.send({ ok: false, msg: errors.notEnoughInfo })
     }
 })
 
@@ -300,7 +309,7 @@ class HandlerGenerator {
             if (result[0]) {
                 res.send({ ok: true, data: result.data })
             } else {
-                res.send({ ok: false, msg: "Profile not found" })
+                res.send({ ok: false, msg: errors.notFound })
             }
         })
 
