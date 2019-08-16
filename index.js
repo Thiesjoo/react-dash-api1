@@ -3,7 +3,6 @@ if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config()
 }
 const config = require('./config.js');
-console.log(config)
 //EXPRESS SETUP
 const express = require('express')
 const app = express()
@@ -53,7 +52,6 @@ const saltRounds = config.saltRounds;
 //-CHANGING HEADERS AND FUN STUFF
 var fun = ["Nice try FBI", "Not today, CIA", "Dirty tricks, MI6", "Not deceptive enough for me, KGB", "Cease to liten what I say, NSA", "Good attempt at obscurity, Department of Homeland Security"]
 app.use(function (req, res, next) {
-    console.log("Got request here")
     //THESE ARE JUST FUNNY HEADERS
     res.setHeader('X-Powered-By', 'Commodore 64')
     res.setHeader('If-You-Read-This', "you're 'smart'")
@@ -61,15 +59,18 @@ app.use(function (req, res, next) {
 
     if (process.env.NODE_ENV !== "production") {
         //These are the functional headers that enable CORS when in test mode
-        console.log("Using access control headers")
-        res.setHeader("Access-Control-Allow-Origin", "*")
+        if (req.headers.origin) {
+            res.setHeader("Access-Control-Allow-Origin", req.headers.origin)
+        } else {
+            res.setHeader("Access-Control-Allow-Origin", "*")
+        }
         res.setHeader("Access-Control-Allow-Credentials", "true");
         res.setHeader("Access-Control-Allow-Methods", "DELETE, GET, POST, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     }
     next()
 })
-var errors = {notFound: "Account not found", wrongPassword: "Password is wrong", invalidToken: "Token is invalid", notEnoughInfo: "There is not enough info", noRefresh: "Refresh token doesn't exist", general: "Something went wrong", alreadyExists: "Account already exists", regexNotMatch: "The regex is not valid"}
+var errors = { notFound: "Account not found", wrongPassword: "Password is wrong", invalidToken: "Token is invalid", notEnoughInfo: "There is not enough info", noRefresh: "Refresh token doesn't exist", general: "Something went wrong", alreadyExists: "Account already exists", regexNotMatch: "The regex is not valid" }
 // /fun[Math.floor(Math.random() * fun.length)]
 
 //-Regex's
@@ -88,25 +89,21 @@ app.use(cookieParser())
 let checkToken = (req, res, next) => {
     var body = req.body
     var cookies = req.cookies
-    console.log("Koekjes: ", cookies)
+    console.log("valid cookie in function check token: ", cookies.accesstoken ? "yes" : "no")
     var token = cookies.accesstoken
-    if (token && body.email) {
-        if (emailRegex.test(body.email)) {
-            jwt.verify(token, config.secret + body.email, (err, decoded) => {
-                if (err) {
-                    return res.json({
-                        ok: false,
-                        message: errors.invalidToken
-                    });
-                } else {
-                    //If the decoded token is valid copy it to request and continue
-                    req.decoded = decoded;
-                    next();
-                }
-            });
-        } else {
-            res.send({ ok: false, msg: errors.regexNotMatch })
-        }
+    if (token) {
+        jwt.verify(token, config.secret, (err, decoded) => {
+            if (err) {
+                return res.json({
+                    ok: false,
+                    message: errors.invalidToken
+                });
+            } else {
+                //If the decoded token is valid copy it to request and continue
+                req.decoded = decoded;
+                next();
+            }
+        });
     } else {
         return res.json({
             ok: false,
@@ -139,13 +136,14 @@ app.get('/', (req, res) => {
 })
 
 if (process.env.NODE_ENV !== "production") {
-    console.error("USING DEV ROUTES. IF YOU SEE THIS IN PROD YOUR FUCKEd")
+    console.error("USING DEV ROUTES. IF YOU SEE THIS IN PROD YOUR FUCKED")
+    console.error("THIS ALSO MEANS THAT: CORS IS ENABLED, DEV ROUTES ARE ON, DEV COOKIES ARE ON, DB IS USING TEST TABLE AND LOCAL ENV IS LOADED ")
     app.get("/delete", (req, res) => {
         simpleQuery("TRUNCATE users;")
         res.send("OK")
     })
     app.get("/list", (req, res) => {
-        con.query("SELECT * FROM users",function (err, result) {
+        con.query("SELECT * FROM users", function (err, result) {
             if (err) {
                 res.status(404).end()
                 throw err
@@ -157,6 +155,7 @@ if (process.env.NODE_ENV !== "production") {
 
 app.post('/user/login', (req, res) => {
     var body = req.body
+    res.cookie("test", "test", { secure: false })
     if (body.email && body.password) {
         //First check if user exists
         if (emailRegex.test(body.email) && passwordRegex.test(body.password)) {
@@ -173,8 +172,9 @@ app.post('/user/login', (req, res) => {
                             throw err
                         }
                         if (result2) {
+                            console.log("Login: ", result[0])
                             //FIXME: Put useful data here
-                            let accesstoken = jwt.sign({ email: body.email },
+                            let accesstoken = jwt.sign({ email: body.email, id: result[0].id },
                                 config.secret + body.email,
                                 {
                                     expiresIn: '15m' // expires in 24 hours
@@ -191,7 +191,7 @@ app.post('/user/login', (req, res) => {
                                 res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/api1/user/", secure: true })
                                 res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/api1/user/refreshAccess", secure: true })
                             }
-                            res.send({ ok: true, firstname: result[0].firstname, lastname: result[0].lastname })
+                            res.send({ ok: true, firstname: result[0].firstname, lastname: result[0].lastname, id: result[0].id })
                         } else {
                             res.send({ ok: false, msg: errors.wrongPassword })
                         }
@@ -210,7 +210,7 @@ app.post('/user/login', (req, res) => {
 
 app.post("/user/refreshAccess", (req, res) => {
     var body = req.body
-    console.log(req.cookies)
+    console.log("Valid cookie in function refresh token: ", req.cookies.refreshtoken ? "yes" : "no")
     if (body.email && req.cookies.refreshtoken) {
         //First check if user exists
         if (emailRegex.test(body.email)) {
@@ -219,23 +219,23 @@ app.post("/user/refreshAccess", (req, res) => {
                     res.status(404).end()
                     throw err
                 }
-                console.log(result)
+                console.log("Refreshing access for: ", result)
                 if (result[0].token == req.cookies.refreshtoken) {
                     console.log("Cookie verified")
-                    let accesstoken = jwt.sign({ email: body.email },
-                        config.secret + body.email,
+                    let accesstoken = jwt.sign({ email: body.email, id: result[0].id },
+                        config.secret,
                         {
                             expiresIn: config.jwtExpiry
                         }
                     );
-                    res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/profile" })
+                    res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
                     res.send({ ok: true })
                 } else {
                     res.send({ ok: false, msg: errors.noRefresh })
                 }
             })
         } else {
-            res.send({ ok: false, msg: errors.regexNotMatch})
+            res.send({ ok: false, msg: errors.regexNotMatch })
         }
     } else {
         res.send({ ok: false, msg: errors.notEnoughInfo })
@@ -258,14 +258,14 @@ app.post('/user/signup', (req, res) => {
                     //Same as login but also adding the user to database
                     bcrypt.hash(body.password, saltRounds, function (err, hash) {
                         // Store hash in your password DB.
-                        let accesstoken = jwt.sign({ email: body.email },
-                            config.secret + body.email,
+                        let accesstoken = jwt.sign({ email: body.email, id: result[0].id },
+                            config.secret,
                             {
                                 expiresIn: config.jwtExpiry
                             }
                         );
                         let refreshtoken = randomstring.generate();
-                        
+
                         var query = "INSERT INTO users (email, firstname,lastname,password,token) VALUES (?,?,?,?,?)";
                         con.query(query, [body.email, body.firstname, body.lastname, hash, refreshtoken], function (err, result) {
                             if (err) {
@@ -273,6 +273,7 @@ app.post('/user/signup', (req, res) => {
                                 throw err
                             }
                             if (result) {
+                                console.log("Signup: ", result)
                                 if (process.env.NODE_ENV !== "production") {
                                     console.log("Dev cookies")
                                     res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
@@ -281,7 +282,7 @@ app.post('/user/signup', (req, res) => {
                                     res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/api1/user/", secure: true })
                                     res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/api1/user/refreshAccess", secure: true })
                                 }
-                                res.send({ ok: true, firstname: result.firstname, lastname: result.lastname })
+                                res.send({ ok: true, id: result.id, firstname: result.firstname, lastname: result.lastname })
                             } else {
                                 res.send({ ok: false, msg: errors.general })
                             }
@@ -305,18 +306,36 @@ class HandlerGenerator {
                 res.status(404).end()
                 throw err
             }
-            console.log("Succesfull profile post")
             if (result[0]) {
                 res.send({ ok: true, data: result.data })
             } else {
                 res.send({ ok: false, msg: errors.notFound })
             }
         })
-
+    }
+    logout(req, res) {
+        console.log("Logging out with token",req.decoded)
+        con.query("UPDATE users SET token = '' WHERE id = ?", [req.decoded.id], function (err, result) {
+            if (err) {
+                res.status(404).end()
+                throw err
+            }
+            if (process.env.NODE_ENV !== "production") {
+                console.log("Dev cookies")
+                res.clearCookie("accesstoken", { httpOnly: true, path: "/user/" })
+                res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess" })
+            } else {
+                res.clearCookie("accesstoken", { httpOnly: true, path: "/api1/user/", secure: true })
+                res.clearCookie("refreshtoken", { httpOnly: true, path: "/api1/user/refreshAccess", secure: true })
+            }
+            res.send({ ok: true })
+        })
     }
 }
 
 let handlers = new HandlerGenerator();
 app.post('/user/profile', checkToken, handlers.profile);
+app.post('/user/logout', checkToken, handlers.logout);
+
 
 app.listen(port, () => console.log(`API1 app listening on port ${port}!`))
