@@ -175,9 +175,9 @@ app.post('/user/login', (req, res) => {
                             console.log("Login: ", result[0])
                             //FIXME: Put useful data here
                             let accesstoken = jwt.sign({ email: body.email, id: result[0].id },
-                                config.secret + body.email,
+                                config.secret,
                                 {
-                                    expiresIn: '15m' // expires in 24 hours
+                                    expiresIn: config.jwtExpiry
                                 }
                             );
                             let refreshtoken = randomstring.generate();
@@ -257,15 +257,9 @@ app.post('/user/signup', (req, res) => {
                 } else {
                     //Same as login but also adding the user to database
                     bcrypt.hash(body.password, saltRounds, function (err, hash) {
-                        // Store hash in your password DB.
-                        let accesstoken = jwt.sign({ email: body.email, id: result[0].id },
-                            config.secret,
-                            {
-                                expiresIn: config.jwtExpiry
-                            }
-                        );
+                        //FIXME: Refreshtoken should be in an array.
+                        //FIXME: Refreshtoken should also be jWT???? Or at least exipry with a hash or something
                         let refreshtoken = randomstring.generate();
-
                         var query = "INSERT INTO users (email, firstname,lastname,password,token) VALUES (?,?,?,?,?)";
                         con.query(query, [body.email, body.firstname, body.lastname, hash, refreshtoken], function (err, result) {
                             if (err) {
@@ -273,7 +267,12 @@ app.post('/user/signup', (req, res) => {
                                 throw err
                             }
                             if (result) {
-                                console.log("Signup: ", result)
+                                let accesstoken = jwt.sign({ email: body.email, id: result.insertId },
+                                    config.secret,
+                                    {
+                                        expiresIn: config.jwtExpiry
+                                    }
+                                );
                                 if (process.env.NODE_ENV !== "production") {
                                     console.log("Dev cookies")
                                     res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
@@ -282,7 +281,7 @@ app.post('/user/signup', (req, res) => {
                                     res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/api1/user/", secure: true })
                                     res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/api1/user/refreshAccess", secure: true })
                                 }
-                                res.send({ ok: true, id: result.id, firstname: result.firstname, lastname: result.lastname })
+                                res.send({ ok: true, id: result.insertId, firstname: body.firstname, lastname: body.lastname })
                             } else {
                                 res.send({ ok: false, msg: errors.general })
                             }
@@ -314,22 +313,25 @@ class HandlerGenerator {
         })
     }
     logout(req, res) {
-        console.log("Logging out with token",req.decoded)
-        con.query("UPDATE users SET token = '' WHERE id = ?", [req.decoded.id], function (err, result) {
-            if (err) {
-                res.status(404).end()
-                throw err
-            }
-            if (process.env.NODE_ENV !== "production") {
-                console.log("Dev cookies")
-                res.clearCookie("accesstoken", { httpOnly: true, path: "/user/" })
-                res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess" })
-            } else {
-                res.clearCookie("accesstoken", { httpOnly: true, path: "/api1/user/", secure: true })
-                res.clearCookie("refreshtoken", { httpOnly: true, path: "/api1/user/refreshAccess", secure: true })
-            }
-            res.send({ ok: true })
-        })
+        if (req.decoded.id === req.body.id) {
+            con.query("UPDATE users SET token = '' WHERE id = ?", [req.decoded.id], function (err, result) {
+                if (err) {
+                    res.status(404).end()
+                    throw err
+                }
+                if (process.env.NODE_ENV !== "production") {
+                    console.log("Dev cookies")
+                    res.clearCookie("accesstoken", { httpOnly: true, path: "/user/" })
+                    res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess" })
+                } else {
+                    res.clearCookie("accesstoken", { httpOnly: true, path: "/api1/user/", secure: true })
+                    res.clearCookie("refreshtoken", { httpOnly: true, path: "/api1/user/refreshAccess", secure: true })
+                }
+                res.send({ ok: true })
+            })
+        } else {
+            res.send({ ok: false, error: errors.general })
+        }
     }
 }
 
