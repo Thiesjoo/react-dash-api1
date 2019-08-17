@@ -54,22 +54,31 @@ app.use(xss());
 
 //ROUTES PREP
 const checkToken = require("./shared/security").checkToken
-const logout = require("./routes/profile/logout")
-const profile = require("./routes/profile/profile")
-const refreshAccess = require("./routes/profile/refreshAccess")
 
-//ROUTES
-const loginRoute = require("./routes/login")
-const signupRoute = require("./routes/signup")
-if (process.env.NODE_ENV !== "production") {
-    const devRoutes = require("./routes/devRoutes")
-    app.use(devRoutes)
-}
+//ROUTES. All auto load from the folders so you don;t have to pay attention when creating a new one
+const fs = require("fs")
+fs.readdirSync("./routes").forEach(function(file) {
+    if (file == "index.js") return;
+    if (file.includes("js")) {
+        var name = file.substr(0, file.indexOf('.'));
+        if (name.includes("dev") && process.env.NODE_ENV !== "production") {
+            app.use(require("./routes/"+name))
+        } else {
+            app.use(require("./routes/"+name))
+        }
+    }
+});
 
-app.use(loginRoute)
-app.use(signupRoute)
-app.post('/user/profile', checkToken, profile);
-app.post('/user/logout', checkToken, logout);
-app.post('/user/refreshAccess', refreshAccess);
+fs.readdirSync("./routes/profile").forEach(function(file) {
+    if (file.includes("js")) {
+        var name = file.substr(0, file.indexOf('.'));
+        console.log(name)
+        if (name.includes("refresh")) {
+            app.post("/user/"+name, require("./routes/profile/"+name))
+        } else {
+        app.post("/user/"+name, checkToken, require("./routes/profile/"+name))
+        }
+    }
+});
 
 app.listen(config.expressPort, () => console.log(`API1 app listening on port ${config.expressPort}!`))
