@@ -24,7 +24,7 @@ function refreshAccess(req, res) {
                         } else {
                             var refreshArray = JSON.parse(result[0].token)
                             var newresult = refreshArray.find( x => x.token === decoded.refreshtoken );
-                            console.log(refreshArray, decoded.refreshtoken, newresult)
+                            // console.log(refreshArray, decoded.refreshtoken, newresult)
                             if (newresult) {
                                 console.log("Cookie verified")
                                 let accesstoken = security.jwt.sign({ email: body.email, id: result[0].id },

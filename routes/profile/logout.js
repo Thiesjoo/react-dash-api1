@@ -1,6 +1,8 @@
 const con = require("../../shared/database").con
+const config = require("../../shared/config")
 
 function logout(req, res) {
+     console.log("Logging out: ", req.decoded)
     if (req.decoded.id === req.body.id) {
         con.query("UPDATE users SET token = '[]' WHERE id = ?", [req.decoded.id], function (err, result) {
             if (err) {

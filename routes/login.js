@@ -23,7 +23,7 @@ routes.post('/user/login', (req, res) => {
                             throw err
                         }
                         if (result2) {
-                            console.log("Login: ", result[0])
+                            // console.log("Login: ", result[0])
                             let accesstoken = security.jwt.sign({ email: body.email, id: result[0].id },
                                 config.secret,
                                 {
@@ -32,7 +32,6 @@ routes.post('/user/login', (req, res) => {
                             );
                             var realtoken = security.randomstring.generate(config.tokenLength)
                             let refreshtoken = security.jwt.sign({ refreshtoken: realtoken }, config.secret, { expiresIn: config.accessExpiry });
-                            console.log(result[0].token)
                             var refreshArray = JSON.parse(result[0].token)
                             refreshArray.push({token: realtoken, platform: req.body.platform, useragent: req.body.useragent, date: new Date().getTime})
                             var query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + body.email + "'"

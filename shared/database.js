@@ -24,6 +24,7 @@ con.connect(function (err) {
 });
 
 function simpleQuery(query) {
+    //FIXME: Make promise and throw error
     con.query(query, function (err, result) {
         if (err) throw err;
     });

@@ -76,7 +76,7 @@ fs.readdirSync("./routes/profile").forEach(function(file) {
         if (name.includes("refresh")) {
             app.post("/user/"+name, require("./routes/profile/"+name))
         } else {
-        app.post("/user/"+name, checkToken, require("./routes/profile/"+name))
+            app.post("/user/"+name, checkToken, require("./routes/profile/"+name))
         }
     }
 });
