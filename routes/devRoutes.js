@@ -1,5 +1,5 @@
 const con = require("../shared/database").con
-const simpleQuery = require("../shared/database").simpleQuery
+const simpleQuery2 = require("../shared/database").simpleQuery2
 const routes = require('express').Router();
 
 console.error("USING DEV ROUTES. IF YOU SEE THIS IN PROD YOUR FUCKED")
@@ -10,7 +10,7 @@ routes.get('/', (req, res) => {
 })
 
 routes.get("/delete", (req, res) => {
-    simpleQuery("TRUNCATE users;")
+    simpleQuery2("TRUNCATE users;")
     res.send("OK")
 })
 

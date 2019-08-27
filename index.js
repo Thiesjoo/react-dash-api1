@@ -1,3 +1,6 @@
+// FIXME: Add email status notifactions for account.
+//Maybe make seperate server for that(Or worker tthreas)
+
 //ONLY LOAD ENV FILE WHEN NOT IN PRODUCTION
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config()
@@ -44,9 +47,10 @@ app.use(helmet());
 // Rate Limiting
 const limit = rateLimit({
     max: 100,// max requests
-    windowMs: 60 * 1000, // 1 Hour of 'ban' / lockout 
+    windowMs: 60 * 1000, //
     message: 'Too many requests' // message to send
 });
+app.use(limit)
 // Body Parser
 app.use(express.json({ limit: '10kb' })); // Body limit is 10
 // Data Sanitization against XSS attacks
@@ -72,9 +76,8 @@ fs.readdirSync("./routes").forEach(function(file) {
 fs.readdirSync("./routes/profile").forEach(function(file) {
     if (file.includes("js")) {
         var name = file.substr(0, file.indexOf('.'));
-        console.log(name)
-        if (name.includes("refresh")) {
-            app.post("/user/"+name, require("./routes/profile/"+name))
+        if (name.toLowerCase().includes("refresh")) {
+            app.post("/user/refresh/"+name, require("./routes/profile/"+name))
         } else {
             app.post("/user/"+name, checkToken, require("./routes/profile/"+name))
         }

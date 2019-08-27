@@ -5,7 +5,7 @@ module.exports = {
     database_name: process.env.DB_NAME,
     saltRounds: 14,
     accessExpiry: 900000,
-    refreshExpiry: 900000000,
+    refreshExpiry: 604800000,
     tokenLength: 20,
     expressPort: 8080
 }
