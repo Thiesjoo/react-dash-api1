@@ -19,7 +19,7 @@ var con = mysql.createConnection({
 con.connect(function (err) {
     if (err) throw err;
     console.log("Connected to db! at ip", ip);
-    var create = "create table if not exists users(id INT AUTO_INCREMENT PRIMARY KEY, email varchar(255), firstname varchar(255),lastname varchar(255),password varchar(255),token LONGTEXT, data LONGTEXT)"
+    var create = "create table if not exists users(id INT AUTO_INCREMENT PRIMARY KEY, email varchar(255), firstname varchar(255),lastname varchar(255),password varchar(255),token LONGTEXT, data LONGTEXT, tasks LONGTEXT)"
     simpleQuery(create)
 });
 
@@ -67,8 +67,8 @@ async function getUser(email) {
         })
 }
 
-async function setUser(email, firstname, lastname, password, token, data) {
-    return database.query("INSERT INTO users (email, firstname, lastname, password, token, data) VALUES (?,?,?,?,?, ?)", [email, firstname, lastname, password, JSON.stringify(token),JSON.stringify(data)])
+async function setUser(email, firstname, lastname, password, token, data, tasks) {
+    return database.query("INSERT INTO users (email, firstname, lastname, password, token, data, tasks) VALUES (?,?,?,?,?,?,?)", [email, firstname, lastname, password, JSON.stringify(token), JSON.stringify(data), JSON.stringify(tasks)])
         .then(result => {
             return result
         })
@@ -76,6 +76,106 @@ async function setUser(email, firstname, lastname, password, token, data) {
             throw error
         })
 }
+
+
+async function addTask(email, task) {
+    var user = await getUser(email)
+    if (user) {
+        var newtasks = JSON.parse(user.tasks)
+        newtasks.push(task)
+        return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks),email] )
+            .then(result => {
+                return newtasks
+            })
+            .catch(error => {
+                throw error
+            })
+
+    } else {
+        throw "No user"
+    }
+}
+
+async function changeTask(email, task, id) {
+    var user = await getUser(email)
+    if (user) {
+        var newtasks = JSON.parse(user.tasks)
+        var index = newtasks.findIndex(x => x.id === id)
+        if (index > -1) {
+            newtasks.splice(index, 1, task)
+            return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks),email] )
+            .then(result => {
+                    return newtasks
+                })
+                .catch(error => {
+                    throw error
+                })
+        } else {
+            throw "No task with id"
+        }
+    } else {
+        throw "No user"
+    }
+}
+
+async function changeTasks(email, tasks) {
+    var user = await getUser(email)
+    if (user) {
+        console.log(user.tasks, tasks)
+        return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(tasks),email] )
+            .then(result => {
+                return tasks
+            })
+            .catch(error => {
+                throw error
+            })
+    } else {
+        throw "No user"
+    }
+}
+
+
+async function deleteTask(email, id) {
+    var user = await getUser(email)
+    if (user) {
+        var newtasks = JSON.parse(user.tasks)
+        newtasks = newtasks.filter(function (value, index) {
+            return value.id !== id
+        });
+        return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks),email] )
+            .then(result => {
+                return newtasks
+            })
+            .catch(error => {
+                throw error
+            })
+
+    } else {
+        throw "No user"
+    }
+}
+
+async function getTask(email, id) {
+    var user = await getUser(email)
+    if (user) {
+        var newtasks = JSON.parse(user.tasks)
+        return newtasks.find(x => x.id === id)
+    } else {
+        throw "No user"
+    }
+}
+
+
+async function getTasks(email) {
+    var user = await getUser(email)
+    if (user) {
+        var newtasks = JSON.parse(user.tasks)
+        return newtasks
+    } else {
+        throw "No user"
+    }
+}
+
 
 
 function simpleQuery2(query, args = null) {
@@ -88,4 +188,4 @@ function simpleQuery2(query, args = null) {
         })
 }
 
-module.exports = { con, simpleQuery, simpleQuery2, getUser,setUser }
+module.exports = { con, simpleQuery, simpleQuery2, changeTasks, getUser, setUser, addTask, deleteTask, changeTask, getTask, getTasks }

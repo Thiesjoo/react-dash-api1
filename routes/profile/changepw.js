@@ -20,15 +20,15 @@ async function changepw(req, res) {
                         } else {
                             res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/api1/user/refresh", secure: true, overwrite: true })
                         }
-                        var query = "UPDATE users SET password = '" + newHash + "', token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + req.decoded.email + "'"
-                        await simpleQuery2(query)
+                        var query = "UPDATE users SET password = ?, token = '? WHERE email = ?"
+                        await simpleQuery2(query, [newHash, JSON.stringify(refreshArray), req.decoded.email])
                         console.log("Updated password for: ", req.decoded.email)
                         res.send({ ok: true })
                     } else {
                         res.send({ ok: false, error: config.errors.wrongPassword })
                     }
                 } else {
-                    res.send({ ok: false, error: config.errors.notFound })
+                    res.send({ ok: false, error: config.errors.accountNotFound })
                 }
             } else {
                 res.send({ ok: false, error: config.errors.regexNotMatch })

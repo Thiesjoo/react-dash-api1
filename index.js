@@ -61,27 +61,38 @@ const checkToken = require("./shared/security").checkToken
 
 //ROUTES. All auto load from the folders so you don;t have to pay attention when creating a new one
 const fs = require("fs")
-fs.readdirSync("./routes").forEach(function(file) {
+fs.readdirSync("./routes").forEach(function (file) {
     if (file == "index.js") return;
     if (file.includes("js")) {
         var name = file.substr(0, file.indexOf('.'));
         if (name.includes("dev") && process.env.NODE_ENV !== "production") {
-            app.use(require("./routes/"+name))
+            app.use(require("./routes/" + name))
         } else {
-            app.use(require("./routes/"+name))
+            app.use(require("./routes/" + name))
         }
     }
 });
 
-fs.readdirSync("./routes/profile").forEach(function(file) {
+fs.readdirSync("./routes/profile").forEach(function (file) {
     if (file.includes("js")) {
         var name = file.substr(0, file.indexOf('.'));
-        if (name.toLowerCase().includes("refresh")) {
-            app.post("/user/refresh/"+name, require("./routes/profile/"+name))
-        } else {
-            app.post("/user/"+name, checkToken, require("./routes/profile/"+name))
-        }
+        app.post("/user/" + name, checkToken, require("./routes/profile/" + name))
+    } else if (!file.includes(".")) {
+        fs.readdirSync("./routes/profile/" + file).forEach(function (file2) {
+            if (file2.includes("js")) {
+                var name2 = file2.substr(0, file2.indexOf('.'));
+                app.post("/user/" + name2, checkToken, require("./routes/profile/" + file + "/" + name2))
+            }
+        })
     }
 });
+
+
+fs.readdirSync("./routes/refresh").forEach(function (file) {
+    if (file.includes("js")) {
+        var name = file.substr(0, file.indexOf('.'));
+        app.post("/user/refresh/" + name, require("./routes/refresh/" + name))
+    }
+})
 
 app.listen(config.expressPort, () => console.log(`API1 app listening on port ${config.expressPort}!`))

@@ -4,6 +4,7 @@ const config = require("../../shared/config")
 function logout(req, res) {
      console.log("Logging out: ", req.decoded)
     if (req.decoded.id === req.body.id) {
+        //FIXME: Expires all tokens
         con.query("UPDATE users SET token = '[]' WHERE id = ?", [req.decoded.id], function (err, result) {
             if (err) {
                 res.status(404).end()

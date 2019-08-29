@@ -1,5 +1,5 @@
 const security = require('../../shared/security')
-const { simpleQuery2 } = require("../../shared/database")
+const { simpleQuery2, getUser } = require("../../shared/database")
 const config = require('../../shared/config')
 
 async function deleteRefresh(req, res) {
