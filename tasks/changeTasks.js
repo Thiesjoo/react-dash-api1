@@ -3,17 +3,17 @@ const config = require('../../../shared/config')
 
 async function changeTasksFunc(req, res) {
     try {
-        if (req.body.tasks && typeof req.body.tasks === "object") {
-            console.log("Changing tasks")
+        if (req.body.tasks && typeof req.body.tasks === "object", req.body.list) {
+            console.log("Changing tasks", req.body)
             var tasks = req.body.tasks
             var valid = true
             tasks.forEach(x => {
-                if (x.id<0 || !x.title || !"message" in x  || !x.priority) {
+                if (x.id < 0 || !x.title || !"message" in x || !x.priority) {
                     valid = false
                 }
             });
             if (valid) {
-                var result = await changeTasks(req.decoded.email, req.body.tasks)
+                var result = await changeTasks(req.decoded.email, req.body.tasks, req.body.list)
                 if (result) {
                     res.send({ ok: true, tasks: result })
                 } else {

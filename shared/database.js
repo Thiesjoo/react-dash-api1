@@ -78,104 +78,313 @@ async function setUser(email, firstname, lastname, password, token, data, tasks)
 }
 
 
-async function addTask(email, task) {
-    var user = await getUser(email)
-    if (user) {
-        var newtasks = JSON.parse(user.tasks)
-        newtasks.push(task)
-        return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks),email] )
-            .then(result => {
-                return newtasks
-            })
-            .catch(error => {
-                throw error
-            })
+// async function addTask(email, task, list) {
+//     var user = await getUser(email)
+//     if (user) {
+//         var newtasks = JSON.parse(user.tasks)
+//         newtasks[list].push(task)
+//         return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks), email])
+//             .then(result => {
+//                 return newtasks
+//             })
+//             .catch(error => {
+//                 throw error
+//             })
 
+//     } else {
+//         throw "No user"
+//     }
+// }
+
+// async function changeTask(email, task, id, list) {
+//     var user = await getUser(email)
+//     if (user) {
+//         var newtasks = JSON.parse(user.tasks)
+//         newtasks = newtasks[list]
+//         var index = newtasks.findIndex(x => x.id === id)
+//         if (index > -1) {
+//             newtasks.splice(index, 1, task)
+//             return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks), email])
+//                 .then(result => {
+//                     return newtasks
+//                 })
+//                 .catch(error => {
+//                     throw error
+//                 })
+//         } else {
+//             throw "No task with id"
+//         }
+//     } else {
+//         throw "No user"
+//     }
+// }
+
+// async function changeTasks(email, tasks, list) {
+//     var user = await getUser(email)
+//     if (user) {
+//         var newtasks = JSON.parse(user.tasks)
+
+//         newtasks[list] = tasks
+//         console.log(user.tasks, newtasks)
+//         return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks), email])
+//             .then(result => {
+//                 return newtasks
+//             })
+//             .catch(error => {
+//                 throw error
+//             })
+//     } else {
+//         throw "No user"
+//     }
+// }
+
+
+// async function deleteTask(email, id) {
+//     var user = await getUser(email)
+//     if (user) {
+//         var newtasks = JSON.parse(user.tasks)
+//         newtasks = newtasks.filter(function (value, index) {
+//             return value.id !== id
+//         });
+//         return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks), email])
+//             .then(result => {
+//                 return newtasks
+//             })
+//             .catch(error => {
+//                 throw error
+//             })
+
+//     } else {
+//         throw "No user"
+//     }
+// }
+
+// async function getTasks(email) {
+//     var user = await getUser(email)
+//     if (user) {
+//         var newtasks = JSON.parse(user.tasks)
+//         return newtasks
+//     } else {
+//         throw "No user"
+//     }
+// }
+
+
+async function getStuff(email, type) {
+    if (config.allowedTypes.includes(type)) {
+        var user = await getUser(email)
+        if (user) {
+            if (user[type]) {
+                return JSON.parse(user[type])
+            } else {
+                throw "Not available"
+            }
+        } else {
+            throw "No user"
+        }
     } else {
-        throw "No user"
+        throw "Not allowed"
     }
 }
 
-async function changeTask(email, task, id) {
-    var user = await getUser(email)
-    if (user) {
-        var newtasks = JSON.parse(user.tasks)
-        var index = newtasks.findIndex(x => x.id === id)
-        if (index > -1) {
-            newtasks.splice(index, 1, task)
-            return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks),email] )
-            .then(result => {
+
+async function addStuff(email, type, toadd, list) {
+    if (config.allowedTypes.includes(type)) {
+        var valid = true
+        console.log(toadd)
+        config.allowedFormats[type].forEach(x => {
+            if (!(x in toadd)) {
+                valid = false
+            }
+        })
+        if (valid) {
+            var user = await getUser(email)
+            if (user) {
+                var newtasks = JSON.parse(user[type])
+                if (newtasks[list]) {
+                    newtasks[list].push(toadd)
+                    return database.query("UPDATE users SET ?? = ? WHERE email = ?", [type, JSON.stringify(newtasks), email])
+                        .then(result => {
+                            return newtasks
+                        })
+                        .catch(error => {
+                            throw error
+                        })
+                } else {
+                    throw "No list"
+                }
+            } else {
+                throw "No user"
+            }
+        } else {
+            throw "Not a valid object"
+        }
+    } else {
+        throw "Not allowed"
+    }
+}
+
+async function changeStuff(email, tochange, type, list, id) {
+    if (config.allowedTypes.includes(type)) {
+        var valid = true
+        config.allowedFormats[type].forEach(x => {
+            if (!(x in tochange)) {
+                valid = false
+            }
+        })
+        if (valid) {
+            var user = await getUser(email)
+            if (user) {
+                var newstuff = JSON.parse(user[type])
+                newstuff = newstuff[list]
+                if (newstuff) {
+                    console.log(newstuff)
+                    var index = newstuff.findIndex(x => x.id === id)
+                    if (index > -1) {
+                        newtasks.splice(index, 1, task)
+                        return database.query("UPDATE users SET ?? = ? WHERE email = ?", [type, JSON.stringify(newtasks), email])
+                            .then(result => {
+                                return newtasks
+                            })
+                            .catch(error => {
+                                throw error
+                            })
+                    } else {
+                        throw "No task with id"
+                    }
+                } else {
+                    throw "List does not exist"
+                }
+            } else {
+                throw "No user"
+            }
+        } else {
+            throw "Not a valid object"
+        }
+    } else {
+        throw "Not allowed"
+    }
+}
+
+
+async function changeStuffs(email, type, tochange, list) {
+    if (config.allowedTypes.includes(type)) {
+        var valid = true
+        tochange.forEach(y => {
+            config.allowedFormats[type].forEach(x => {
+                if (!(x in y)) {
+                    valid = false
+                }
+            })
+        })
+        if (valid) {
+            var user = await getUser(email)
+            if (user) {
+                var newtasks = JSON.parse(user[type])
+                if (newtasks[list]) {
+                    newtasks[list] = tochange
+                    return database.query("UPDATE users SET ?? = ? WHERE email = ?", [type, JSON.stringify(newtasks), email])
+                        .then(result => {
+                            return newtasks
+                        })
+                        .catch(error => {
+                            throw error
+                        })
+                } else {
+                    throw "List does not exist"
+                }
+            } else {
+                throw "No user"
+            }
+        } else {
+            throw "Not a valid object"
+        }
+    } else {
+        throw "Not allowed"
+    }
+}
+
+async function deleteStuff(email, list, type, id) {
+    if (config.allowedTypes.includes(type)) {
+        var user = await getUser(email)
+        if (user) {
+            var newtasks = JSON.parse(user[type])
+            newtasks = newtasks[list]
+            if (newtasks) {
+                newtasks = newtasks.filter(function (value, index) {
+                    return value.id !== id
+                });
+                return database.query("UPDATE users SET ?? = ? WHERE email = ?", [type, JSON.stringify(newtasks), email])
+                    .then(result => {
+                        return newtasks
+                    })
+                    .catch(error => {
+                        throw error
+                    })
+            } else {
+                throw "List does not exist"
+            }
+        } else {
+            throw "No user"
+        }
+    } else {
+        throw "Not allowed"
+    }
+}
+
+
+async function deleteCat(email, list, type) {
+    if (config.allowedTypes.includes(type)) {
+        var user = await getUser(email)
+        if (user) {
+            var newtasks = JSON.parse(user[type])
+
+            if (newtasks[list]) {
+                var index = newstuff.findIndex(x => x.id === id)
+                if (index > -1) {
+                    newtasks.splice(index, 1)
+                    return database.query("UPDATE users SET ?? = ? WHERE email = ?", [type, JSON.stringify(newtasks), email])
+                        .then(result => {
+                            return newtasks
+                        })
+                        .catch(error => {
+                            throw error
+                        })
+                } else {
+                    throw "Cat not found"
+                }
+            } else {
+                throw "List does not exist"
+            }
+        } else {
+            throw "No user"
+        }
+    } else {
+        throw "Not allowed"
+    }
+}
+
+async function addCat(email, type, list) {
+    if (config.allowedTypes.includes(type)) {
+
+        var user = await getUser(email)
+        if (user) {
+            var newtasks = JSON.parse(user[type])
+            newtasks[list] = []
+            return database.query("UPDATE users SET ?? = ? WHERE email = ?", [type, JSON.stringify(newtasks), email])
+                .then(result => {
                     return newtasks
                 })
                 .catch(error => {
                     throw error
                 })
         } else {
-            throw "No task with id"
+            throw "No user"
         }
     } else {
-        throw "No user"
+        throw "Not allowed"
     }
 }
-
-async function changeTasks(email, tasks) {
-    var user = await getUser(email)
-    if (user) {
-        console.log(user.tasks, tasks)
-        return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(tasks),email] )
-            .then(result => {
-                return tasks
-            })
-            .catch(error => {
-                throw error
-            })
-    } else {
-        throw "No user"
-    }
-}
-
-
-async function deleteTask(email, id) {
-    var user = await getUser(email)
-    if (user) {
-        var newtasks = JSON.parse(user.tasks)
-        newtasks = newtasks.filter(function (value, index) {
-            return value.id !== id
-        });
-        return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks),email] )
-            .then(result => {
-                return newtasks
-            })
-            .catch(error => {
-                throw error
-            })
-
-    } else {
-        throw "No user"
-    }
-}
-
-async function getTask(email, id) {
-    var user = await getUser(email)
-    if (user) {
-        var newtasks = JSON.parse(user.tasks)
-        return newtasks.find(x => x.id === id)
-    } else {
-        throw "No user"
-    }
-}
-
-
-async function getTasks(email) {
-    var user = await getUser(email)
-    if (user) {
-        var newtasks = JSON.parse(user.tasks)
-        return newtasks
-    } else {
-        throw "No user"
-    }
-}
-
 
 
 function simpleQuery2(query, args = null) {
@@ -188,4 +397,22 @@ function simpleQuery2(query, args = null) {
         })
 }
 
-module.exports = { con, simpleQuery, simpleQuery2, changeTasks, getUser, setUser, addTask, deleteTask, changeTask, getTask, getTasks }
+module.exports = {
+    con,
+    simpleQuery,
+    simpleQuery2,
+
+    //User
+    getUser,
+    setUser,
+
+    //Generic
+    getStuff,
+    addStuff,
+    changeStuff,
+    changeStuffs,
+    deleteStuff,
+
+    addCat,
+    deleteCat,
+}

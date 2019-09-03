@@ -17,5 +17,7 @@ module.exports = {
     accessExpiry: 900000,
     refreshExpiry: 604800000,
     tokenLength: 20,
-    expressPort: 8080
+    expressPort: 8080,
+    allowedTypes: ["tasks"],
+    allowedFormats: {tasks: ["id", "message", "title", "priority"]}
 }

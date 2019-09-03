@@ -4,11 +4,10 @@ const config = require('../../../shared/config')
 async function addTaskFunc(req, res) {
     try {
         if (req.body.task && typeof req.body.task === "object") {
-            console.log("Adding task")
+            console.log("Adding task", req.body)
             var task = req.body.task
-
-            if (task.id && "message" in task && task.title && task.priority) {
-                var result = await addTask(req.decoded.email, req.body.task)
+            if (task.id && "message" in task && task.title && task.priority && req.body.list) {
+                var result = await addTask(req.decoded.email, task,req.body.list)
                 if (result) {
                     res.send({ ok: true, tasks: result })
                 } else {
