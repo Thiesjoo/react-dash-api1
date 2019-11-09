@@ -9,7 +9,7 @@ if (isdocker) {
     ip = "db"
 }
 
-console.log(ip, "nodejs", config)
+console.log("Debugging info: ",ip, "nodejs", config)
 
 var con = mysql.createConnection({
     host: ip,
