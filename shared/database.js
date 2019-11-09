@@ -9,6 +9,8 @@ if (isdocker) {
     ip = "db"
 }
 
+console.log(ip, "nodejs", config)
+
 var con = mysql.createConnection({
     host: ip,
     user: "nodejs",
@@ -76,99 +78,6 @@ async function setUser(email, firstname, lastname, password, token, data, tasks)
             throw error
         })
 }
-
-
-// async function addTask(email, task, list) {
-//     var user = await getUser(email)
-//     if (user) {
-//         var newtasks = JSON.parse(user.tasks)
-//         newtasks[list].push(task)
-//         return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks), email])
-//             .then(result => {
-//                 return newtasks
-//             })
-//             .catch(error => {
-//                 throw error
-//             })
-
-//     } else {
-//         throw "No user"
-//     }
-// }
-
-// async function changeTask(email, task, id, list) {
-//     var user = await getUser(email)
-//     if (user) {
-//         var newtasks = JSON.parse(user.tasks)
-//         newtasks = newtasks[list]
-//         var index = newtasks.findIndex(x => x.id === id)
-//         if (index > -1) {
-//             newtasks.splice(index, 1, task)
-//             return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks), email])
-//                 .then(result => {
-//                     return newtasks
-//                 })
-//                 .catch(error => {
-//                     throw error
-//                 })
-//         } else {
-//             throw "No task with id"
-//         }
-//     } else {
-//         throw "No user"
-//     }
-// }
-
-// async function changeTasks(email, tasks, list) {
-//     var user = await getUser(email)
-//     if (user) {
-//         var newtasks = JSON.parse(user.tasks)
-
-//         newtasks[list] = tasks
-//         console.log(user.tasks, newtasks)
-//         return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks), email])
-//             .then(result => {
-//                 return newtasks
-//             })
-//             .catch(error => {
-//                 throw error
-//             })
-//     } else {
-//         throw "No user"
-//     }
-// }
-
-
-// async function deleteTask(email, id) {
-//     var user = await getUser(email)
-//     if (user) {
-//         var newtasks = JSON.parse(user.tasks)
-//         newtasks = newtasks.filter(function (value, index) {
-//             return value.id !== id
-//         });
-//         return database.query("UPDATE users SET tasks = ? WHERE email = ?", [JSON.stringify(newtasks), email])
-//             .then(result => {
-//                 return newtasks
-//             })
-//             .catch(error => {
-//                 throw error
-//             })
-
-//     } else {
-//         throw "No user"
-//     }
-// }
-
-// async function getTasks(email) {
-//     var user = await getUser(email)
-//     if (user) {
-//         var newtasks = JSON.parse(user.tasks)
-//         return newtasks
-//     } else {
-//         throw "No user"
-//     }
-// }
-
 
 async function getStuff(email, type) {
     if (config.allowedTypes.includes(type)) {
@@ -412,7 +321,6 @@ module.exports = {
     changeStuff,
     changeStuffs,
     deleteStuff,
-
     addCat,
     deleteCat,
 }

@@ -45,6 +45,7 @@ routes.post('/user/login', async (req, res) => {
                                 console.log("This token expired")
                             }
                         })
+                        //FIXME: Should do something
                     } else {
                         res.send({ ok: false, msg: config.errors.wrongPassword })
                     }
