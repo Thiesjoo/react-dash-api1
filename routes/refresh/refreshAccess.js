@@ -1,20 +1,17 @@
 const security = require('../../shared/security')
-const con = require("../../shared/database").con
+const { getUser } = require("../../shared/database")
 const config = require('../../shared/config')
 
-function refreshAccess(req, res) {
-    var body = req.body
-    console.log("Valid cookie in function refresh token: ", req.cookies.refreshtoken ? "yes" : "no")
-    if (body.email && req.cookies.refreshtoken) {
-        //First check if user exists
-        if (security.emailRegex.test(body.email)) {
-            con.query("SELECT * FROM users WHERE email = ?", [body.email], function (err, result) {
-                if (err) {
-                    res.status(404).end()
-                    throw err
-                }
-                if (result[0]) {
-                    console.log("Refreshing access for: ", result[0].id)
+async function refreshAccess(req, res) {
+    try {
+        var body = req.body
+        console.log("Valid cookie in function refresh token: ", req.cookies.refreshtoken ? "yes" : "no")
+        if (body.email && req.cookies.refreshtoken) {
+            //First check if user exists
+            if (security.emailRegex.test(body.email)) {
+                var result = await getUser(body.email)
+                if (result) {
+                    console.log("Refreshing access for: ", result.id)
                     security.jwt.verify(req.cookies.refreshtoken, config.secret, (err, decoded) => {
                         if (err) {
                             return res.json({
@@ -22,12 +19,12 @@ function refreshAccess(req, res) {
                                 message: config.errors.invalidToken
                             });
                         } else {
-                            var refreshArray = JSON.parse(result[0].token)
-                            var newresult = refreshArray.find( x => x.token === decoded.refreshtoken );
-                            console.log(refreshArray, decoded.refreshtoken, newresult)
+                            var refreshArray = JSON.parse(result.token)
+                            var newresult = refreshArray.find(x => x.token === decoded.refreshtoken);
+                            // console.log(refreshArray, decoded.refreshtoken, newresult)
                             if (newresult) {
                                 console.log("Cookie verified")
-                                let accesstoken = security.jwt.sign({ email: body.email, id: result[0].id },
+                                let accesstoken = security.jwt.sign({ email: body.email, id: result.id },
                                     config.secret,
                                     {
                                         expiresIn: config.accessExpiry
@@ -41,14 +38,18 @@ function refreshAccess(req, res) {
                         }
                     });
                 } else {
-                    res.send({ ok: false, msg: config.errors.notFound })
+                    res.send({ ok: false, msg: config.errors.accountNotFound })
                 }
-            })
+
+            } else {
+                res.send({ ok: false, msg: config.errors.regexNotMatch })
+            }
         } else {
-            res.send({ ok: false, msg: config.errors.regexNotMatch })
+            res.send({ ok: false, msg: config.errors.notEnoughInfo })
         }
-    } else {
-        res.send({ ok: false, msg: config.errors.notEnoughInfo })
+    } catch(error){
+        console.log("Refreshaccess: ", error, req.body)
+        res.send({ ok: false, msg: config.errors.general })
     }
 }
 

@@ -1,3 +1,6 @@
+// FIXME: Add email status notifactions for account.
+//Maybe make seperate server for that(Or worker tthreas)
+
 //ONLY LOAD ENV FILE WHEN NOT IN PRODUCTION
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config()
@@ -44,9 +47,10 @@ app.use(helmet());
 // Rate Limiting
 const limit = rateLimit({
     max: 100,// max requests
-    windowMs: 60 * 1000, // 1 Hour of 'ban' / lockout 
+    windowMs: 60 * 1000, //
     message: 'Too many requests' // message to send
 });
+app.use(limit)
 // Body Parser
 app.use(express.json({ limit: '10kb' })); // Body limit is 10
 // Data Sanitization against XSS attacks
@@ -54,22 +58,41 @@ app.use(xss());
 
 //ROUTES PREP
 const checkToken = require("./shared/security").checkToken
-const logout = require("./routes/profile/logout")
-const profile = require("./routes/profile/profile")
-const refreshAccess = require("./routes/profile/refreshAccess")
 
-//ROUTES
-const loginRoute = require("./routes/login")
-const signupRoute = require("./routes/signup")
-if (process.env.NODE_ENV !== "production") {
-    const devRoutes = require("./routes/devRoutes")
-    app.use(devRoutes)
-}
+//ROUTES. All auto load from the folders so you don;t have to pay attention when creating a new one
+const fs = require("fs")
+fs.readdirSync("./routes").forEach(function (file) {
+    if (file == "index.js") return;
+    if (file.includes("js")) {
+        var name = file.substr(0, file.indexOf('.'));
+        if (name.includes("dev") && process.env.NODE_ENV !== "production") {
+            app.use(require("./routes/" + name))
+        } else {
+            app.use(require("./routes/" + name))
+        }
+    }
+});
 
-app.use(loginRoute)
-app.use(signupRoute)
-app.post('/user/profile', checkToken, profile);
-app.post('/user/logout', checkToken, logout);
-app.post('/user/refreshAccess', refreshAccess);
+fs.readdirSync("./routes/profile").forEach(function (file) {
+    if (file.includes("js")) {
+        var name = file.substr(0, file.indexOf('.'));
+        app.post("/user/" + name, checkToken, require("./routes/profile/" + name))
+    } else if (!file.includes(".")) {
+        fs.readdirSync("./routes/profile/" + file).forEach(function (file2) {
+            if (file2.includes("js")) {
+                var name2 = file2.substr(0, file2.indexOf('.'));
+                app.post("/user/" + name2, checkToken, require("./routes/profile/" + file + "/" + name2))
+            }
+        })
+    }
+});
+
+
+fs.readdirSync("./routes/refresh").forEach(function (file) {
+    if (file.includes("js")) {
+        var name = file.substr(0, file.indexOf('.'));
+        app.post("/user/refresh/" + name, require("./routes/refresh/" + name))
+    }
+})
 
 app.listen(config.expressPort, () => console.log(`API1 app listening on port ${config.expressPort}!`))
