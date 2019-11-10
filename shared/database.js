@@ -25,14 +25,6 @@ con.connect(function (err) {
     simpleQuery(create)
 });
 
-function simpleQuery(query) {
-    //FIXME: Make promise and throw error
-    con.query(query, function (err, result) {
-        if (err) throw err;
-    });
-}
-
-
 class Database {
     constructor(config) {
         this.connection = mysql.createConnection(config);
@@ -296,7 +288,7 @@ async function addCat(email, type, list) {
 }
 
 
-function simpleQuery2(query, args = null) {
+function simpleQuery(query, args = null) {
     return database.query(query, args)
         .then(result => {
             return result
@@ -309,7 +301,6 @@ function simpleQuery2(query, args = null) {
 module.exports = {
     con,
     simpleQuery,
-    simpleQuery2,
 
     //User
     getUser,

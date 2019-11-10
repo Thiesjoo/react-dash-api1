@@ -16,7 +16,7 @@ routes.post('/user/signup', async (req, res) => {
                     var hash = await security.bcrypt.hash(body.password, security.saltRounds)
                     var realtoken = security.randomstring.generate(config.tokenLength)
                     let refreshtoken = security.jwt.sign({ refreshtoken: realtoken }, config.secret, { expiresIn: config.accessExpiry });
-                    var refreshArray = [{ token: realtoken, platform: req.body.platform, useragent: req.body.useragent,expiry: new Date(Date.now() + config.refreshExpiry) }]
+                    var refreshArray = [{ token: realtoken, platform: req.body.platform, useragent: req.body.useragent, expiry: new Date(Date.now() + config.refreshExpiry) }]
                     var newUser = await setUser(body.email, body.firstname, body.lastname, hash, refreshArray, { emailVerified: false }, {test: [{id: 0, priority: 3, title: "This is your first todo", message: "You should delete this todo"}]})
                     let accesstoken = security.jwt.sign({ email: body.email, id: newUser.insertId },
                         config.secret,

@@ -1,4 +1,4 @@
-const { simpleQuery2, getUser } = require("../../shared/database")
+const { simpleQuery, getUser } = require("../../shared/database")
 const config = require("../../shared/config")
 const security = require("../../shared/security")
 
@@ -21,7 +21,7 @@ async function changepw(req, res) {
                             res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/api1/user/refresh", secure: true, overwrite: true })
                         }
                         var query = "UPDATE users SET password = ?, token = '? WHERE email = ?"
-                        await simpleQuery2(query, [newHash, JSON.stringify(refreshArray), req.decoded.email])
+                        await simpleQuery(query, [newHash, JSON.stringify(refreshArray), req.decoded.email])
                         console.log("Updated password for: ", req.decoded.email)
                         res.send({ ok: true })
                     } else {

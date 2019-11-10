@@ -1,9 +1,10 @@
 const routes = require('express').Router();
 const config = require('../shared/config')
-const { simpleQuery2, getUser } = require("../shared/database")
+const { simpleQuery, getUser } = require("../shared/database")
 const { bcrypt, jwt, randomstring, emailRegex, passwordRegex } = require('../shared/security')
 
 routes.post('/user/login', async (req, res) => {
+    console.log("Trying to login", req.body)
     try {
         var body = req.body
         if (body.email && body.password) {
@@ -26,7 +27,7 @@ routes.post('/user/login', async (req, res) => {
                         var refreshArray = JSON.parse(user.token)
                         refreshArray.push({ token: realtoken, platform: req.body.platform, useragent: req.body.useragent, expiry: new Date(Date.now() + config.refreshExpiry) })
                         var query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + body.email + "'"
-                        await simpleQuery2(query)
+                        await simpleQuery(query)
                         if (process.env.NODE_ENV !== "production") {
                             //Differnet cookies for dev, cuz api url is different(And not secure)
                             console.log("Dev cookies")

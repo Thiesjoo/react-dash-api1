@@ -16,6 +16,10 @@ let checkToken = (req, res, next) => {
     var cookies = req.cookies
     // console.log("valid cookie in function check token: ", cookies.accesstoken ? "yes" : "no")
     var token = cookies.accesstoken
+    if (!token) {
+        token = req.body.token
+    }
+    
     if (token) {
         jwt.verify(token, config.secret, (err, decoded) => {
             if (err) {

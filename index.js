@@ -1,15 +1,13 @@
 // FIXME: Add email status notifactions for account.
 //Maybe make seperate server for that(Or worker tthreas)
 
-//ONLY LOAD ENV FILE WHEN NOT IN PRODUCTION
-if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config()
-}
 const config = require('./shared/config.js');
 //EXPRESS SETUP
 const express = require('express')
 const app = express()
 app.use(express.json());
+app.use("/assets",express.static("assets"))
+
 
 //-CHANGING HEADERS AND FUN STUFF
 var fun = ["Nice try FBI", "Not today, CIA", "Dirty tricks, MI6", "Not deceptive enough for me, KGB", "Cease to liten what I say, NSA", "Good attempt at obscurity, Department of Homeland Security"]
@@ -48,9 +46,9 @@ app.use(helmet());
 const limit = rateLimit({
     max: 100,// max requests
     windowMs: 60 * 1000, //
-    message: 'Too many requests' // message to send
+    message: {ok:false, msg: 'Too many requests'} // message to send
 });
-app.use(limit)
+app.use("/user/",limit)
 // Body Parser
 app.use(express.json({ limit: '10kb' })); // Body limit is 10
 // Data Sanitization against XSS attacks
@@ -65,11 +63,9 @@ fs.readdirSync("./routes").forEach(function (file) {
     if (file == "index.js") return;
     if (file.includes("js")) {
         var name = file.substr(0, file.indexOf('.'));
-        if (name.includes("dev") && process.env.NODE_ENV !== "production") {
-            app.use(require("./routes/" + name))
-        } else {
-            app.use(require("./routes/" + name))
-        }
+
+        app.use(require("./routes/" + name))
+        
     }
 });
 

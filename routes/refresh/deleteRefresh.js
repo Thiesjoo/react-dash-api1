@@ -1,5 +1,5 @@
 const security = require('../../shared/security')
-const { simpleQuery2, getUser } = require("../../shared/database")
+const { simpleQuery, getUser } = require("../../shared/database")
 const config = require('../../shared/config')
 
 async function deleteRefresh(req, res) {
@@ -16,7 +16,7 @@ async function deleteRefresh(req, res) {
                         return !req.body.todelete.includes(index)
                     });
                     console.log(tokens.length, filtered.length)
-                    await simpleQuery2("UPDATE users SET token = '" + JSON.stringify(filtered) + "' WHERE email = ?", [accesstoken.email])
+                    await simpleQuery("UPDATE users SET token = '" + JSON.stringify(filtered) + "' WHERE email = ?", [accesstoken.email])
                     res.send({ ok: true, tokens: filtered })
                 }
             } else {

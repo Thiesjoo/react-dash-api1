@@ -4,7 +4,7 @@
   "description": "This is the first api which supplies the tesing ground",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "./start.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,7 +14,7 @@
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
     "express-rate-limit": "^5.0.0",
-    "helmet": "^3.20.0",
+    "helmet": "^3.21.2",
     "is-docker": "^2.0.0",
     "jsonwebtoken": "^8.5.1",
     "mysql": "^2.17.1",
@@ -22,6 +22,7 @@
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {
-    "dotenv": "^8.0.0"
+    "canvas": "^2.6.0",
+    "trianglify": "^2.0.0-alpha.2"
   }
 }

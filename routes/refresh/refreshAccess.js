@@ -12,31 +12,30 @@ async function refreshAccess(req, res) {
                 var result = await getUser(body.email)
                 if (result) {
                     console.log("Refreshing access for: ", result.id)
-                    security.jwt.verify(req.cookies.refreshtoken, config.secret, (err, decoded) => {
-                        if (err) {
-                            return res.json({
-                                ok: false,
-                                message: config.errors.invalidToken
-                            });
+                    decoded = security.jwt.verify(req.cookies.refreshtoken, config.secret)
+                    if (decoded) {
+                        var refreshArray = JSON.parse(result.token)
+                        var newresult = refreshArray.find(x => x.token === decoded.refreshtoken);
+                        // console.log(refreshArray, decoded.refreshtoken, newresult)
+                        if (newresult) {
+                            console.log("Cookie verified")
+                            let accesstoken = security.jwt.sign({ email: body.email, id: result.id },
+                                config.secret,
+                                {
+                                    expiresIn: config.accessExpiry
+                                }
+                            );
+                            res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
+                            res.send({ ok: true })
                         } else {
-                            var refreshArray = JSON.parse(result.token)
-                            var newresult = refreshArray.find(x => x.token === decoded.refreshtoken);
-                            // console.log(refreshArray, decoded.refreshtoken, newresult)
-                            if (newresult) {
-                                console.log("Cookie verified")
-                                let accesstoken = security.jwt.sign({ email: body.email, id: result.id },
-                                    config.secret,
-                                    {
-                                        expiresIn: config.accessExpiry
-                                    }
-                                );
-                                res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
-                                res.send({ ok: true })
-                            } else {
-                                res.send({ ok: false, msg: config.errors.noRefresh })
-                            }
+                            res.send({ ok: false, msg: config.errors.noRefresh })
                         }
-                    });
+                    } else {
+                        return res.json({
+                            ok: false,
+                            message: config.errors.invalidToken
+                        });
+                    }
                 } else {
                     res.send({ ok: false, msg: config.errors.accountNotFound })
                 }
@@ -47,7 +46,7 @@ async function refreshAccess(req, res) {
         } else {
             res.send({ ok: false, msg: config.errors.notEnoughInfo })
         }
-    } catch(error){
+    } catch (error) {
         console.log("Refreshaccess: ", error, req.body)
         res.send({ ok: false, msg: config.errors.general })
     }
