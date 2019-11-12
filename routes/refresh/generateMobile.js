@@ -4,21 +4,35 @@ const config = require('../../shared/config')
 
 async function generateMobile(req, res) {
     try {
-        if (req.cookies.accesstoken && req.cookies.refreshtoken ) {
-            console.log("cookies exist")
+        if (req.cookies.accesstoken && req.cookies.refreshtoken) {
+            console.log("Gcookies exist")
             var refreshtoken = jwt.verify(req.cookies.refreshtoken, config.secret)
             var accesstoken = jwt.verify(req.cookies.accesstoken, config.secret)
             if (refreshtoken && accesstoken) {
                 var user = await getUser(accesstoken.email)
                 if (user) {
-                    console.log("Getting refresh tokens for: ",user)
-                    var realtoken = randomstring.generate(config.tokenLength)
-                    let refreshtoken = jwt.sign({ refreshtoken: realtoken, mobile: true }, config.secret, { expiresIn: config.accessExpiry });
-                    var refreshArray = JSON.parse(user.token)
-                    refreshArray.push({ token: realtoken, platform: "mobile", expiry: new Date(Date.now() + config.refreshExpiry*2) })
-                    var query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + accesstoken.email + "'"
-                    await simpleQuery(query)
-                    res.send({ ok: true, token: refreshtoken })
+                    var userTokens = JSON.parse(user.token)
+                    console.log("Getting refresh tokens for: ", accesstoken)
+                    var valid = true
+                    userTokens.forEach(element => {
+                        if (element.platform == "mobile") {
+                            if (new Date() - new Date(element.expiry) < 3600000) {
+                                console.log("Being rate limited by: ", element)
+                                valid = false
+                            }
+                        }
+                    });
+                    if (valid) {
+                        var realtoken = randomstring.generate(5)
+                        // let newRefreshtoken = jwt.sign({ a: realtoken, mobile: true, email: accesstoken.email }, config.secret, { expiresIn: config.accessExpiry });
+                        var refreshArray = JSON.parse(user.token)
+                        refreshArray.push({ token: realtoken, platform: "mobile", expiry: new Date(Date.now() + config.refreshExpiry * 2) })
+                        var query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + accesstoken.email + "'"
+                        await simpleQuery(query)
+                        res.send({ ok: true })
+                    } else {
+                        res.status(400).send({ ok: false, msg: config.errors.rateLimit })
+                    }
                 }
             } else {
                 res.status(401).send({ ok: false, error: config.errors.invalidToken })
@@ -31,7 +45,7 @@ async function generateMobile(req, res) {
         }
     } catch (error) {
         console.log("GetRefresh: ", error)
-        res.send({ ok: false, msg: config.errors.general })
+        res.status(400).send({ ok: false, msg: config.errors.general })
     }
 }
 

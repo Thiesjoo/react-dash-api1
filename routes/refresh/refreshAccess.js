@@ -28,7 +28,7 @@ async function refreshAccess(req, res) {
                             res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
                             res.send({ ok: true })
                         } else {
-                            res.send({ ok: false, msg: config.errors.noRefresh })
+                            res.status(400).send({ ok: false, msg: config.errors.noRefresh })
                         }
                     } else {
                         return res.json({
@@ -37,18 +37,18 @@ async function refreshAccess(req, res) {
                         });
                     }
                 } else {
-                    res.send({ ok: false, msg: config.errors.accountNotFound })
+                    res.status(400).send({ ok: false, msg: config.errors.accountNotFound })
                 }
 
             } else {
-                res.send({ ok: false, msg: config.errors.regexNotMatch })
+                res.status(400).send({ ok: false, msg: config.errors.regexNotMatch })
             }
         } else {
-            res.send({ ok: false, msg: config.errors.notEnoughInfo })
+            res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (error) {
         console.log("Refreshaccess: ", error, req.body)
-        res.send({ ok: false, msg: config.errors.general })
+        res.status(400).send({ ok: false, msg: config.errors.general })
     }
 }
 

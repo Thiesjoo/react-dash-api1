@@ -295,6 +295,7 @@ function simpleQuery(query, args = null) {
         })
         .catch(error => {
             throw error
+            process.exit()
         })
 }
 

@@ -25,20 +25,20 @@ async function changepw(req, res) {
                         console.log("Updated password for: ", req.decoded.email)
                         res.send({ ok: true })
                     } else {
-                        res.send({ ok: false, error: config.errors.wrongPassword })
+                        res.status(400).send({ ok: false, error: config.errors.wrongPassword })
                     }
                 } else {
-                    res.send({ ok: false, error: config.errors.accountNotFound })
+                    res.status(400).send({ ok: false, error: config.errors.accountNotFound })
                 }
             } else {
-                res.send({ ok: false, error: config.errors.regexNotMatch })
+                res.status(400).send({ ok: false, error: config.errors.regexNotMatch })
             }
         } else {
-            res.send({ ok: false, error: config.errors.notEnoughInfo })
+            res.status(400).send({ ok: false, error: config.errors.notEnoughInfo })
         }
     } catch (error) {
         console.log("Changepw: ", error, body)
-        res.send({ ok: false, msg: config.errors.general })
+        res.status(400).send({ ok: false, msg: config.errors.general })
     }
 }
 

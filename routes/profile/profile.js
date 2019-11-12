@@ -8,14 +8,14 @@ async function profile(req, res) {
             if (result) {
                 res.send({ ok: true, data: result.data })
             } else {
-                res.send({ ok: false, msg: config.errors.accountNotFound })
+                res.status(400).send({ ok: false, msg: config.errors.accountNotFound })
             }
         } else {
-            res.send({ ok: false, error: config.errors.general })
+            res.status(400).send({ ok: false, error: config.errors.general })
         }
     } catch (error) {
         console.log("Profile: ", error)
-        res.send({ ok: false, msg: config.errors.general })
+        res.status(400).send({ ok: false, msg: config.errors.general })
     }
 }
 

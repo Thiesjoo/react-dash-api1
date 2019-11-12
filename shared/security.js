@@ -18,6 +18,13 @@ let checkToken = (req, res, next) => {
     var token = cookies.accesstoken
     if (!token) {
         token = req.body.token
+        console.log("Trying to grab token from body")
+        if (token && token.length == 5 && req.body.email) {
+            next()
+            return
+        } else {    
+            token = undefined
+        }
     }
     
     if (token) {
@@ -34,7 +41,7 @@ let checkToken = (req, res, next) => {
             }
         });
     } else {
-        return res.json({
+        return res.status(401).json({
             ok: false,
             message: config.errors.notEnoughInfo
         });

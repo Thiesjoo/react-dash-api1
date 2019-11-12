@@ -30,7 +30,7 @@ async function deleteRefresh(req, res) {
         }
     } catch (error) {
         console.log("DeleteRefresh: ", error)
-        res.send({ ok: false, msg: config.errors.general })
+        res.status(400).send({ ok: false, msg: config.errors.general })
     }
 }
 

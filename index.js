@@ -6,14 +6,13 @@ const config = require('./shared/config.js');
 const express = require('express')
 const app = express()
 app.use(express.json());
-app.use("/assets",express.static("assets"))
+app.use("/assets", express.static("assets"))
 
 
 //-CHANGING HEADERS AND FUN STUFF
-var fun = ["Nice try FBI", "Not today, CIA", "Dirty tricks, MI6", "Not deceptive enough for me, KGB", "Cease to liten what I say, NSA", "Good attempt at obscurity, Department of Homeland Security"]
+// var fun = ["Nice try FBI", "Not today, CIA", "Dirty tricks, MI6", "Not deceptive enough for me, KGB", "Cease to liten what I say, NSA", "Good attempt at obscurity, Department of Homeland Security"]
 app.use(function (req, res, next) {
-    //THESE ARE JUST FUNNY HEADERS
-    res.setHeader('X-Powered-By', 'Commodore 64')
+    //These are headers so someone can identify which server is running
     res.setHeader('If-You-Read-This', "you're 'smart'")
     res.setHeader("Server", "Commodore 64")
 
@@ -44,11 +43,11 @@ const xss = require('xss-clean');
 app.use(helmet());
 // Rate Limiting
 const limit = rateLimit({
-    max: 100,// max requests
+    max: 100,// max re  quests
     windowMs: 60 * 1000, //
-    message: {ok:false, msg: 'Too many requests'} // message to send
+    message: { ok: false, msg: config.errors.rateLimit } // message to send
 });
-app.use("/user/",limit)
+app.use("/user/", limit)
 // Body Parser
 app.use(express.json({ limit: '10kb' })); // Body limit is 10
 // Data Sanitization against XSS attacks
@@ -65,7 +64,7 @@ fs.readdirSync("./routes").forEach(function (file) {
         var name = file.substr(0, file.indexOf('.'));
 
         app.use(require("./routes/" + name))
-        
+
     }
 });
 

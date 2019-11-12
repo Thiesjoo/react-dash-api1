@@ -4,7 +4,7 @@ const { simpleQuery, getUser } = require("../shared/database")
 const { bcrypt, jwt, randomstring, emailRegex, passwordRegex } = require('../shared/security')
 
 routes.post('/user/login', async (req, res) => {
-    console.log("Trying to login", req.body)
+    // console.log("Trying to login", req.body)
     try {
         var body = req.body
         if (body.email && body.password) {
@@ -48,22 +48,22 @@ routes.post('/user/login', async (req, res) => {
                         })
                         //FIXME: Should do something
                     } else {
-                        res.send({ ok: false, msg: config.errors.wrongPassword })
+                        res.status(400).send({ ok: false, msg: config.errors.wrongPassword })
                     }
                 } else {
-                    res.send({ ok: false, msg: config.errors.accountNotFound })
+                    res.status(400).send({ ok: false, msg: config.errors.accountNotFound })
 
                 }
             } else {
-                res.send({ ok: false, msg: config.errors.regexNotMatch })
+                res.status(400).send({ ok: false, msg: config.errors.regexNotMatch })
             }
         } else {
-            res.send({ ok: false, msg: config.errors.notEnoughInfo })
+            res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
 
     } catch (error) {
         console.log("Login: ", error, body)
-        res.send({ ok: false, msg: config.errors.general })
+        res.status(400).send({ ok: false, msg: config.errors.general })
     }
 })
 

@@ -11,14 +11,14 @@ async function deleteStuffFunc(req, res) {
             if (result) {
                 res.send({ ok: true, tasks: result })
             } else {
-                res.send({ ok: false, msg: config.errors.notFound })
+                res.status(400).send({ ok: false, msg: config.errors.notFound })
             }
         } else {
-            res.send({ ok: false, msg: config.errors.notEnoughInfo })
+            res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (error) {
         console.log("delCat: ", error)
-        res.send({ ok: false, msg: config.errors.general })
+        res.status(400).send({ ok: false, msg: config.errors.general })
     }
 }
 

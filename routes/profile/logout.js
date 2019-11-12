@@ -21,7 +21,7 @@ function logout(req, res) {
             res.send({ ok: true })
         })
     } else {
-        res.send({ ok: false, error: config.errors.general })
+        res.status(400).send({ ok: false, error: config.errors.general })
     }
 }
 

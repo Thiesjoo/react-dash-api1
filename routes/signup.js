@@ -10,7 +10,7 @@ routes.post('/user/signup', async (req, res) => {
             if (security.emailRegex.test(body.email) && security.passwordRegex.test(body.password)) {
                 var user = await getUser(body.email)
                 if (user) {
-                    res.send({ ok: false, msg: config.errors.alreadyExists })
+                    res.status(400).send({ ok: false, msg: config.errors.alreadyExists })
                 } else {
                     //Same as login but also adding the user to database
                     var hash = await security.bcrypt.hash(body.password, security.saltRounds)
@@ -35,14 +35,14 @@ routes.post('/user/signup', async (req, res) => {
                     res.send({ ok: true, id: newUser.insertId, firstname: body.firstname, lastname: body.lastname, data: { emailVerified: false } })
                 }
             } else {
-                res.send({ ok: false, msg: config.errors.regexNotMatch })
+                res.status(400).send({ ok: false, msg: config.errors.regexNotMatch })
             }
         } else {
-            res.send({ ok: false, msg: config.errors.notEnoughInfo })
+            res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (err) {
         console.log("Signup: ", err, body)
-        res.send({ ok: false, msg: config.errors.general })
+        res.status(400).send({ ok: false, msg: config.errors.general })
     }
 })
 

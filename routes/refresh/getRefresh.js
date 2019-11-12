@@ -11,10 +11,17 @@ async function getRefresh(req, res) {
             if (refreshtoken && accesstoken) {
                 var user = await getUser(accesstoken.email)
                 if (user) {
-                    console.log("Getting refresh tokens for: ",user)
+                    // console.log("Getting refresh tokens for: ", user)
                     var tokens = JSON.parse(user.token)
                     tokens.forEach(x => {
-                        delete x.token
+                        if (x.platform) {
+                            if (x.platform == "mobile") {
+                            } else {
+                                delete x.token
+                            }
+                        } else {
+                            delete x.token
+                        }
                     })
                     res.send({ ok: true, tokens: tokens })
                 }
@@ -29,7 +36,7 @@ async function getRefresh(req, res) {
         }
     } catch (error) {
         console.log("GetRefresh: ", error)
-        res.send({ ok: false, msg: config.errors.general })
+        res.status(400).send({ ok: false, msg: config.errors.general })
     }
 }
 

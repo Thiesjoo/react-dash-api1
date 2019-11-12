@@ -8,7 +8,8 @@ module.exports = {
         noRefresh: "Refresh token doesn't exist",
         general: "Something went wrong",
         alreadyExists: "Account already exists",
-        regexNotMatch: "The regex is not valid"
+        regexNotMatch: "The regex is not valid",
+        rateLimit: "You're doing that too fast"
     },
     secret: process.env.JWT_SECRET,
     mysqlPassword: process.env.DB_PASS,
@@ -18,6 +19,6 @@ module.exports = {
     refreshExpiry: 604800000,
     tokenLength: 20,
     expressPort: 8080,
-    allowedTypes: ["tasks"],
-    allowedFormats: {tasks: ["id", "message", "title", "priority"]}
+    allowedTypes: ["tasks", "notifications"],
+    allowedFormats: {tasks: ["id", "message", "title", "priority"], notfications: ["title", "message", "app", "time", "persistent", "icon", "key"]}
 }
