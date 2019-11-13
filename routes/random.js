@@ -5,14 +5,14 @@ const path = require('path');
 const fs = require('fs');
 const directoryPath = path.join(__dirname, '../assets');
 
-var allFiles = checkFiles()
+let allFiles = checkFiles()
 
 routes.get('/randomBG', async (req, res) => {
     res.send({ok:true,amount:allFiles.length})
 })
 
 function checkFiles() {
-    var array = []
+    let array = []
     fs.readdir(directoryPath, function (err, files) {
         if (err) {
             return console.log('Unable to scan directory: ' + err);

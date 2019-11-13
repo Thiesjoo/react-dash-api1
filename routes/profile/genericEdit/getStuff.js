@@ -4,7 +4,7 @@ const config = require('../../../shared/config')
 async function getStuffFunc(req, res) {
     try {
         if (req.body.type) {
-            var result = await getStuff(req.decoded.email, req.body.type)
+            let result = await getStuff(req.decoded.email, req.body.type)
             if (result) {
                 res.send({ ok: true, result: result })
             } else {

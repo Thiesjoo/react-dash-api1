@@ -5,23 +5,23 @@ const security = require("../../shared/security")
 async function changepw(req, res) {
     //TODO: Move to refresh, cus unsafe here
     try {
-        var body = req.body
+        let body = req.body
         if (body.current && body.new) {
             if (security.passwordRegex.test(body.current) && security.passwordRegex.test(body.new)) {
-                var user = await getUser(req.decoded.email)
+                let user = await getUser(req.decoded.email)
                 if (user) {
-                    var result2 = await security.bcrypt.compare(body.current, user.password)
+                    let result2 = await security.bcrypt.compare(body.current, user.password)
                     if (result2) {
-                        var newHash = await security.bcrypt.hash(body.new, security.saltRounds)
-                        var realtoken = security.randomstring.generate(config.tokenLength)
+                        let newHash = await security.bcrypt.hash(body.new, security.saltRounds)
+                        let realtoken = security.randomstring.generate(config.tokenLength)
                         let refreshtoken = security.jwt.sign({ token: realtoken }, config.secret, { expiresIn: config.accessExpiry });
-                        var refreshArray = [refreshtoken]
+                        let refreshArray = [refreshtoken]
                         if (process.env.NODE_ENV !== "production") {
                             res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refresh", overwrite: true })
                         } else {
                             res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/api1/user/refresh", secure: true, overwrite: true })
                         }
-                        var query = "UPDATE users SET password = ?, token = '? WHERE email = ?"
+                        let query = "UPDATE users SET password = ?, token = '? WHERE email = ?"
                         await simpleQuery(query, [newHash, JSON.stringify(refreshArray), req.decoded.email])
                         console.log("Updated password for: ", req.decoded.email)
                         res.send({ ok: true })

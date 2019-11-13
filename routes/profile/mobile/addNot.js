@@ -4,7 +4,7 @@ const { getUser } = require("../../../shared/database")
 
 async function addNot(req, res) {
     try {
-        var valid = true
+        let valid = true
         config.allowedFormats["notification"].forEach(x => {
             if (!(x in req.body)) {
                 valid = false
@@ -16,11 +16,11 @@ async function addNot(req, res) {
         if (valid) {
 
             console.log("adding notfication with : ", req.body.email, req.body.token)
-            var user = await getUser(req.body.email)
+            let user = await getUser(req.body.email)
             if (user) {
-                var tokens = JSON.parse(user.token)
+                let tokens = JSON.parse(user.token)
                 valid = false
-                for (var element of tokens) {
+                for (let element of tokens) {
                     if (element.platform == "mobile") {
                         if (req.body.token == element.token) {
                             valid = true

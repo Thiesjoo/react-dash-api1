@@ -10,7 +10,7 @@ app.use("/assets", express.static("assets"))
 
 
 //-CHANGING HEADERS AND FUN STUFF
-// var fun = ["Nice try FBI", "Not today, CIA", "Dirty tricks, MI6", "Not deceptive enough for me, KGB", "Cease to liten what I say, NSA", "Good attempt at obscurity, Department of Homeland Security"]
+// let fun = ["Nice try FBI", "Not today, CIA", "Dirty tricks, MI6", "Not deceptive enough for me, KGB", "Cease to liten what I say, NSA", "Good attempt at obscurity, Department of Homeland Security"]
 app.use(function (req, res, next) {
     //These are headers so someone can identify which server is running
     res.setHeader('If-You-Read-This', "you're 'smart'")
@@ -32,7 +32,7 @@ app.use(function (req, res, next) {
 
 
 //Cookie setup
-var cookieParser = require('cookie-parser')
+let cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
 //-EXPRESS PROTECTION
@@ -62,7 +62,7 @@ const fs = require("fs")
 fs.readdirSync("./routes").forEach(function (file) {
     if (file == "index.js") return;
     if (file.includes("js")) {
-        var name = file.substr(0, file.indexOf('.'));
+        let name = file.substr(0, file.indexOf('.'));
         app.use(require("./routes/" + name))
     }
 });
@@ -71,12 +71,12 @@ fs.readdirSync("./routes").forEach(function (file) {
 //All files in ./profile get a POST request with fle name and token check, also recursivly checks the subfolders 
 fs.readdirSync("./routes/profile").forEach(function (file) {
     if (file.includes("js")) {
-        var name = file.substr(0, file.indexOf('.'));
+        let name = file.substr(0, file.indexOf('.'));
         app.post("/user/" + name, checkToken, require("./routes/profile/" + name))
     } else if (!file.includes(".")) {
         fs.readdirSync("./routes/profile/" + file).forEach(function (file2) {
             if (file2.includes("js")) {
-                var name2 = file2.substr(0, file2.indexOf('.'));
+                let name2 = file2.substr(0, file2.indexOf('.'));
                 app.post("/user/" + name2, checkToken, require("./routes/profile/" + file + "/" + name2))
             }
         })
@@ -86,7 +86,7 @@ fs.readdirSync("./routes/profile").forEach(function (file) {
 //All routes in refresh get assigned to /user/refresh, without tokencheck
 fs.readdirSync("./routes/refresh").forEach(function (file) {
     if (file.includes("js")) {
-        var name = file.substr(0, file.indexOf('.'));
+        let name = file.substr(0, file.indexOf('.'));
         app.post("/user/refresh/" + name, require("./routes/refresh/" + name))
     }
 })

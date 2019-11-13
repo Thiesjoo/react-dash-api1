@@ -11,7 +11,7 @@ async function changeStuffFunc(req, res) {
             && typeof req.body.list === "string"
             && req.body.id
             && typeof req.body.id === "number") {
-            var result = await changeStuff(req.decoded.email, req.body.tochange,req.body.type, req.body.list, req.body.id)
+            let result = await changeStuff(req.decoded.email, req.body.tochange,req.body.type, req.body.list, req.body.id)
             if (result) {
                 res.send({ ok: true, tasks: result })
             } else {

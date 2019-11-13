@@ -4,7 +4,7 @@ const config = require('../../shared/config')
 async function profile(req, res) {
     try {
         if (req.body.email === req.decoded.email) {
-            var result = await getUser(req.decoded.email)
+            let result = await getUser(req.decoded.email)
             if (result) {
                 res.send({ ok: true, data: result.data })
             } else {

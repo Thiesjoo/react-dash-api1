@@ -5,14 +5,14 @@ const config = require("../../shared/config")
 async function logout(req, res) {
     try {
         if (req.cookies.accesstoken && req.cookies.refreshtoken) {
-            var refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
-            var accesstoken = security.jwt.verify(req.cookies.accesstoken, config.secret)
+            let refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
+            let accesstoken = security.jwt.verify(req.cookies.accesstoken, config.secret)
             console.log("Logging out: ", req.body)
             if (accesstoken.id === req.body.id) {
-                var user = await getUser(accesstoken.email)
+                let user = await getUser(accesstoken.email)
                 if (user) {
-                    var userTokens = JSON.parse(user.token)
-                    var valid = userTokens.find(obj => {
+                    let userTokens = JSON.parse(user.token)
+                    let valid = userTokens.find(obj => {
                         return obj.token === refreshtoken.token
                     })
                     if (valid !== undefined) {
@@ -20,7 +20,7 @@ async function logout(req, res) {
                         // console.log(userTokens.length)
                         userTokens = userTokens.filter(object => object.token != refreshtoken.token)
                         // console.log(userTokens.length)
-                        var query = "UPDATE users SET token = '" + JSON.stringify(userTokens) + "' WHERE email = '" + accesstoken.email + "'"
+                        let query = "UPDATE users SET token = '" + JSON.stringify(userTokens) + "' WHERE email = '" + accesstoken.email + "'"
                         await simpleQuery(query)
                         if (process.env.NODE_ENV !== "production") {
                             console.log("Dev cookies")

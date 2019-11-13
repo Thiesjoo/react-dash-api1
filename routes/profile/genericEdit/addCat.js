@@ -7,7 +7,7 @@ async function addCatFunc(req, res) {
             && typeof req.body.list === "string"
             && req.body.type
             && typeof req.body.type === "string") {
-            var result = await addCat(req.decoded.email,req.body.type,req.body.list)
+            let result = await addCat(req.decoded.email,req.body.type,req.body.list)
             if (result) {
                 res.send({ ok: true, result: result })
             } else {

@@ -6,15 +6,15 @@ async function generateMobile(req, res) {
     try {
         if (req.cookies.accesstoken && req.cookies.refreshtoken) {
             console.log("Gcookies exist")
-            var refreshtoken = jwt.verify(req.cookies.refreshtoken, config.secret)
-            var accesstoken = jwt.verify(req.cookies.accesstoken, config.secret)
+            let refreshtoken = jwt.verify(req.cookies.refreshtoken, config.secret)
+            let accesstoken = jwt.verify(req.cookies.accesstoken, config.secret)
             if (refreshtoken && accesstoken) {
-                var user = await getUser(accesstoken.email)
+                let user = await getUser(accesstoken.email)
                 if (user) {
-                    var userTokens = JSON.parse(user.token)
+                    let userTokens = JSON.parse(user.token)
                     console.log("Getting refresh tokens for: ", accesstoken)
-                    var valid = true
-                    var valid2 = false
+                    let valid = true
+                    let valid2 = false
                     userTokens.forEach(element => {
                         if (element.platform == "mobile") {
                             if (new Date() - new Date(element.expiry) < 3600000) {
@@ -28,11 +28,11 @@ async function generateMobile(req, res) {
                     });
                     if (valid2) {
                         if (valid) {
-                            var realtoken = randomstring.generate(5)
+                            let realtoken = randomstring.generate(5)
                             // let newRefreshtoken = jwt.sign({ a: realtoken, mobile: true, email: accesstoken.email }, config.secret, { expiresIn: config.accessExpiry });
-                            var refreshArray = JSON.parse(user.token)
+                            let refreshArray = JSON.parse(user.token)
                             refreshArray.push({ token: realtoken, platform: "mobile", expiry: new Date(Date.now() + config.refreshExpiry * 2) })
-                            var query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + accesstoken.email + "'"
+                            let query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + accesstoken.email + "'"
                             await simpleQuery(query)
                             res.send({ ok: true })
                         } else {

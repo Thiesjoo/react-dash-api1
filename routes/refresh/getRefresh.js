@@ -6,16 +6,16 @@ async function getRefresh(req, res) {
     try {
         if (req.cookies.accesstoken && req.cookies.refreshtoken) {
             console.log("cookies exist")
-            var refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
-            var accesstoken = security.jwt.verify(req.cookies.accesstoken, config.secret)
+            let refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
+            let accesstoken = security.jwt.verify(req.cookies.accesstoken, config.secret)
             if (refreshtoken && accesstoken) {
-                var user = await getUser(accesstoken.email)
+                let user = await getUser(accesstoken.email)
                 if (user) {
                     // console.log("Getting refresh tokens for: ", user)
-                    var tokens = JSON.parse(user.token)
-                    var valid2 = false
-                    for (var i = tokens.length - 1; i > -1; i--) {
-                        var x = tokens[i]
+                    let tokens = JSON.parse(user.token)
+                    let valid2 = false
+                    for (let i = tokens.length - 1; i > -1; i--) {
+                        let x = tokens[i]
                         // console.log(x.token, refreshtoken.token)
                         if (x.token == refreshtoken.token) {
                             // console.log("This is your own token, so you cant delete it, Also not showing")

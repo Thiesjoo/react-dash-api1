@@ -7,7 +7,7 @@ async function deleteStuffFunc(req, res) {
             && typeof req.body.type === "string"
             && req.body.list
             && typeof req.body.list === "string") {
-            var result = await deleteCat(req.decoded.email, req.body.list, req.body.type)
+            let result = await deleteCat(req.decoded.email, req.body.list, req.body.type)
             if (result) {
                 res.send({ ok: true, tasks: result })
             } else {

@@ -2,8 +2,8 @@ const isDocker = require('is-docker');
 const mysql = require('mysql');
 const config = require('./config.js');
 
-var ip = "localhost"
-var isdocker = isDocker()
+let ip = "localhost"
+let isdocker = isDocker()
 if (isdocker) {
     console.log("Is in docker")
     ip = "db"
@@ -11,7 +11,7 @@ if (isdocker) {
 
 console.log("Debugging info: ",ip, "nodejs", config)
 
-var con = mysql.createConnection({
+let con = mysql.createConnection({
     host: ip,
     user: "nodejs",
     password: config.mysqlPassword,
@@ -21,7 +21,7 @@ var con = mysql.createConnection({
 con.connect(function (err) {
     if (err) throw err;
     console.log("Connected to db! at ip", ip);
-    var create = "create table if not exists users(id INT AUTO_INCREMENT PRIMARY KEY, email varchar(255), firstname varchar(255),lastname varchar(255),password varchar(255),token LONGTEXT, data LONGTEXT, tasks LONGTEXT)"
+    let create = "create table if not exists users(id INT AUTO_INCREMENT PRIMARY KEY, email varchar(255), firstname varchar(255),lastname varchar(255),password varchar(255),token LONGTEXT, data LONGTEXT, tasks LONGTEXT)"
     simpleQuery(create)
 });
 
@@ -40,7 +40,7 @@ class Database {
     }
 }
 
-var database = new Database({
+let database = new Database({
     host: ip,
     user: "nodejs",
     password: config.mysqlPassword,
@@ -73,7 +73,7 @@ async function setUser(email, firstname, lastname, password, token, data, tasks)
 
 async function getStuff(email, type) {
     if (config.allowedTypes.includes(type)) {
-        var user = await getUser(email)
+        let user = await getUser(email)
         if (user) {
             if (user[type]) {
                 return JSON.parse(user[type])
@@ -91,7 +91,7 @@ async function getStuff(email, type) {
 
 async function addStuff(email, type, toadd, list) {
     if (config.allowedTypes.includes(type)) {
-        var valid = true
+        let valid = true
         console.log(toadd)
         config.allowedFormats[type].forEach(x => {
             if (!(x in toadd)) {
@@ -99,9 +99,9 @@ async function addStuff(email, type, toadd, list) {
             }
         })
         if (valid) {
-            var user = await getUser(email)
+            let user = await getUser(email)
             if (user) {
-                var newtasks = JSON.parse(user[type])
+                let newtasks = JSON.parse(user[type])
                 if (newtasks[list]) {
                     newtasks[list].push(toadd)
                     return database.query("UPDATE users SET ?? = ? WHERE email = ?", [type, JSON.stringify(newtasks), email])
@@ -127,20 +127,20 @@ async function addStuff(email, type, toadd, list) {
 
 async function changeStuff(email, tochange, type, list, id) {
     if (config.allowedTypes.includes(type)) {
-        var valid = true
+        let valid = true
         config.allowedFormats[type].forEach(x => {
             if (!(x in tochange)) {
                 valid = false
             }
         })
         if (valid) {
-            var user = await getUser(email)
+            let user = await getUser(email)
             if (user) {
-                var newstuff = JSON.parse(user[type])
+                let newstuff = JSON.parse(user[type])
                 newstuff = newstuff[list]
                 if (newstuff) {
                     console.log(newstuff)
-                    var index = newstuff.findIndex(x => x.id === id)
+                    let index = newstuff.findIndex(x => x.id === id)
                     if (index > -1) {
                         newtasks.splice(index, 1, task)
                         return database.query("UPDATE users SET ?? = ? WHERE email = ?", [type, JSON.stringify(newtasks), email])
@@ -170,7 +170,7 @@ async function changeStuff(email, tochange, type, list, id) {
 
 async function changeStuffs(email, type, tochange, list) {
     if (config.allowedTypes.includes(type)) {
-        var valid = true
+        let valid = true
         tochange.forEach(y => {
             config.allowedFormats[type].forEach(x => {
                 if (!(x in y)) {
@@ -179,9 +179,9 @@ async function changeStuffs(email, type, tochange, list) {
             })
         })
         if (valid) {
-            var user = await getUser(email)
+            let user = await getUser(email)
             if (user) {
-                var newtasks = JSON.parse(user[type])
+                let newtasks = JSON.parse(user[type])
                 if (newtasks[list]) {
                     newtasks[list] = tochange
                     return database.query("UPDATE users SET ?? = ? WHERE email = ?", [type, JSON.stringify(newtasks), email])
@@ -207,9 +207,9 @@ async function changeStuffs(email, type, tochange, list) {
 
 async function deleteStuff(email, list, type, id) {
     if (config.allowedTypes.includes(type)) {
-        var user = await getUser(email)
+        let user = await getUser(email)
         if (user) {
-            var newtasks = JSON.parse(user[type])
+            let newtasks = JSON.parse(user[type])
             newtasks = newtasks[list]
             if (newtasks) {
                 newtasks = newtasks.filter(function (value, index) {
@@ -236,12 +236,12 @@ async function deleteStuff(email, list, type, id) {
 
 async function deleteCat(email, list, type) {
     if (config.allowedTypes.includes(type)) {
-        var user = await getUser(email)
+        let user = await getUser(email)
         if (user) {
-            var newtasks = JSON.parse(user[type])
+            let newtasks = JSON.parse(user[type])
 
             if (newtasks[list]) {
-                var index = newstuff.findIndex(x => x.id === id)
+                let index = newstuff.findIndex(x => x.id === id)
                 if (index > -1) {
                     newtasks.splice(index, 1)
                     return database.query("UPDATE users SET ?? = ? WHERE email = ?", [type, JSON.stringify(newtasks), email])
@@ -268,9 +268,9 @@ async function deleteCat(email, list, type) {
 async function addCat(email, type, list) {
     if (config.allowedTypes.includes(type)) {
 
-        var user = await getUser(email)
+        let user = await getUser(email)
         if (user) {
-            var newtasks = JSON.parse(user[type])
+            let newtasks = JSON.parse(user[type])
             newtasks[list] = []
             return database.query("UPDATE users SET ?? = ? WHERE email = ?", [type, JSON.stringify(newtasks), email])
                 .then(result => {

@@ -6,15 +6,15 @@ const { bcrypt, jwt, randomstring, emailRegex, passwordRegex } = require('../sha
 routes.post('/user/login', async (req, res) => {
     // console.log("Trying to login", req.body)
     try {
-        var body = req.body
+        let body = req.body
         if (body.email && body.password) {
             //First check if user exists
             if (emailRegex.test(body.email) && passwordRegex.test(body.password)) {
                 // Get the user
-                var user = await getUser(body.email)
+                let user = await getUser(body.email)
                 if (user) {
                     //Compare password and generate token. Then save the token and reutnr the token along with details
-                    var passwordsSame = await bcrypt.compare(body.password, user.password)
+                    let passwordsSame = await bcrypt.compare(body.password, user.password)
                     if (passwordsSame) {
                         let accesstoken = jwt.sign({ email: body.email, id: user.id },
                             config.secret,
@@ -22,11 +22,11 @@ routes.post('/user/login', async (req, res) => {
                                 expiresIn: config.accessExpiry
                             }
                         );
-                        var realtoken = randomstring.generate(config.tokenLength)
+                        let realtoken = randomstring.generate(config.tokenLength)
                         let refreshtoken = jwt.sign({ token: realtoken }, config.secret, { expiresIn: config.accessExpiry });
-                        var refreshArray = JSON.parse(user.token)
+                        let refreshArray = JSON.parse(user.token)
                         refreshArray.push({ token: realtoken, platform: req.body.platform, useragent: req.body.useragent, expiry: new Date(Date.now() + config.refreshExpiry) })
-                        var query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + body.email + "'"
+                        let query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + body.email + "'"
                         await simpleQuery(query)
                         if (process.env.NODE_ENV !== "production") {
                             //Differnet cookies for dev, cuz api url is different(And not secure)
@@ -39,8 +39,8 @@ routes.post('/user/login', async (req, res) => {
                         }
                         res.send({ ok: true, firstname: user.firstname, lastname: user.lastname, id: user.id, data: user.data })
 
-                        var allTokens = JSON.parse(user.token)
-                        var currentDate = new Date(Date.now())
+                        let allTokens = JSON.parse(user.token)
+                        let currentDate = new Date(Date.now())
                         allTokens.forEach(x => {
                             if (x.expiry < currentDate) {
                                 console.log("This token expired")

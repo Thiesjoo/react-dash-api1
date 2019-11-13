@@ -9,7 +9,7 @@ async function changeStuffsFunc(req, res) {
             && typeof req.body.type === "string"
             && req.body.list
             && typeof req.body.list === "string") {
-            var result = await changeStuffs(req.decoded.email, req.body.type, req.body.tochange, req.body.list)
+            let result = await changeStuffs(req.decoded.email, req.body.type, req.body.tochange, req.body.list)
             if (result) {
                 res.send({ ok: true, result: result })
             } else {

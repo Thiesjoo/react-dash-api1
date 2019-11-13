@@ -13,9 +13,9 @@ const passwordRegex = RegExp(
 )
 
 let checkToken = (req, res, next) => {
-    var cookies = req.cookies
+    let cookies = req.cookies
     // console.log("valid cookie in function check token: ", cookies.accesstoken ? "yes" : "no")
-    var token = cookies.accesstoken
+    let token = cookies.accesstoken
     if (!token) {
         token = req.body.token
         console.log("Trying to grab token from body")

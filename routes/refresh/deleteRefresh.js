@@ -6,16 +6,16 @@ async function deleteRefresh(req, res) {
     try {
         if (req.cookies.accesstoken && req.cookies.refreshtoken && req.body.todelete) {
             console.log("cookies exist")
-            var refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
-            var accesstoken = security.jwt.verify(req.cookies.accesstoken, config.secret)
+            let refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
+            let accesstoken = security.jwt.verify(req.cookies.accesstoken, config.secret)
             if (refreshtoken && accesstoken) {
-                var user = await getUser(accesstoken.email)
+                let user = await getUser(accesstoken.email)
                 if (user) {
-                    var tokens = JSON.parse(user.token)
-                    var valid2 = false
-                    var filtered = tokens.filter(function (value, index) {
+                    let tokens = JSON.parse(user.token)
+                    let valid2 = false
+                    let filtered = tokens.filter(function (value, index) {
                         if (value.token == refreshtoken.token) {
-                            valid2 = false
+                            valid2 = true
                         }
                         return !req.body.todelete.includes(index)
                     });
