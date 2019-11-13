@@ -3,6 +3,7 @@ const config = require("../../shared/config")
 const security = require("../../shared/security")
 
 async function changepw(req, res) {
+    //TODO: Move to refresh, cus unsafe here
     try {
         var body = req.body
         if (body.current && body.new) {
@@ -13,7 +14,7 @@ async function changepw(req, res) {
                     if (result2) {
                         var newHash = await security.bcrypt.hash(body.new, security.saltRounds)
                         var realtoken = security.randomstring.generate(config.tokenLength)
-                        let refreshtoken = security.jwt.sign({ refreshtoken: realtoken }, config.secret, { expiresIn: config.accessExpiry });
+                        let refreshtoken = security.jwt.sign({ token: realtoken }, config.secret, { expiresIn: config.accessExpiry });
                         var refreshArray = [refreshtoken]
                         if (process.env.NODE_ENV !== "production") {
                             res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refresh", overwrite: true })
@@ -38,7 +39,7 @@ async function changepw(req, res) {
         }
     } catch (error) {
         console.log("Changepw: ", error, body)
-        res.status(400).send({ ok: false, msg: config.errors.general })
+        res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }
 

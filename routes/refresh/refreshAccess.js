@@ -9,17 +9,16 @@ async function refreshAccess(req, res) {
         if (body.email && req.cookies.refreshtoken) {
             //First check if user exists
             if (security.emailRegex.test(body.email)) {
-                var result = await getUser(body.email)
-                if (result) {
-                    console.log("Refreshing access for: ", result.id)
-                    decoded = security.jwt.verify(req.cookies.refreshtoken, config.secret)
-                    if (decoded) {
-                        var refreshArray = JSON.parse(result.token)
-                        var newresult = refreshArray.find(x => x.token === decoded.refreshtoken);
-                        // console.log(refreshArray, decoded.refreshtoken, newresult)
+                var user = await getUser(body.email)
+                if (user) {
+                    console.log("Refreshing access for: ", user.id)
+                    var refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
+                    if (refreshtoken) {
+                        var refreshArray = JSON.parse(user.token)
+                        var newresult = refreshArray.find(x => x.token === refreshtoken.token);
                         if (newresult) {
                             console.log("Cookie verified")
-                            let accesstoken = security.jwt.sign({ email: body.email, id: result.id },
+                            let accesstoken = security.jwt.sign({ email: body.email, id: user.id },
                                 config.secret,
                                 {
                                     expiresIn: config.accessExpiry
@@ -28,7 +27,7 @@ async function refreshAccess(req, res) {
                             res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
                             res.send({ ok: true })
                         } else {
-                            res.status(400).send({ ok: false, msg: config.errors.noRefresh })
+                            res.status(401).send({ ok: false, msg: config.errors.noPerms })
                         }
                     } else {
                         return res.json({
@@ -48,7 +47,7 @@ async function refreshAccess(req, res) {
         }
     } catch (error) {
         console.log("Refreshaccess: ", error, req.body)
-        res.status(400).send({ ok: false, msg: config.errors.general })
+        res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }
 

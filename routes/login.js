@@ -23,7 +23,7 @@ routes.post('/user/login', async (req, res) => {
                             }
                         );
                         var realtoken = randomstring.generate(config.tokenLength)
-                        let refreshtoken = jwt.sign({ refreshtoken: realtoken }, config.secret, { expiresIn: config.accessExpiry });
+                        let refreshtoken = jwt.sign({ token: realtoken }, config.secret, { expiresIn: config.accessExpiry });
                         var refreshArray = JSON.parse(user.token)
                         refreshArray.push({ token: realtoken, platform: req.body.platform, useragent: req.body.useragent, expiry: new Date(Date.now() + config.refreshExpiry) })
                         var query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + body.email + "'"
@@ -63,7 +63,7 @@ routes.post('/user/login', async (req, res) => {
 
     } catch (error) {
         console.log("Login: ", error, body)
-        res.status(400).send({ ok: false, msg: config.errors.general })
+        res.status(500).send({ ok: false, msg: config.errors.general })
     }
 })
 

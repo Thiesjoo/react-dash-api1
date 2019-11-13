@@ -58,16 +58,17 @@ const checkToken = require("./shared/security").checkToken
 
 //ROUTES. All auto load from the folders so you don;t have to pay attention when creating a new one
 const fs = require("fs")
+//All main routes get just used
 fs.readdirSync("./routes").forEach(function (file) {
     if (file == "index.js") return;
     if (file.includes("js")) {
         var name = file.substr(0, file.indexOf('.'));
-
         app.use(require("./routes/" + name))
-
     }
 });
 
+
+//All files in ./profile get a POST request with fle name and token check, also recursivly checks the subfolders 
 fs.readdirSync("./routes/profile").forEach(function (file) {
     if (file.includes("js")) {
         var name = file.substr(0, file.indexOf('.'));
@@ -82,7 +83,7 @@ fs.readdirSync("./routes/profile").forEach(function (file) {
     }
 });
 
-
+//All routes in refresh get assigned to /user/refresh, without tokencheck
 fs.readdirSync("./routes/refresh").forEach(function (file) {
     if (file.includes("js")) {
         var name = file.substr(0, file.indexOf('.'));

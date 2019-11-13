@@ -15,7 +15,7 @@ async function getStuffFunc(req, res) {
         }
     } catch (error) {
         console.log("getStuff: ", error)
-        res.status(400).send({ ok: false, msg: config.errors.general })
+        res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }
 

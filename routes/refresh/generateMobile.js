@@ -14,6 +14,7 @@ async function generateMobile(req, res) {
                     var userTokens = JSON.parse(user.token)
                     console.log("Getting refresh tokens for: ", accesstoken)
                     var valid = true
+                    var valid2 = false
                     userTokens.forEach(element => {
                         if (element.platform == "mobile") {
                             if (new Date() - new Date(element.expiry) < 3600000) {
@@ -21,17 +22,24 @@ async function generateMobile(req, res) {
                                 valid = false
                             }
                         }
+                        if (element.token == refreshtoken.token) {
+                            valid2 = true
+                        }
                     });
-                    if (valid) {
-                        var realtoken = randomstring.generate(5)
-                        // let newRefreshtoken = jwt.sign({ a: realtoken, mobile: true, email: accesstoken.email }, config.secret, { expiresIn: config.accessExpiry });
-                        var refreshArray = JSON.parse(user.token)
-                        refreshArray.push({ token: realtoken, platform: "mobile", expiry: new Date(Date.now() + config.refreshExpiry * 2) })
-                        var query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + accesstoken.email + "'"
-                        await simpleQuery(query)
-                        res.send({ ok: true })
+                    if (valid2) {
+                        if (valid) {
+                            var realtoken = randomstring.generate(5)
+                            // let newRefreshtoken = jwt.sign({ a: realtoken, mobile: true, email: accesstoken.email }, config.secret, { expiresIn: config.accessExpiry });
+                            var refreshArray = JSON.parse(user.token)
+                            refreshArray.push({ token: realtoken, platform: "mobile", expiry: new Date(Date.now() + config.refreshExpiry * 2) })
+                            var query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + accesstoken.email + "'"
+                            await simpleQuery(query)
+                            res.send({ ok: true })
+                        } else {
+                            res.status(400).send({ ok: false, msg: config.errors.rateLimit })
+                        }
                     } else {
-                        res.status(400).send({ ok: false, msg: config.errors.rateLimit })
+                        res.status(401).send({ ok: false, error: config.errors.invalidToken })
                     }
                 }
             } else {
@@ -45,7 +53,7 @@ async function generateMobile(req, res) {
         }
     } catch (error) {
         console.log("GetRefresh: ", error)
-        res.status(400).send({ ok: false, msg: config.errors.general })
+        res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }
 

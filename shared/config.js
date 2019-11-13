@@ -9,7 +9,8 @@ module.exports = {
         general: "Something went wrong",
         alreadyExists: "Account already exists",
         regexNotMatch: "The regex is not valid",
-        rateLimit: "You're doing that too fast"
+        rateLimit: "You're doing that too fast",
+        noPerms: "You have no permissions to access this route"
     },
     secret: process.env.JWT_SECRET,
     mysqlPassword: process.env.DB_PASS,

@@ -21,7 +21,7 @@ async function changeStuffsFunc(req, res) {
         }
     } catch (error) {
         console.log("changeStuffs: ", error)
-        res.status(400).send({ ok: false, msg: config.errors.general })
+        res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }
 

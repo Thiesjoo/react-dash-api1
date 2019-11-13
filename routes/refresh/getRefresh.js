@@ -13,7 +13,15 @@ async function getRefresh(req, res) {
                 if (user) {
                     // console.log("Getting refresh tokens for: ", user)
                     var tokens = JSON.parse(user.token)
-                    tokens.forEach(x => {
+                    var valid2 = false
+                    for (var i = tokens.length - 1; i > -1; i--) {
+                        var x = tokens[i]
+                        // console.log(x.token, refreshtoken.token)
+                        if (x.token == refreshtoken.token) {
+                            // console.log("This is your own token, so you cant delete it, Also not showing")
+                            tokens.splice(i, 1)
+                            valid2 = true
+                        }
                         if (x.platform) {
                             if (x.platform == "mobile") {
                             } else {
@@ -22,8 +30,13 @@ async function getRefresh(req, res) {
                         } else {
                             delete x.token
                         }
-                    })
-                    res.send({ ok: true, tokens: tokens })
+
+                    }
+                    if (valid2) {
+                        res.send({ ok: true, tokens: tokens })
+                    } else {
+                        res.status(401).send({ ok: false, error: config.errors.invalidToken })
+                    }
                 }
             } else {
                 res.status(401).send({ ok: false, error: config.errors.invalidToken })
@@ -36,7 +49,7 @@ async function getRefresh(req, res) {
         }
     } catch (error) {
         console.log("GetRefresh: ", error)
-        res.status(400).send({ ok: false, msg: config.errors.general })
+        res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }
 

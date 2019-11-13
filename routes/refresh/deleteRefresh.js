@@ -12,12 +12,20 @@ async function deleteRefresh(req, res) {
                 var user = await getUser(accesstoken.email)
                 if (user) {
                     var tokens = JSON.parse(user.token)
+                    var valid2 = false
                     var filtered = tokens.filter(function (value, index) {
+                        if (value.token == refreshtoken.token) {
+                            valid2 = false
+                        }
                         return !req.body.todelete.includes(index)
                     });
-                    console.log(tokens.length, filtered.length)
-                    await simpleQuery("UPDATE users SET token = '" + JSON.stringify(filtered) + "' WHERE email = ?", [accesstoken.email])
-                    res.send({ ok: true, tokens: filtered })
+                    if (valid2) {
+                        console.log(tokens.length, filtered.length)
+                        await simpleQuery("UPDATE users SET token = '" + JSON.stringify(filtered) + "' WHERE email = ?", [accesstoken.email])
+                        res.send({ ok: true, tokens: filtered })
+                    } else {
+                        res.status(401).send({ ok: false, error: config.errors.invalidToken })
+                    }
                 }
             } else {
                 res.status(401).send({ ok: false, error: config.errors.invalidToken })
@@ -30,7 +38,7 @@ async function deleteRefresh(req, res) {
         }
     } catch (error) {
         console.log("DeleteRefresh: ", error)
-        res.status(400).send({ ok: false, msg: config.errors.general })
+        res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }
 
