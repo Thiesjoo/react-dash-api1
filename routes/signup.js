@@ -17,7 +17,8 @@ routes.post('/user/signup', async (req, res) => {
                     let realtoken = security.randomstring.generate(config.tokenLength)
                     let refreshtoken = security.jwt.sign({ token: realtoken }, config.secret, { expiresIn: config.accessExpiry });
                     let refreshArray = [{ token: realtoken, platform: req.body.platform, useragent: req.body.useragent, expiry: new Date(Date.now() + config.refreshExpiry) }]
-                    let newUser = await setUser(body.email, body.firstname, body.lastname, hash, refreshArray, { emailVerified: false }, {test: [{id: 0, priority: 3, title: "This is your first todo", message: "You should delete this todo"}]})
+                    var data = { emailVerified: false, tasks: { test: [{ id: 0, priority: 3, title: "This is your first todo", message: "You should delete this todo" }] } }
+                    let newUser = await setUser(body.email, body.firstname, body.lastname, hash, refreshArray, data)
                     let accesstoken = security.jwt.sign({ email: body.email, id: newUser.insertId },
                         config.secret,
                         {
@@ -41,7 +42,7 @@ routes.post('/user/signup', async (req, res) => {
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (err) {
-        console.log("Signup: ", err, body)
+        console.log("Signup: ", err)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 })

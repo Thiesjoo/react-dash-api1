@@ -9,7 +9,7 @@ async function addStuffFunc(req, res) {
             && typeof req.body.list === "string"
             && req.body.type
             && typeof req.body.type === "string") {
-            let result = await addStuff(req.decoded.email,req.body.type,req.body.toadd,req.body.list)
+            let result = await addStuff(req.decoded.email, req.body.type, req.body.toadd, req.body.list)
             if (result) {
                 res.send({ ok: true, result: result })
             } else {

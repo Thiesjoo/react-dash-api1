@@ -67,17 +67,16 @@ fs.readdirSync("./routes").forEach(function (file) {
     }
 });
 
-
 //All files in ./profile get a POST request with fle name and token check, also recursivly checks the subfolders 
 fs.readdirSync("./routes/profile").forEach(function (file) {
     if (file.includes("js")) {
         let name = file.substr(0, file.indexOf('.'));
-        app.post("/user/" + name, checkToken, require("./routes/profile/" + name))
+        addRoute(name, "profile")
     } else if (!file.includes(".")) {
         fs.readdirSync("./routes/profile/" + file).forEach(function (file2) {
             if (file2.includes("js")) {
-                let name2 = file2.substr(0, file2.indexOf('.'));
-                app.post("/user/" + name2, checkToken, require("./routes/profile/" + file + "/" + name2))
+                let fileName = file2.substr(0, file2.indexOf('.'));
+                addRoute(fileName, "profile/" + file)
             }
         })
     }
@@ -87,8 +86,29 @@ fs.readdirSync("./routes/profile").forEach(function (file) {
 fs.readdirSync("./routes/refresh").forEach(function (file) {
     if (file.includes("js")) {
         let name = file.substr(0, file.indexOf('.'));
-        app.post("/user/refresh/" + name, require("./routes/refresh/" + name))
+        addRoute(name, "refresh")
     }
 })
+
+function addRoute(fileName, webRoute = null) {
+    var name = ""
+    var path = ""
+    if (webRoute !== null) {
+        name = `${webRoute}/${fileName}`
+    } else {
+        name = fileName
+    }
+    if (name.includes("get")) {
+        app.get("/user/" + name, checkToken, require("./routes/" + path + name))
+    } else if (name.includes("delete")) {
+        app.delete("/user/" + name, checkToken, require("./routes/" + path + name))
+    } else if (name.includes("add")) {
+        app.post("/user/" + name, checkToken, require("./routes/" + path + name))
+    } else if (name.includes("update") || name.includes("change")) {
+        app.put("/user/" + name, checkToken, require("./routes/" + path + name))
+    } else {
+        app.post("/user/" + name, checkToken, require("./routes/" + path + name))
+    }
+}
 
 app.listen(config.expressPort, () => console.log(`API1 app listening on port ${config.expressPort}!`))
