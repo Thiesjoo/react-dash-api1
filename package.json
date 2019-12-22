@@ -4,7 +4,7 @@
   "description": "This is the first api which supplies the tesing ground",
   "main": "index.js",
   "scripts": {
-    "start": "./start.sh",
+    "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
