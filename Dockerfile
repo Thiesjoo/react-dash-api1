@@ -7,19 +7,21 @@ COPY ./package*.json ./
 
 # Install app dependencies (All this apk stuff is needed to build bcrypt succesfully.) 
 # FIXME: Find a better alternative for this
-RUN apk add --virtual .gyp \
-    autoconf \
-    automake \
-    g++ \
-    libpng-dev \
-    libtool \
-    make \
-    nasm \
-    python \
-    git 
+# RUN apk add --virtual .gyp \
+#     autoconf \
+#     automake \
+#     g++ \
+#     libpng-dev \
+#     libtool \
+#     make \
+#     nasm \
+#     python \
+#     git 
+
 RUN npm install
-# Rebuild bcrypt so it doesnt crash on hash
-RUN npm rebuild bcrypt --build-from-source
+# Rebuild bcrypt so it doesnt crash on has
+
+# RUN npm rebuild bcrypt --build-from-source
 
 # Copy the app source
 COPY ./ .
