@@ -12,8 +12,8 @@ routes.get('/', (req, res) => {
 })
 
 routes.get('/user', (req, res) => {
-    console.log("Cookies: ",req.cookies)
-    res.send({ok:true, cookies: req.cookies})
+    console.log("Cookies: ", req.cookies)
+    res.send({ ok: true, cookies: req.cookies })
 })
 
 routes.get('/remove', (req, res) => {
@@ -22,9 +22,9 @@ routes.get('/remove', (req, res) => {
 })
 
 
-routes.post("/nottest", (req,res) => {
+routes.post("/nottest", (req, res) => {
     console.log(req.body)
-    res.send({ok:true})
+    res.send({ ok: true })
 })
 
 routes.get("/delete", (req, res) => {
@@ -40,10 +40,15 @@ routes.get("/list", (req, res) => {
             throw err
         }
         result.forEach(element => {
-            element.token = JSON.parse(element.token)
-            element.data = JSON.parse(element.data)
-            element.tasks = JSON.parse(element.tasks)
-
+            if (element.token) {
+                element.token = JSON.parse(element.token)
+            }
+            if (element.data) {
+                element.data = JSON.parse(element.data)
+            }
+            if (element.tasks) {
+                element.tasks = JSON.parse(element.tasks)
+            }
         });
         res.json(result)
         res.end()
