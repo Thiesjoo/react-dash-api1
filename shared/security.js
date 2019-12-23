@@ -1,6 +1,6 @@
 const config = require('./config.js');
 const randomstring = require("randomstring");
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const saltRounds = config.saltRounds;
 const jwt = require('jsonwebtoken');
 
