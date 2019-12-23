@@ -1,4 +1,6 @@
 //TODO: Add a route to generate more
+const amountToGenerate = 5
+
 const path = require('path');
 let Trianglify = require('trianglify');
 const fs = require('fs');
@@ -22,7 +24,7 @@ fs.readdir(directoryPath, function (err, files) {
 
 function generate() {
     console.log("Starting from: ",large)
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < amountToGenerate; i++) {
         let pngURI = Trianglify({
             width: 3840,
             height: 2160,
