@@ -22,7 +22,7 @@ async function logout(req, res) {
                         // console.log(userTokens.length)
                         let query = "UPDATE users SET token = '" + JSON.stringify(userTokens) + "' WHERE email = '" + accesstoken.email + "'"
                         await simpleQuery(query)
-                        if (process.env.NODE_ENV !== "production") {
+                        if (!config.production) {
                             console.log("Dev cookies")
                             res.clearCookie("accesstoken", { httpOnly: true, path: "/user/" })
                             res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess" })

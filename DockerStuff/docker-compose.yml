@@ -1,0 +1,27 @@
+version: '3'
+services:
+  api1:
+    image: dashboardinfo/api1
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    environment:
+        DB_NAME: "${DB_NAME}"
+        JWT_SECRET: "${JWT_SECRET}"
+        DB_PASS: "${DB_NAME}"
+        NODE_ENV: "production"
+        DB_PASS: "${DB_PASS}"
+        WAIT_HOSTS: db:3306
+        WAIT_HOSTS_TIMEOUT: 60
+    volumes:
+        - ./certs:/apps/api1/certs
+  db:
+      image: mysql:latest
+      command: --default-authentication-plugin=mysql_native_password
+      environment:
+        MYSQL_ROOT_PASSWORD: "${DB_ROOTPASS}"
+        MYSQL_DATABASE: "${DB_NAME}"
+        MYSQL_USER: nodejs
+        MYSQL_PASSWORD: "${DB_PASS}"
+      ports:
+        - "3306"

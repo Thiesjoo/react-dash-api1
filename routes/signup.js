@@ -25,7 +25,7 @@ routes.post('/user/signup', async (req, res) => {
                             expiresIn: config.accessExpiry
                         }
                     );
-                    if (process.env.NODE_ENV !== "production") {
+                    if (!config.production) {
                         console.log("Dev cookies")
                         res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
                         res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refresh" })

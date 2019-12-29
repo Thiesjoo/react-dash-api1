@@ -16,7 +16,7 @@ async function changepw(req, res) {
                         let realtoken = security.randomstring.generate(config.tokenLength)
                         let refreshtoken = security.jwt.sign({ token: realtoken }, config.secret, { expiresIn: config.accessExpiry });
                         let refreshArray = [refreshtoken]
-                        if (process.env.NODE_ENV !== "production") {
+                        if (!config.production) {
                             res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refresh", overwrite: true })
                         } else {
                             res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/api1/user/refresh", secure: true, overwrite: true })

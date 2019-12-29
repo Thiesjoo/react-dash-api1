@@ -13,10 +13,9 @@ app.use("/assets", express.static("assets"))
 // let fun = ["Nice try FBI", "Not today, CIA", "Dirty tricks, MI6", "Not deceptive enough for me, KGB", "Cease to liten what I say, NSA", "Good attempt at obscurity, Department of Homeland Security"]
 app.use(function (req, res, next) {
     //These are headers so someone can identify which server is running
-    res.setHeader('If-You-Read-This', "you're 'smart'")
     res.setHeader("Server", "Commodore 64")
 
-    if (process.env.NODE_ENV !== "production") {
+    if (!config.production || config.zeit) {
         //These are the functional headers that enable CORS when in test mode
         if (req.headers.origin) {
             res.setHeader("Access-Control-Allow-Origin", req.headers.origin)
@@ -36,18 +35,11 @@ let cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
 //-EXPRESS PROTECTION
-const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const xss = require('xss-clean');
 // Helmet
 app.use(helmet());
-// Rate Limiting
-const limit = rateLimit({
-    max: 100,// max re  quests
-    windowMs: 60 * 1000, //
-    message: { ok: false, msg: config.errors.rateLimit } // message to send
-});
-app.use("/user/", limit)
+
 // Body Parser
 app.use(express.json({ limit: '10kb' })); // Body limit is 10
 // Data Sanitization against XSS attacks
@@ -63,7 +55,11 @@ fs.readdirSync("./routes").forEach(function (file) {
     if (file == "index.js") return;
     if (file.includes("js")) {
         let name = file.substr(0, file.indexOf('.'));
-        app.use(require("./routes/" + name))
+        if (name.includes("dev") && !config.production) {
+            app.use(require("./routes/" + name))
+        } else if (!name.includes("dev")) {
+            app.use(require("./routes/" + name))
+        }
     }
 });
 
@@ -111,4 +107,26 @@ function addRoute(fileName, webRoute = null) {
     }
 }
 
-app.listen(config.expressPort, () => console.log(`API1 app listening on port ${config.expressPort}!`))
+
+//Certs
+const https = require('https');
+
+const privateKey = fs.readFileSync('certs/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('certs/cert.pem', 'utf8');
+const ca = fs.readFileSync('certs/chain.pem', 'utf8');
+
+const credentials = {
+	key: privateKey,
+	cert: certificate,
+	ca: ca
+};
+
+if (!config.production) {
+    const http = require('http');
+    const httpServer = http.createServer(app);
+    httpServer.listen(config.httpPort, () => console.log(`API1 http-app listening on port ${config.httpPort}!`))
+}
+
+
+const httpsServer = https.createServer(credentials, app);
+httpsServer.listen(config.httpsPort, () => console.log(`API1 https-app listening on port ${config.httpsPort}!`))

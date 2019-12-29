@@ -4,7 +4,7 @@ const { simpleQuery, getUser } = require("../shared/database")
 const { bcrypt, jwt, randomstring, emailRegex, passwordRegex } = require('../shared/security')
 
 routes.post('/user/login', async (req, res) => {
-    // console.log("Trying to login", req.body)
+    console.log("Trying to login", req.body)
     try {
         let body = req.body
         if (body.email && body.password) {
@@ -28,7 +28,7 @@ routes.post('/user/login', async (req, res) => {
                         refreshArray.push({ token: realtoken, platform: req.body.platform, useragent: req.body.useragent, expiry: new Date(Date.now() + config.refreshExpiry) })
                         let query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + body.email + "'"
                         await simpleQuery(query)
-                        if (process.env.NODE_ENV !== "production") {
+                        if (!config.production) {
                             //Differnet cookies for dev, cuz api url is different(And not secure)
                             console.log("Dev cookies")
                             res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
@@ -52,7 +52,6 @@ routes.post('/user/login', async (req, res) => {
                     }
                 } else {
                     res.status(400).send({ ok: false, msg: config.errors.accountNotFound })
-
                 }
             } else {
                 res.status(400).send({ ok: false, msg: config.errors.regexNotMatch })
