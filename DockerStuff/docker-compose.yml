@@ -4,12 +4,12 @@ services:
     image: dashboardinfo/api1
     restart: on-failure
     ports:
-      - "8080:8080"
+      - "8001:8001"
     environment:
         DB_NAME: "${DB_NAME}"
         JWT_SECRET: "${JWT_SECRET}"
         DB_PASS: "${DB_NAME}"
-        NODE_ENV: "production"
+        NODE_ENV: "dev"
         DB_PASS: "${DB_PASS}"
         WAIT_HOSTS: db:3306
         WAIT_HOSTS_TIMEOUT: 60
