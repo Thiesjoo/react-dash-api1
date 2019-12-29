@@ -16,6 +16,6 @@ jobs:
         image: dashboardinfo/api1
         tag: latest
         registry: docker.io
-        dockerfile: Dockerfile
+        dockerfile: DockerStuff/Dockerfile
         username: ${{ secrets.DOCKER_NAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
