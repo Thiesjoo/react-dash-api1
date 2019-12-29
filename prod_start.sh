@@ -5,5 +5,6 @@ export DB_PASS="haskjdfhguuie9182347AS@";
 export DB_ROOTPASS="AsiudhUYTA897y12yu98yuuihbbjikaBIHGYS*TY&*TgUOY98Y2HH";
 export DB_NAME="users";
 
+docker pull dashboardinfo/api1:latest
 docker-compose -f DockerStuff/docker-compose.yml up
 # docker-compose -f DockerStuff/docker-compose.yml stop

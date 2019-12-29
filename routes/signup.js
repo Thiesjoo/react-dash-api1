@@ -25,14 +25,10 @@ routes.post('/user/signup', async (req, res) => {
                             expiresIn: config.accessExpiry
                         }
                     );
-                    if (!config.production) {
-                        console.log("Dev cookies")
-                        res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/" })
-                        res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refresh" })
-                    } else {
-                        res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/api1/user/", secure: true })
-                        res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/api1/user/refresh", secure: true })
-                    }
+
+                    res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/", sameSite: "none", secure: true })
+                    res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refresh", sameSite: "none", secure: true })
+
                     res.send({ ok: true, id: newUser.insertId, firstname: body.firstname, lastname: body.lastname, data: { emailVerified: false } })
                 }
             } else {

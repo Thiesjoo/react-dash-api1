@@ -121,12 +121,5 @@ const credentials = {
 	ca: ca
 };
 
-if (!config.production) {
-    const http = require('http');
-    const httpServer = http.createServer(app);
-    httpServer.listen(config.httpPort, () => console.log(`API1 http-app listening on port ${config.httpPort}!`))
-}
-
-
 const httpsServer = https.createServer(credentials, app);
 httpsServer.listen(config.httpsPort, () => console.log(`API1 https-app listening on port ${config.httpsPort}!`))

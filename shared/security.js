@@ -16,6 +16,7 @@ let checkToken = (req, res, next) => {
     let cookies = req.cookies
     // console.log("valid cookie in function check token: ", cookies.accesstoken ? "yes" : "no")
     let token = cookies.accesstoken
+    //Mobile can't use cookies so check for token in body
     if (!token) {
         token = req.body.token
         console.log("Trying to grab token from body")

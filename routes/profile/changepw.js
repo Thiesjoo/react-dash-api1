@@ -16,11 +16,9 @@ async function changepw(req, res) {
                         let realtoken = security.randomstring.generate(config.tokenLength)
                         let refreshtoken = security.jwt.sign({ token: realtoken }, config.secret, { expiresIn: config.accessExpiry });
                         let refreshArray = [refreshtoken]
-                        if (!config.production) {
-                            res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refresh", overwrite: true })
-                        } else {
-                            res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/api1/user/refresh", secure: true, overwrite: true })
-                        }
+
+                        res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refresh", sameSite: "none", secure: true, overwrite: true })
+                        
                         let query = "UPDATE users SET password = ?, token = '? WHERE email = ?"
                         await simpleQuery(query, [newHash, JSON.stringify(refreshArray), req.decoded.email])
                         console.log("Updated password for: ", req.decoded.email)

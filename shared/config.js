@@ -40,8 +40,7 @@ module.exports = {
     accessExpiry: 900000,
     refreshExpiry: 604800000,
     tokenLength: 20,
-    httpPort: 8080,
-    httpsPort: 8001,
+    httpsPort: process.env.NODE_ENV == "production" ? 8080 : 8090,
     allowedTypes: ["tasks", "notifications"],
     allowedFormats: {tasks: ["id", "message", "title", "priority"], notfications: ["title", "message", "app", "time", "persistent", "icon", "key"]}
 }
