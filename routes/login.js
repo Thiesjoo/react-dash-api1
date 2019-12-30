@@ -26,6 +26,8 @@ routes.post('/user/login', async (req, res) => {
                         let refreshtoken = jwt.sign({ token: realtoken }, config.secret, { expiresIn: config.accessExpiry });
                         let refreshArray = JSON.parse(user.token)
                         refreshArray.push({ token: realtoken, platform: req.body.platform, useragent: req.body.useragent, expiry: new Date(Date.now() + config.refreshExpiry) })
+                        
+                        
                         let query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + body.email + "'"
                         await simpleQuery(query)
 
@@ -56,7 +58,7 @@ routes.post('/user/login', async (req, res) => {
         }
 
     } catch (error) {
-        console.log("Login: ", error, body)
+        console.error("\x1b[31mLogin: ", error)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 })

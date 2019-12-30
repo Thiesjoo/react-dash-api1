@@ -1,6 +1,8 @@
-const con = require("../shared/database").con
+let {con, getMongoDB,yeet} = require("../shared/database")
 const simpleQuery = require("../shared/database").simpleQuery
 const routes = require('express').Router();
+
+
 
 console.error("USING DEV ROUTES.")
 console.error("DEV ROUTE CONSEQUENSES: CORS IS ENABLED, DEV ROUTES ARE ON(Delete entire tables, list all data), DEV COOKIES ARE ON, USING LOCAL DATABASE")
@@ -53,6 +55,21 @@ routes.get("/list", (req, res) => {
         res.json(result)
         res.end()
     })
+})
+
+routes.get("/mongo", async (req,res) => {
+    try {
+        console.log(await yeet())
+        var db = getMongoDB()
+        let test = db.collection("users")
+        const result = await test.find({  }).toArray();
+        // const MyCollection = db.collection('users');
+        // const result = await MyCollection.find(query).toArray();
+        res.send(result);
+    } catch(e) {
+        console.error(e)
+        res.send(e)
+    }
 })
 
 module.exports = routes;

@@ -21,7 +21,7 @@ async function changeStuffFunc(req, res) {
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (error) {
-        console.log("changeTask: ", error)
+        console.error("\x1b[31mchangeTask: ", error)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }

@@ -95,24 +95,24 @@ async function getStuff(email, type) {
 }
 
 //Add 1 item to list
-async function addStuff(email, type, toadd, list) {
+async function addItem(item, list, type, email) {
     if (config.allowedTypes.includes(type)) {
         let valid = true
-        console.log(toadd)
         config.allowedFormats[type].forEach(x => {
-            if (!(x in toadd)) {
+            if (!(x in item)) {
                 valid = false
             }
         })
         if (valid) {
+            //The item meets requirments
             let user = await getUser(email)
             if (user) {
-                let newtasks = JSON.parse(user.data)
-                if (newtasks[type][list]) {
-                    newtasks[type][list].push(toadd)
-                    return database.query("UPDATE users SET data = ? WHERE email = ?", [JSON.stringify(newtasks), email])
+                let data = JSON.parse(user.data)
+                if (data[type][list]) {
+                    data[type][list].push(toadd)
+                    return database.query("UPDATE users SET data = ? WHERE email = ?", [JSON.stringify(data), email])
                         .then(result => {
-                            return newtasks[type]
+                            return data[type]
                         })
                         .catch(error => {
                             throw error
@@ -308,7 +308,35 @@ function simpleQuery(query, args = null) {
         })
 }
 
+
+const MongoClient = require('mongodb').MongoClient;
+const mongoUrl = 'mongodb://localhost:27017/';
+let db = null
+getDB().catch(error => {
+    console.error(error)
+})
+
+async function getDB() {
+    let newCon = await MongoClient.connect(mongoUrl,
+        { useNewUrlParser: true }, )
+    db = newCon.db("users_test") 
+}
+
+function getMongoDB() {
+    return db
+}
+
+async function yeet(email) {
+    return db.collection("users").find({email:email}).toArray()
+}
+
+
+
+
 module.exports = {
+    getMongoDB,
+    yeet,
+
     con,
     simpleQuery,
 
@@ -318,10 +346,11 @@ module.exports = {
 
     //Generic
     getStuff,
-    addStuff,
+    addItem,
     changeStuff,
     changeStuffs,
     deleteStuff,
     addCat,
     deleteCat,
 }
+

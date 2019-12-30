@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "forever index.js",
+    "dev_start": "./dev_start.sh",
+    "prod_start": "./prod_start.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -18,6 +20,7 @@
     "helmet": "^3.21.2",
     "is-docker": "^2.0.0",
     "jsonwebtoken": "^8.5.1",
+    "mongo": "^0.1.0",
     "mysql": "^2.17.1",
     "randomstring": "^1.1.5",
     "xss-clean": "^0.1.1"

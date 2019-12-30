@@ -17,7 +17,7 @@ async function deleteCatFunc(req, res) {
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (error) {
-        console.log("delTask: ", error)
+        console.error("\x1b[31mdelTask: ", error)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }

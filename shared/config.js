@@ -40,7 +40,7 @@ module.exports = {
     accessExpiry: 900000,
     refreshExpiry: 604800000,
     tokenLength: 20,
-    httpsPort: process.env.NODE_ENV == "production" ? 8080 : 8090,
-    allowedTypes: ["tasks", "notifications"],
-    allowedFormats: {tasks: ["id", "message", "title", "priority"], notfications: ["title", "message", "app", "time", "persistent", "icon", "key"]}
+    httpsPort: process.env.NODE_ENV == "production" ? 8080 : 8090, // Use a different port while developing, so you can host the server for dev and prod at the same time
+    allowedTypes: ["tasks", "notifications", "banking"],
+    allowedFormats: {tasks: ["title", "id", "text", "priority"], notifications: ["title", "message", "app", "time", "persistent", "icon", "key"]}
 }

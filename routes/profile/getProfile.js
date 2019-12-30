@@ -14,7 +14,7 @@ async function profile(req, res) {
         //     res.status(400).send({ ok: false, error: config.errors.general })
         // }
     } catch (error) {
-        console.log("Profile: ", error)
+        console.error("\x1b[31mProfile: ", error)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }

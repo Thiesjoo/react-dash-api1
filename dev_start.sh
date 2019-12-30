@@ -6,5 +6,7 @@ export DB_ROOTPASS=test2;
 export DB_NAME=users_test;
 
 docker start test-mysql || docker run --name test-mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=$DB_ROOTPASS -e MYSQL_DATABASE=$DB_NAME -e MYSQL_USER=nodejs -e MYSQL_PASSWORD=$DB_PASS -d mysql:latest --default-authentication-plugin=mysql_native_password
+docker start test-mongodb || docker run --name test-mongodb -d -p 27017:27017 -v temp:/data/db mongo
 nodemon
 docker stop test-mysql
+docker stop test-mongodb

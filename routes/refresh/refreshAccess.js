@@ -50,7 +50,7 @@ async function refreshAccess(req, res) {
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (error) {
-        console.log("Refreshaccess: ", error, req.body)
+        console.error("\x1b[31mRefreshaccess: ", error, req.body)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }

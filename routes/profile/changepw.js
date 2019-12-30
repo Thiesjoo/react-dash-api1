@@ -36,7 +36,7 @@ async function changepw(req, res) {
             res.status(400).send({ ok: false, error: config.errors.notEnoughInfo })
         }
     } catch (error) {
-        console.log("Changepw: ", error, body)
+        console.error("\x1b[31mChangepw: ", error, body)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }

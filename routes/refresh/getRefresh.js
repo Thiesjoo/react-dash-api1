@@ -48,7 +48,7 @@ async function getRefresh(req, res) {
             });
         }
     } catch (error) {
-        console.log("GetRefresh: ", error)
+        console.error("\x1b[31mGetRefresh: ", error)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }
