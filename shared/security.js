@@ -44,7 +44,7 @@ let checkToken = (req, res, next) => {
     } else {
         return res.status(401).json({
             ok: false,
-            message: config.errors.notEnoughInfo
+            message: config.errors.notEnoughInfoTokens
         });
     }
 };

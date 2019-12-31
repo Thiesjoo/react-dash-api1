@@ -2,14 +2,15 @@ const isDocker = require('is-docker');
 const mysql = require('mysql');
 const config = require('./config.js');
 
-// #region Config
 let ip = "localhost"
 let isdocker = isDocker()
 if (isdocker) {
     console.log("Is in docker")
     ip = "db"
-    console.log("Debugging info: ", ip, "nodejs", config)
+    console.log("Debugging info: ", config)
 }
+
+// #region MysqlConfig
 
 let con = mysql.createConnection({
     host: ip,
@@ -47,7 +48,37 @@ let database = new Database({
     database: config.database_name
 })
 
+function simpleQuery(query, args = null) {
+    return database.query(query, args)
+        .then(result => {
+            return result
+        })
+        .catch(error => {
+            throw error
+            process.exit()
+        })
+}
+
 // #endregion
+
+// #region MongoConfig
+const mongoRequire = require('mongodb')
+const mongoClient = mongoRequire.MongoClient;
+const mongoUrl = 'mongodb://localhost:27017/';
+let mongoDb = null
+connectToMongo().catch(error => {
+    throw error
+})
+
+async function connectToMongo() {
+    let newCon = await mongoClient.connect(mongoUrl,
+        { useNewUrlParser: true, useUnifiedTopology: true })
+    mongoDb = newCon.db("users_test")
+}
+
+// #endregion
+
+
 
 // #region User
 async function getUser(email) {
@@ -76,103 +107,6 @@ async function setUser(email, firstname, lastname, password, token, data) {
 // #endregion
 
 // #region CRUD
-//Get 1 item from list
-async function getStuff(email, type) {
-    if (config.allowedTypes.includes(type)) {
-        let user = await getUser(email)
-        if (user) {
-            if (user.date[type]) {
-                return JSON.parse(user.data[type])
-            } else {
-                throw "Not available"
-            }
-        } else {
-            throw "No user"
-        }
-    } else {
-        throw "Not allowed"
-    }
-}
-
-//Add 1 item to list
-async function addItem(item, list, type, email) {
-    if (config.allowedTypes.includes(type)) {
-        let valid = true
-        config.allowedFormats[type].forEach(x => {
-            if (!(x in item)) {
-                valid = false
-            }
-        })
-        if (valid) {
-            //The item meets requirments
-            let user = await getUser(email)
-            if (user) {
-                let data = JSON.parse(user.data)
-                if (data[type][list]) {
-                    data[type][list].push(toadd)
-                    return database.query("UPDATE users SET data = ? WHERE email = ?", [JSON.stringify(data), email])
-                        .then(result => {
-                            return data[type]
-                        })
-                        .catch(error => {
-                            throw error
-                        })
-                } else {
-                    throw "No list"
-                }
-            } else {
-                throw "No user"
-            }
-        } else {
-            throw "Not a valid object"
-        }
-    } else {
-        throw "Not allowed"
-    }
-}
-
-//Changing 1 item in list
-async function changeStuff(email, tochange, type, list, id) {
-    if (config.allowedTypes.includes(type)) {
-        let valid = true
-        config.allowedFormats[type].forEach(x => {
-            if (!(x in tochange)) {
-                valid = false
-            }
-        })
-        if (valid) {
-            let user = await getUser(email)
-            if (user) {
-                let newtasks = JSON.parse(user.data)
-                if (newstuff[type][list]) {
-                    console.log(newstuff)
-                    let index = newstuff[type][list].findIndex(x => x.id === id)
-                    if (index > -1) {
-                        newtasks[type][list].splice(index, 1, task)
-                        return database.query("UPDATE users SET data = ? WHERE email = ?", [JSON.stringify(newtasks), email])
-                            .then(result => {
-                                return newtasks
-                            })
-                            .catch(error => {
-                                throw error
-                            })
-                    } else {
-                        throw "No task with id"
-                    }
-                } else {
-                    throw "List does not exist"
-                }
-            } else {
-                throw "No user"
-            }
-        } else {
-            throw "Not a valid object"
-        }
-    } else {
-        throw "Not allowed"
-    }
-}
-
 
 //Changing entire list
 async function changeStuffs(email, type, tochange, list) {
@@ -212,24 +146,45 @@ async function changeStuffs(email, type, tochange, list) {
     }
 }
 
-async function deleteStuff(email, list, type, id) {
-    if (config.allowedTypes.includes(type)) {
-        let user = await getUser(email)
+// #endregion
+
+// #region CRUD MONGO
+
+function getMongoDB() {
+    return mongoDb
+}
+
+async function getUserMongo(email) {
+    return mongoDb.collection("users").findOne({ email })
+}
+
+async function addUserMongo(email, firstname, lastname, password, token) {
+    return mongoDb.collection("users").insertOne({ email, password, token, data: { profile: { firstname, lastname, emailVerified: false } } })
+}
+
+async function updateTokensMongo(email, newTokens) {
+    return mongoDb.collection("users").updateOne({ email }, { $set: { token: newTokens } })
+}
+
+async function getItem(id, list, type, email) {
+    if (config.permissions[type].includes("r")) {
+        let user = await getUserMongo(email)
         if (user) {
-            let newtasks = JSON.parse(user.data)
-            if (newtasks[type][list]) {
-                newtasks[type][list] = newtasks[type][list].filter(function (value, index) {
-                    return value.id !== id
-                });
-                return database.query("UPDATE users SET data = ? WHERE email = ?", [JSON.stringify(newtasks), email])
-                    .then(result => {
-                        return newtasks
-                    })
-                    .catch(error => {
-                        throw error
-                    })
+            console.log(list)
+            if (user.data[type] && list !== undefined && user.data[type][list]) {
+                let withId;
+                if (id) {
+                    withId = user.data[type][list].find(item => item.id == id)
+                }
+                if (withId) {
+                    return withId
+                } else {
+                    return user.data[type][list]
+                }
+            } else if (user.data[type] && list == undefined) {
+                return user.data[type]
             } else {
-                throw "List does not exist"
+                return null
             }
         } else {
             throw "No user"
@@ -240,102 +195,132 @@ async function deleteStuff(email, list, type, id) {
 }
 
 
-async function deleteCat(email, list, type) {
-    if (config.allowedTypes.includes(type)) {
-        let user = await getUser(email)
-        if (user) {
-            let newtasks = JSON.parse(user.data)
+async function addItem(item, list, type, email) {
+    if (config.permissions[type].includes("w")) {
+        if (config.allowedTypes.includes(type)) {
 
-            if (newtasks[type][list]) {
-                //FIXME: WTF is happening here
-                // let index = newtasks[type].findIndex(x => x.id === )
-                let index = -1
-                if (index > -1) {
-                    newtasks.splice(index, 1)
-                    return database.query("UPDATE users SET data = ? WHERE email = ?", [JSON.stringify(newtasks), email])
-                        .then(result => {
-                            return newtasks
-                        })
-                        .catch(error => {
-                            throw error
-                        })
+            let valid = true
+            config.allowedFormats[type].forEach(x => {
+                if (!(x in item)) {
+                    valid = false
+                }
+            })
+            if (config.allowedFormats[type].length != Object.keys(item).length) valid = false
+            if (valid) {
+                item.id = new mongoRequire.ObjectID()
+                let user = await getUserMongo(email)
+                if (user) {
+                    if (user.data[type] && !user.data[type][list]) {
+                        user.data[type][list] = []
+                    } else if (!user.data[type]) {
+                        user.data[type] = {}
+                        user.data[type][list] = []
+                    }
+                    user.data[type][list].push(item)
+                    let mongoResult = await mongoDb.collection("users").updateOne({ email }, { $set: { data: user.data } })
+                    if (mongoResult.result.ok != 1) throw "Database unresponsive"
+                    return user.data[type][list]
                 } else {
-                    throw "Cat not found"
+                    throw "No user"
                 }
             } else {
-                throw "List does not exist"
+                throw "Not a valid item"
             }
         } else {
-            throw "No user"
+            throw "Not allowed"
         }
     } else {
         throw "Not allowed"
     }
 }
 
-async function addCat(email, type, list) {
-    if (config.allowedTypes.includes(type)) {
-        let user = await getUser(email)
-        if (user) {
-            let newtasks = JSON.parse(user.data)
-            newtasks[type][list] = []
-            return database.query("UPDATE users SET data = ? WHERE email = ?", [JSON.stringify(newtasks), email])
-                .then(result => {
-                    return newtasks
-                })
-                .catch(error => {
-                    throw error
-                })
+
+async function deleteItem(id, list, type, email) {
+    if (config.permissions[type].includes("w")) {
+
+        if (config.allowedTypes.includes(type)) {
+            let user = await getUserMongo(email)
+            if (user) {
+                if (user.data[type][list]) {
+                    user.data[type][list] = user.data[type][list].filter(function (value, index) {
+                        return value.id != id
+                    });
+                    let mongoResult = await mongoDb.collection("users").updateOne({ email }, { $set: { data: user.data } })
+                    if (mongoResult.result.ok != 1) throw "Database unresponsive"
+                    return user.data[type][list]
+                } else {
+                    throw "List does not exist"
+                }
+            } else {
+                throw "No user"
+            }
         } else {
-            throw "No user"
+            throw "Not allowed"
         }
     } else {
         throw "Not allowed"
     }
 }
+
+async function updateItem(id, newItem, list, type, email) {
+    if (config.permissions[type].includes("w")) {
+
+        if (config.allowedTypes.includes(type)) {
+            let valid = true
+            config.allowedFormats[type].forEach(x => {
+                if (!(x in newItem)) {
+                    valid = false
+                }
+            })
+            if (config.allowedFormats[type].length != Object.keys(newItem).length) valid = false
+            if (valid) {
+                newItem.id = id
+                let user = await getUserMongo(email)
+                if (user) {
+                    if (user.data[type][list]) {
+                        let index = user.data[type][list].findIndex(x => x.id == id)
+                        if (index > -1) {
+                            user.data[type][list].splice(index, 1, newItem)
+                            let mongoResult = await mongoDb.collection("users").updateOne({ email }, { $set: { data: user.data } })
+                            if (mongoResult.result.ok != 1) throw "Database unresponsive"
+                            return user.data[type][list]
+                        } else {
+                            throw "No task with id"
+                        }
+                    } else {
+                        throw "List does not exist"
+                    }
+                } else {
+                    throw "No user"
+                }
+            } else {
+                throw "Not a valid object"
+            }
+        } else {
+            throw "Not allowed"
+        }
+    } else {
+        throw "Not allowed"
+    }
+}
+
+
 
 // #endregion
 
-
-function simpleQuery(query, args = null) {
-    return database.query(query, args)
-        .then(result => {
-            return result
-        })
-        .catch(error => {
-            throw error
-            process.exit()
-        })
-}
-
-
-const MongoClient = require('mongodb').MongoClient;
-const mongoUrl = 'mongodb://localhost:27017/';
-let db = null
-getDB().catch(error => {
-    console.error(error)
-})
-
-async function getDB() {
-    let newCon = await MongoClient.connect(mongoUrl,
-        { useNewUrlParser: true }, )
-    db = newCon.db("users_test") 
-}
-
-function getMongoDB() {
-    return db
-}
-
-async function yeet(email) {
-    return db.collection("users").find({email:email}).toArray()
-}
-
-
-
-
 module.exports = {
+    getUserMongo,
     getMongoDB,
-    yeet,
+
+    addUserMongo,
+    updateTokensMongo,
+
+    getItem,
+    addItem,
+    deleteItem,
+    updateItem,
+
+
 
     con,
     simpleQuery,
@@ -345,12 +330,8 @@ module.exports = {
     setUser,
 
     //Generic
-    getStuff,
-    addItem,
-    changeStuff,
+
     changeStuffs,
-    deleteStuff,
-    addCat,
-    deleteCat,
+
 }
 

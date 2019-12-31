@@ -37,7 +37,7 @@ async function deleteRefresh(req, res) {
             });
         }
     } catch (error) {
-        console.error("\x1b[31mDeleteRefresh: ", error)
+        console.error("\x1b[31mDeleteRefresh: ", error, req.body)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }

@@ -1,5 +1,5 @@
 const security = require('../../shared/security')
-const { getUser } = require("../../shared/database")
+const { getUserMongo } = require("../../shared/database")
 const config = require('../../shared/config')
 
 async function refreshAccess(req, res) {
@@ -9,13 +9,13 @@ async function refreshAccess(req, res) {
         if (body.email && req.cookies.refreshtoken) {
             //First check if user exists
             if (security.emailRegex.test(body.email)) {
-                let user = await getUser(body.email)
+                let user = await getUserMongo(body.email)
                 if (user) {
                     console.log("Refreshing access for: ", user.id)
                     let refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
                     console.log("With tokeN: ",refreshtoken)
                     if (refreshtoken) {
-                        let refreshArray = JSON.parse(user.token)
+                        let refreshArray = user.token
                         // console.log(refreshArray)
                         let newresult = refreshArray.find(x => x.token === refreshtoken.token);
                         // console.log(newresult)

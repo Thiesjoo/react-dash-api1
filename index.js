@@ -67,12 +67,12 @@ fs.readdirSync("./routes").forEach(function (file) {
 fs.readdirSync("./routes/profile").forEach(function (file) {
     if (file.includes("js")) {
         let name = file.substr(0, file.indexOf('.'));
-        addRoute(name, "profile")
+        app.post("/user/" + name, checkToken, require("./routes/profile/"+file))
     } else if (!file.includes(".")) {
         fs.readdirSync("./routes/profile/" + file).forEach(function (file2) {
             if (file2.includes("js")) {
                 let fileName = file2.substr(0, file2.indexOf('.'));
-                addRoute(fileName, "profile/" + file)
+                addRoute("profile/"+fileName, "profile/"+file+"/"+file2)
             }
         })
     }
@@ -82,28 +82,19 @@ fs.readdirSync("./routes/profile").forEach(function (file) {
 fs.readdirSync("./routes/refresh").forEach(function (file) {
     if (file.includes("js")) {
         let name = file.substr(0, file.indexOf('.'));
-        addRoute(name, "refresh")
+        app.post("/user/refresh/"+name,require("./routes/refresh/"+file))
     }
 })
 
-function addRoute(fileName, webRoute = null) {
-    var name = ""
-    var path = ""
-    if (webRoute !== null) {
-        name = `${webRoute}/${fileName}`
-    } else {
-        name = fileName
-    }
+function addRoute(name, path) {
     if (name.includes("get")) {
-        app.get("/user/" + name, checkToken, require("./routes/" + path + name))
+        app.get("/user/profile/item", checkToken, require("./routes/" + path ))
     } else if (name.includes("delete")) {
-        app.delete("/user/" + name, checkToken, require("./routes/" + path + name))
+        app.delete("/user/profile/item", checkToken, require("./routes/" + path ))
     } else if (name.includes("add")) {
-        app.post("/user/" + name, checkToken, require("./routes/" + path + name))
-    } else if (name.includes("update") || name.includes("change")) {
-        app.put("/user/" + name, checkToken, require("./routes/" + path + name))
-    } else {
-        app.post("/user/" + name, checkToken, require("./routes/" + path + name))
+        app.post("/user/profile/item", checkToken, require("./routes/" + path))
+    } else if (name.includes("update")) {
+        app.put("/user/profile/item", checkToken, require("./routes/" + path))
     }
 }
 

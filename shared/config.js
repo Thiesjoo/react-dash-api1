@@ -1,6 +1,6 @@
-const dev_errors = {
+const devErrors = {
     accountNotFound: "Account not found",
-    notFound: "It was not found",
+    notFound: "Not found",
     wrongPassword: "Password is wrong",
     invalidToken: "Token is invalid",
     notEnoughInfo: "There is not enough info",
@@ -9,13 +9,15 @@ const dev_errors = {
     alreadyExists: "Account already exists",
     regexNotMatch: "The regex is not valid",
     rateLimit: "You're doing that too fast",
-    noPerms: "You have no permissions to access this route"
+    noPerms: "You have no permissions to access this route",
+    notEnoughInfoTokens: "Token is not present",
+    invalidInfo: "The info supplied is not valid"
 }
 
-const prod_errors = {
-    accountNotFound: "It was not found",
-    notFound: "It was not found",
-    wrongPassword: "It was not found",
+const prodErrors = {
+    accountNotFound: "Not found",
+    notFound: "Not found",
+    wrongPassword: "Not found",
     invalidToken: "Something went wrong",
     notEnoughInfo: "There is not enough info",
     noRefresh: "Something went wrong",
@@ -23,10 +25,12 @@ const prod_errors = {
     alreadyExists: "Account already exists",
     regexNotMatch: "Something went wrong",
     rateLimit: "You're doing that too fast",
-    noPerms: "Something went wrong"
+    noPerms: "Something went wrong",
+    notEnoughInfoTokens: "There is not enough info",
+    invalidInfo: "The info supplied is not valid"
 }
 
-const error = process.env.NODE_ENV == "production" ? prod_errors : dev_errors
+const error = process.env.NODE_ENV == "production" ? prodErrors : devErrors
 
 module.exports = {
     production: process.env.NODE_ENV == "production" ? true : false,
@@ -41,6 +45,7 @@ module.exports = {
     refreshExpiry: 604800000,
     tokenLength: 20,
     httpsPort: process.env.NODE_ENV == "production" ? 8080 : 8090, // Use a different port while developing, so you can host the server for dev and prod at the same time
-    allowedTypes: ["tasks", "notifications", "banking"],
-    allowedFormats: {tasks: ["title", "id", "text", "priority"], notifications: ["title", "message", "app", "time", "persistent", "icon", "key"]}
+    allowedTypes: ["tasks", "notifications", "banking", "profile"],
+    allowedFormats: {tasks: ["title", "id", "text", "priority"], notifications: ["title", "message", "app", "time", "persistent", "icon", "key"], banking: ["title"]},
+    permissions: {tasks: "r/w", notifications: "r/w", banking: "r/w", profile: "r"}
 }

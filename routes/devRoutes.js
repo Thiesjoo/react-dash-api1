@@ -1,4 +1,4 @@
-let {con, getMongoDB,yeet} = require("../shared/database")
+let {con, getMongoDB} = require("../shared/database")
 const simpleQuery = require("../shared/database").simpleQuery
 const routes = require('express').Router();
 
@@ -59,17 +59,27 @@ routes.get("/list", (req, res) => {
 
 routes.get("/mongo", async (req,res) => {
     try {
-        console.log(await yeet())
         var db = getMongoDB()
         let test = db.collection("users")
         const result = await test.find({  }).toArray();
-        // const MyCollection = db.collection('users');
-        // const result = await MyCollection.find(query).toArray();
         res.send(result);
     } catch(e) {
         console.error(e)
         res.send(e)
     }
 })
+
+routes.get("/mongoDrop", async (req,res) => {
+    try {
+        var db = getMongoDB()
+        let test = db.collection("users")
+        const result = await test.drop()
+        res.send(result);
+    } catch(e) {
+        console.error(e)
+        res.send(e)
+    }
+})
+
 
 module.exports = routes;
