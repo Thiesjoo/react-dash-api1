@@ -1,4 +1,4 @@
-const { getItem } = require("../../../shared/database")
+const { getItem, getUserMongo } = require("../../../shared/database")
 const config = require('../../../shared/config')
 
 async function getItemFunc(req, res) {
@@ -12,11 +12,11 @@ async function getItemFunc(req, res) {
             // Get everything from type
             result = await getItem(undefined, undefined,req.query.type, req.decoded.email)
         } else {
-            res.status(400).send({ ok: false, msg: config.errors.invalidInfo })
-            return
+            result = await getUserMongo(req.decoded.email)
+            result = result.data
         }
-
         if (result) {
+            console.log(result)
             res.send({ ok: true, result: result })
         } else {
             res.status(400).send({ ok: false, result: config.errors.notFound })

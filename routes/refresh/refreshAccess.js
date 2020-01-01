@@ -27,7 +27,7 @@ async function refreshAccess(req, res) {
                                     expiresIn: config.accessExpiry
                                 }
                             );
-                            res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, sameSite: "none", path: "/user/" })
+                            res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true,secure:true, sameSite: "none", path: "/user/" })
                             res.send({ ok: true })
                         } else {
                             console.log("Token is invalid")

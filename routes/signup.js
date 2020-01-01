@@ -29,7 +29,7 @@ routes.post('/user/signup', async (req, res) => {
                     res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/", sameSite: "none", secure: true })
                     res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refresh", sameSite: "none", secure: true })
 
-                    res.send({ ok: true, id: newUser.insertedId, firstname: newUser.firstname, lastname: newUser.lastname, data: newUser.data })
+                    res.send({ ok: true, data: newUser.data })
                 }
             } else {
                 res.status(400).send({ ok: false, msg: config.errors.regexNotMatch })

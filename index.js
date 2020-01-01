@@ -67,12 +67,12 @@ fs.readdirSync("./routes").forEach(function (file) {
 fs.readdirSync("./routes/profile").forEach(function (file) {
     if (file.includes("js")) {
         let name = file.substr(0, file.indexOf('.'));
-        app.post("/user/" + name, checkToken, require("./routes/profile/"+file))
+        app.post("/user/" + name, checkToken, require("./routes/profile/" + file))
     } else if (!file.includes(".")) {
         fs.readdirSync("./routes/profile/" + file).forEach(function (file2) {
             if (file2.includes("js")) {
                 let fileName = file2.substr(0, file2.indexOf('.'));
-                addRoute("profile/"+fileName, "profile/"+file+"/"+file2)
+                addRoute("profile/" + fileName, "profile/" + file + "/" + file2)
             }
         })
     }
@@ -82,22 +82,21 @@ fs.readdirSync("./routes/profile").forEach(function (file) {
 fs.readdirSync("./routes/refresh").forEach(function (file) {
     if (file.includes("js")) {
         let name = file.substr(0, file.indexOf('.'));
-        app.post("/user/refresh/"+name,require("./routes/refresh/"+file))
+        app.post("/user/refresh/" + name, require("./routes/refresh/" + file))
     }
 })
 
 function addRoute(name, path) {
     if (name.includes("get")) {
-        app.get("/user/profile/item", checkToken, require("./routes/" + path ))
+        app.get("/user/profile/item", checkToken, require("./routes/" + path))
     } else if (name.includes("delete")) {
-        app.delete("/user/profile/item", checkToken, require("./routes/" + path ))
+        app.delete("/user/profile/item", checkToken, require("./routes/" + path))
     } else if (name.includes("add")) {
         app.post("/user/profile/item", checkToken, require("./routes/" + path))
     } else if (name.includes("update")) {
         app.put("/user/profile/item", checkToken, require("./routes/" + path))
     }
 }
-
 
 //Certs
 const https = require('https');
@@ -107,9 +106,9 @@ const certificate = fs.readFileSync('certs/cert.pem', 'utf8');
 const ca = fs.readFileSync('certs/chain.pem', 'utf8');
 
 const credentials = {
-	key: privateKey,
-	cert: certificate,
-	ca: ca
+    key: privateKey,
+    cert: certificate,
+    ca: ca
 };
 
 const httpsServer = https.createServer(credentials, app);

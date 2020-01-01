@@ -37,7 +37,7 @@ routes.post('/user/login', async (req, res) => {
                         res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, sameSite: "none", path: "/user/", secure: true })
                         res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, sameSite: "none", path: "/user/refresh", secure: true })
                        
-                        res.send({ ok: true, firstname: user.firstname, lastname: user.lastname, id: user._id, data: user.data })
+                        res.send({ ok: true, data: user.data })
 
                     } else {
                         res.status(400).send({ ok: false, msg: config.errors.wrongPassword })

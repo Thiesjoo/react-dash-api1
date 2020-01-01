@@ -159,7 +159,36 @@ async function getUserMongo(email) {
 }
 
 async function addUserMongo(email, firstname, lastname, password, token) {
-    return mongoDb.collection("users").insertOne({ email, password, token, data: { profile: { firstname, lastname, emailVerified: false } } })
+    const notifications = [
+        { id: new mongoRequire.ObjectID(), color: "warning", message: "Your email is not verified yet", type: "info", created: new Date() },
+    ]
+    const tempId = new mongoRequire.ObjectID()
+    const tasks = {
+        "Your first list": [
+            {
+                id: new mongoRequire.ObjectID(),
+                title: "Verify your email",
+                message: "You can just click the link that has been sent to you",
+                priority: 4,
+                children: [tempId],
+                child: false
+            },
+            {
+                id: tempId,
+                title: "Sub item test",
+                message: "You can just click the link that has been sent to you",
+                priority: 4,
+                children: [],
+                child: true
+            }
+        ]
+    }
+    const dashboard = {
+        items: {
+            home: [{ name: "ToDo", options: { list: "Your first list"} }]
+        }
+    }
+    return mongoDb.collection("users").insertOne({ email, password, token, data: {dashboard, tasks, notifications, profile: { firstname, lastname, email, emailVerified: false } } })
 }
 
 async function updateTokensMongo(email, newTokens) {
@@ -198,7 +227,6 @@ async function getItem(id, list, type, email) {
 async function addItem(item, list, type, email) {
     if (config.permissions[type].includes("w")) {
         if (config.allowedTypes.includes(type)) {
-
             let valid = true
             config.allowedFormats[type].forEach(x => {
                 if (!(x in item)) {
@@ -237,7 +265,6 @@ async function addItem(item, list, type, email) {
 
 async function deleteItem(id, list, type, email) {
     if (config.permissions[type].includes("w")) {
-
         if (config.allowedTypes.includes(type)) {
             let user = await getUserMongo(email)
             if (user) {
@@ -264,7 +291,6 @@ async function deleteItem(id, list, type, email) {
 
 async function updateItem(id, newItem, list, type, email) {
     if (config.permissions[type].includes("w")) {
-
         if (config.allowedTypes.includes(type)) {
             let valid = true
             config.allowedFormats[type].forEach(x => {
