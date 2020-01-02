@@ -38,8 +38,6 @@ module.exports = {
 
     errors: error,
     secret: process.env.JWT_SECRET,
-    mysqlPassword: process.env.DB_PASS,
-    database_name: process.env.DB_NAME,
     saltRounds: 14,
     accessExpiry: 900000,
     refreshExpiry: 604800000,
