@@ -1,18 +1,19 @@
-const { getItem, getUserMongo } = require("../../../shared/database")
+const { getItem, getUserById } = require("../../../shared/database")
 const config = require('../../../shared/config')
 
 async function getItemFunc(req, res) {
     try {
         let result = undefined
         if (req.query.type && config.allowedTypes.includes(req.query.type) &&
-        req.query.list){
+            req.query.list) {
             // Get specific list from type
-            result = await getItem(req.query.id, req.query.list,req.query.type, req.decoded.email)
+            result = await getItem(req.query.id, req.query.list, req.query.type, req.decoded.id)
         } else if (req.query.type && config.allowedTypes.includes(req.query.type)) {
             // Get everything from type
-            result = await getItem(undefined, undefined,req.query.type, req.decoded.email)
+            result = await getItem(undefined, undefined, req.query.type, req.decoded.id)
         } else {
-            result = await getUserMongo(req.decoded.email)
+            result = await getUserById(req.decoded.id)
+            console.log("USER FROM GETITEM: ", result, req.decoded.id)
             result = result.data
         }
         if (result) {

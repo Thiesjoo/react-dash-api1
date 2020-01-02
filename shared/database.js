@@ -32,11 +32,16 @@ function getMongoDB() {
     return mongoDb
 }
 
-async function getUserMongo(email) {
+async function getUserById(id) {
+    return mongoDb.collection("users").findOne(mongoRequire.ObjectID(id))
+}
+
+async function getUserByEmail(email) {
     return mongoDb.collection("users").findOne({ email })
 }
 
-async function addUserMongo(email, firstname, lastname, password, token) {
+
+async function addUser(email, firstname, lastname, password, token) {
     const notifications = [
         { id: new mongoRequire.ObjectID(), color: "warning", message: "Your email is not verified yet", type: "info", created: new Date() },
     ]
@@ -46,7 +51,7 @@ async function addUserMongo(email, firstname, lastname, password, token) {
             {
                 id: new mongoRequire.ObjectID(),
                 title: "Verify your email",
-                message: "You can just click the link that has been sent to you",
+                msg: "You can just click the link that has been sent to you",
                 priority: 4,
                 children: [tempId],
                 child: false
@@ -54,7 +59,7 @@ async function addUserMongo(email, firstname, lastname, password, token) {
             {
                 id: tempId,
                 title: "Sub item test",
-                message: "You can just click the link that has been sent to you",
+                msg: "You can just click the link that has been sent to you",
                 priority: 4,
                 children: [],
                 child: true
@@ -63,21 +68,20 @@ async function addUserMongo(email, firstname, lastname, password, token) {
     }
     const dashboard = {
         items: {
-            home: [{ name: "ToDo", options: { list: "Your first list"} }]
+            home: [{ name: "ToDo", options: { list: "Your first list" } }]
         }
     }
-    return mongoDb.collection("users").insertOne({ email, password, token, data: {dashboard, tasks, notifications, profile: { firstname, lastname, email, emailVerified: false } } })
+    return mongoDb.collection("users").insertOne({ email, password, token, data: { dashboard, tasks, notifications, profile: { firstname, lastname, email, emailVerified: false } } })
 }
 
-async function updateTokensMongo(email, newTokens) {
-    return mongoDb.collection("users").updateOne({ email }, { $set: { token: newTokens } })
+async function updateTokens(id, newTokens) {
+    return mongoDb.collection("users").updateOne({_id: mongoRequire.ObjectID(id)}, { $set: { token: newTokens } })
 }
 
-async function getItem(id, list, type, email) {
+async function getItem(id, list, type, userId) {
     if (config.permissions[type].includes("r")) {
-        let user = await getUserMongo(email)
+        let user = await getUserById(mongoRequire.ObjectID(userId))
         if (user) {
-            console.log(list)
             if (user.data[type] && list !== undefined && user.data[type][list]) {
                 let withId;
                 if (id) {
@@ -102,7 +106,7 @@ async function getItem(id, list, type, email) {
 }
 
 
-async function addItem(item, list, type, email) {
+async function addItem(item, list, type, userId) {
     if (config.permissions[type].includes("w")) {
         if (config.allowedTypes.includes(type)) {
             let valid = true
@@ -114,7 +118,7 @@ async function addItem(item, list, type, email) {
             if (config.allowedFormats[type].length != Object.keys(item).length) valid = false
             if (valid) {
                 item.id = new mongoRequire.ObjectID()
-                let user = await getUserMongo(email)
+                let user = await getUserById(mongoRequire.ObjectID(userId))
                 if (user) {
                     if (user.data[type] && !user.data[type][list]) {
                         user.data[type][list] = []
@@ -123,7 +127,7 @@ async function addItem(item, list, type, email) {
                         user.data[type][list] = []
                     }
                     user.data[type][list].push(item)
-                    let mongoResult = await mongoDb.collection("users").updateOne({ email }, { $set: { data: user.data } })
+                    let mongoResult = await mongoDb.collection("users").updateOne({_id: mongoRequire.ObjectID(userId)}, { $set: { data: user.data } })
                     if (mongoResult.result.ok != 1) throw "Database unresponsive"
                     return user.data[type][list]
                 } else {
@@ -141,16 +145,16 @@ async function addItem(item, list, type, email) {
 }
 
 
-async function deleteItem(id, list, type, email) {
+async function deleteItem(id, list, type, userId) {
     if (config.permissions[type].includes("w")) {
         if (config.allowedTypes.includes(type)) {
-            let user = await getUserMongo(email)
+            let user = await getUserById(mongoRequire.ObjectID(userId))
             if (user) {
                 if (user.data[type][list]) {
                     user.data[type][list] = user.data[type][list].filter(function (value, index) {
                         return value.id != id
                     });
-                    let mongoResult = await mongoDb.collection("users").updateOne({ email }, { $set: { data: user.data } })
+                    let mongoResult = await mongoDb.collection("users").updateOne({_id: mongoRequire.ObjectID(userId)}, { $set: { data: user.data } })
                     if (mongoResult.result.ok != 1) throw "Database unresponsive"
                     return user.data[type][list]
                 } else {
@@ -167,7 +171,7 @@ async function deleteItem(id, list, type, email) {
     }
 }
 
-async function updateItem(id, newItem, list, type, email) {
+async function updateItem(id, newItem, list, type, userId) {
     if (config.permissions[type].includes("w")) {
         if (config.allowedTypes.includes(type)) {
             let valid = true
@@ -179,13 +183,13 @@ async function updateItem(id, newItem, list, type, email) {
             if (config.allowedFormats[type].length != Object.keys(newItem).length) valid = false
             if (valid) {
                 newItem.id = id
-                let user = await getUserMongo(email)
+                let user = await getUserById(mongoRequire.ObjectID(userId))
                 if (user) {
                     if (user.data[type][list]) {
                         let index = user.data[type][list].findIndex(x => x.id == id)
                         if (index > -1) {
                             user.data[type][list].splice(index, 1, newItem)
-                            let mongoResult = await mongoDb.collection("users").updateOne({ email }, { $set: { data: user.data } })
+                            let mongoResult = await mongoDb.collection("users").updateOne({_id: mongoRequire.ObjectID(userId)}, { $set: { data: user.data } })
                             if (mongoResult.result.ok != 1) throw "Database unresponsive"
                             return user.data[type][list]
                         } else {
@@ -213,11 +217,12 @@ async function updateItem(id, newItem, list, type, email) {
 // #endregion
 
 module.exports = {
-    getUserMongo,
+    getUserById,
+    getUserByEmail,
     getMongoDB,
 
-    addUserMongo,
-    updateTokensMongo,
+    addUser,
+    updateTokens,
 
     getItem,
     addItem,

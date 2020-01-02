@@ -1,6 +1,6 @@
 const routes = require('express').Router();
 const config = require('../shared/config')
-const { simpleQuery, getUser, getUserMongo, updateTokensMongo } = require("../shared/database")
+const {  getUserByEmail, updateTokens } = require("../shared/database")
 const { bcrypt, jwt, randomstring, emailRegex, passwordRegex } = require('../shared/security')
 
 routes.post('/user/login', async (req, res) => {
@@ -10,7 +10,7 @@ routes.post('/user/login', async (req, res) => {
         if (body.email && body.password) {
             if (emailRegex.test(body.email) && passwordRegex.test(body.password)) {
                 // Get the user
-                let user = await getUserMongo(body.email)
+                let user = await getUserByEmail(body.email)
                 if (user) {
                     //Compare password and generate token. Then save the token and return the token along with details
                     let passwordsSame = await bcrypt.compare(body.password, user.password)
@@ -31,8 +31,8 @@ routes.post('/user/login', async (req, res) => {
                         let currentDate = new Date(Date.now())
                         refreshArray = refreshArray.filter(item => item.expiry > currentDate)
 
-
-                        let result = await updateTokensMongo(body.email,refreshArray)
+                        console.log(user)
+                        let result = await updateTokens(user._id,refreshArray)
 
                         res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, sameSite: "none", path: "/user/", secure: true })
                         res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, sameSite: "none", path: "/user/refresh", secure: true })

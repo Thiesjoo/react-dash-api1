@@ -11,7 +11,7 @@ async function deleteItemFunc(req, res) {
             && req.body.type
             && typeof req.body.type === "string") {
 
-            let result = await deleteItem(req.body.id, req.body.list, req.body.type, req.decoded.email)
+            let result = await deleteItem(req.body.id, req.body.list, req.body.type, req.decoded.id)
             res.send({ ok: true, result: result })
         } else {
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })

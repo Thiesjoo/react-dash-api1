@@ -1,6 +1,6 @@
 const routes = require('express').Router();
 const config = require('../shared/config')
-const { getUserMongo, addUserMongo } = require("../shared/database")
+const { getUserByEmail, addUser } = require("../shared/database")
 const security = require('../shared/security')
 
 routes.post('/user/signup', async (req, res) => {
@@ -8,7 +8,7 @@ routes.post('/user/signup', async (req, res) => {
         let body = req.body
         if (body.email && body.password && body.firstname && body.lastname) {
             if (security.emailRegex.test(body.email) && security.passwordRegex.test(body.password)) {
-                let user = await getUserMongo(body.email)
+                let user = await getUserByEmail(body.email)
                 if (user) {
                     res.status(400).send({ ok: false, msg: config.errors.alreadyExists })
                 } else {
@@ -18,7 +18,7 @@ routes.post('/user/signup', async (req, res) => {
                     let refreshtoken = security.jwt.sign({ token: realtoken }, config.secret, { expiresIn: config.accessExpiry });
                     let refreshArray = [{ token: realtoken, platform: req.body.platform, useragent: req.body.useragent, expiry: new Date(Date.now() + config.refreshExpiry) }]
 
-                    let newUser = await addUserMongo(body.email, body.firstname, body.lastname, hash, refreshArray)
+                    let newUser = await addUser(body.email, body.firstname, body.lastname, hash, refreshArray)
                     let accesstoken = security.jwt.sign({ email: body.email, id: newUser.insertedId },
                         config.secret,
                         {

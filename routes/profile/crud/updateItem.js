@@ -12,7 +12,7 @@ async function updateItemFunc(req, res) {
             && req.body.id
             && typeof req.body.id === "string") {
                 console.log("Test")
-            let result = await updateItem(req.body.id, req.body.item, req.body.list, req.body.type, req.decoded.email)
+            let result = await updateItem(req.body.id, req.body.item, req.body.list, req.body.type, req.decoded.id)
             res.send({ ok: true, result: result })
         } else {
             console.log(req.body)
