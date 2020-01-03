@@ -43,7 +43,7 @@ module.exports = {
     refreshExpiry: 604800000,
     tokenLength: 20,
     httpsPort: process.env.NODE_ENV == "production" ? 8080 : 8090, // Use a different port while developing, so you can host the server for dev and prod at the same time
-    allowedTypes: ["tasks", "notifications", "banking", "profile"],
-    allowedFormats: {tasks: ["title", "msg", "priority", "children", /*List of id's*/ "child" /* Boolean:if current object is a child */ ], notifications: ["title", "message", "type", "created", "ttl", "color"], banking: ["title"]},
-    permissions: {tasks: "r/w", notifications: "r/w", banking: "r/w", profile: "r"}
+    allowedTypes: ["tasks", "notifications", "banking", "profile", "items"],
+    allowedFormats: { tasks: ["title", "msg", "priority", "children", /*List of id's*/ "child" /* Boolean:if current object is a child */], notifications: ["title", "message", "type", "created", "ttl", "color"], banking: ["title", "amount", "msg", "time", "repeatInterval"], items: ["name", "options"] },
+    permissions: { tasks: "r/w", notifications: "r/w", banking: "r/w", profile: "r", items: "r/w" }
 }

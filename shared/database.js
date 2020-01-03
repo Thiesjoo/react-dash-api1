@@ -66,16 +66,15 @@ async function addUser(email, firstname, lastname, password, token) {
             }
         ]
     }
-    const dashboard = {
-        items: {
-            home: [{ name: "ToDo", options: { list: "Your first list" } }]
-        }
+    const items = {
+        home: [{ name: "tasks", options: { list: "Your first list" } }]
     }
-    return mongoDb.collection("users").insertOne({ email, password, token, data: { dashboard, tasks, notifications, profile: { firstname, lastname, email, emailVerified: false } } })
+
+    return mongoDb.collection("users").insertOne({ email, password, token, data: { items, tasks, notifications, profile: { firstname, lastname, email, emailVerified: false } } })
 }
 
 async function updateTokens(id, newTokens) {
-    return mongoDb.collection("users").updateOne({_id: mongoRequire.ObjectID(id)}, { $set: { token: newTokens } })
+    return mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(id) }, { $set: { token: newTokens } })
 }
 
 async function getItem(id, list, type, userId) {
@@ -107,7 +106,7 @@ async function getItem(id, list, type, userId) {
 
 
 async function addItem(item, list, type, userId) {
-    if (config.permissions[type].includes("w")) {
+    if (config.permissions[type] && config.permissions[type].includes("w")) {
         if (config.allowedTypes.includes(type)) {
             let valid = true
             config.allowedFormats[type].forEach(x => {
@@ -127,7 +126,7 @@ async function addItem(item, list, type, userId) {
                         user.data[type][list] = []
                     }
                     user.data[type][list].push(item)
-                    let mongoResult = await mongoDb.collection("users").updateOne({_id: mongoRequire.ObjectID(userId)}, { $set: { data: user.data } })
+                    let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
                     if (mongoResult.result.ok != 1) throw "Database unresponsive"
                     return user.data[type][list]
                 } else {
@@ -146,7 +145,7 @@ async function addItem(item, list, type, userId) {
 
 
 async function deleteItem(id, list, type, userId) {
-    if (config.permissions[type].includes("w")) {
+    if (config.permissions[type] && config.permissions[type].includes("w")) {
         if (config.allowedTypes.includes(type)) {
             let user = await getUserById(mongoRequire.ObjectID(userId))
             if (user) {
@@ -154,7 +153,7 @@ async function deleteItem(id, list, type, userId) {
                     user.data[type][list] = user.data[type][list].filter(function (value, index) {
                         return value.id != id
                     });
-                    let mongoResult = await mongoDb.collection("users").updateOne({_id: mongoRequire.ObjectID(userId)}, { $set: { data: user.data } })
+                    let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
                     if (mongoResult.result.ok != 1) throw "Database unresponsive"
                     return user.data[type][list]
                 } else {
@@ -172,8 +171,9 @@ async function deleteItem(id, list, type, userId) {
 }
 
 async function updateItem(id, newItem, list, type, userId) {
-    if (config.permissions[type].includes("w")) {
+    if (config.permissions[type] && config.permissions[type].includes("w")) {
         if (config.allowedTypes.includes(type)) {
+            
             let valid = true
             config.allowedFormats[type].forEach(x => {
                 if (!(x in newItem)) {
@@ -189,7 +189,7 @@ async function updateItem(id, newItem, list, type, userId) {
                         let index = user.data[type][list].findIndex(x => x.id == id)
                         if (index > -1) {
                             user.data[type][list].splice(index, 1, newItem)
-                            let mongoResult = await mongoDb.collection("users").updateOne({_id: mongoRequire.ObjectID(userId)}, { $set: { data: user.data } })
+                            let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
                             if (mongoResult.result.ok != 1) throw "Database unresponsive"
                             return user.data[type][list]
                         } else {
@@ -212,7 +212,58 @@ async function updateItem(id, newItem, list, type, userId) {
     }
 }
 
+//neworder: [{id: _parentId, children: [childId]}] 
+async function updateOrder(newOrder, list, type, userId) {
+    if (config.permissions[type] && config.permissions[type].includes("w")) {
+        if (config.allowedTypes.includes(type)) {
+            let user = await getUserById(mongoRequire.ObjectID(userId))
+            if (user) {
+                if (user.data[type][list]) {
+                    let originalOrder = user.data[type][list]
+                    originalOrder.forEach(x=> {
+                        x.child = false
+                    })
 
+                    let newList = []
+                    //Find the original item and push it into the list. Do the same for sub items
+                    newOrder.forEach(x => {
+                        let item = originalOrder.find(item => item.id == x.id)
+                        if (item) {
+                            if (x.children.length > 0) {
+                                x.children.forEach(y => {
+                                    let alsoNewItem = originalOrder.find(item => item.id == y)
+                                    if (alsoNewItem) {
+                                        alsoNewItem.child = true
+                                        newList.push(alsoNewItem)
+                                    } else {
+                                        throw "Invalid sub-id given"
+                                    }
+                                })
+                            }
+                            item.children = x.children
+                            newList.push(item)
+                        } else {
+                            throw "Invalid id given"
+                        }
+                    })
+                    user.data[type][list] = newList
+                    let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
+                    if (mongoResult.result.ok != 1) throw "Database unresponsive"
+                    return newList
+                } else {
+                    throw "List does not exist"
+                }
+            } else {
+                throw "No user"
+            }
+
+        } else {
+            throw "Not allowed"
+        }
+    } else {
+        throw "Not allowed"
+    }
+}
 
 // #endregion
 
@@ -228,5 +279,6 @@ module.exports = {
     addItem,
     deleteItem,
     updateItem,
+    updateOrder
 }
 

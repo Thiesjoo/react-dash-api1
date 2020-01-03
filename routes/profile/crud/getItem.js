@@ -13,11 +13,9 @@ async function getItemFunc(req, res) {
             result = await getItem(undefined, undefined, req.query.type, req.decoded.id)
         } else {
             result = await getUserById(req.decoded.id)
-            console.log("USER FROM GETITEM: ", result, req.decoded.id)
             result = result.data
         }
         if (result) {
-            console.log(result)
             res.send({ ok: true, result: result })
         } else {
             res.status(400).send({ ok: false, result: config.errors.notFound })

@@ -23,7 +23,7 @@ app.use(function (req, res, next) {
             res.setHeader("Access-Control-Allow-Origin", "*")
         }
         res.setHeader("Access-Control-Allow-Credentials", "true");
-        res.setHeader("Access-Control-Allow-Methods", "DELETE, GET, POST, OPTIONS");
+        res.setHeader("Access-Control-Allow-Methods", "DELETE, GET, POST, OPTIONS, PATCH, PUT");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     }
     next()
@@ -72,7 +72,7 @@ fs.readdirSync("./routes/profile").forEach(function (file) {
         fs.readdirSync("./routes/profile/" + file).forEach(function (file2) {
             if (file2.includes("js")) {
                 let fileName = file2.substr(0, file2.indexOf('.'));
-                addRoute("profile/" + fileName, "profile/" + file + "/" + file2)
+                addCorrectMethod("profile/" + fileName, "profile/" + file + "/" + file2)
             }
         })
     }
@@ -86,14 +86,16 @@ fs.readdirSync("./routes/refresh").forEach(function (file) {
     }
 })
 
-function addRoute(name, path) {
+function addCorrectMethod(name, path) {
     if (name.includes("get")) {
         app.get("/user/profile/item", checkToken, require("./routes/" + path))
     } else if (name.includes("delete")) {
         app.delete("/user/profile/item", checkToken, require("./routes/" + path))
     } else if (name.includes("add")) {
         app.post("/user/profile/item", checkToken, require("./routes/" + path))
-    } else if (name.includes("update")) {
+    } else if (name.includes("Order")) {
+        app.patch("/user/profile/item", checkToken, require("./routes/" + path))
+    }else if (name.includes("update")) {
         app.put("/user/profile/item", checkToken, require("./routes/" + path))
     }
 }

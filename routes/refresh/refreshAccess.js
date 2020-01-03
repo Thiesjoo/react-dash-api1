@@ -5,15 +5,13 @@ const config = require('../../shared/config')
 async function refreshAccess(req, res) {
     try {
         let body = req.body
-        console.log("Valid cookie in function refresh token: ", req.cookies.refreshtoken ? "yes" : "no")
         if (body.email && req.cookies.refreshtoken) {
             //First check if user exists
             if (security.emailRegex.test(body.email)) {
                 let user = await getUserByEmail(body.email)
                 if (user) {
-                    console.log("Refreshing access for: ", user.id)
+                    console.log("Refreshing access for: ", user._id)
                     let refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
-                    console.log("With tokeN: ", refreshtoken)
                     if (refreshtoken) {
                         let refreshArray = user.token
                         // console.log(refreshArray)
