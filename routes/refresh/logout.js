@@ -16,7 +16,7 @@ async function logout(req, res) {
                     }) !== undefined
                     if (tokenExists) {
                         userTokens = userTokens.filter(object => object.token != refreshtoken.token)
-                        updateTokens(userTokens)
+                        updateTokens(user._id,userTokens)
 
                         res.clearCookie("accesstoken", { httpOnly: true, path: "/user/", sameSite: "none", secure: true })
                         res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", sameSite: "none", secure: true })

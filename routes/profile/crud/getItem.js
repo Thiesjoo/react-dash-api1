@@ -12,8 +12,10 @@ async function getItemFunc(req, res) {
             // Get everything from type
             result = await getItem(undefined, undefined, req.query.type, req.decoded.id)
         } else {
-            result = await getUserById(req.decoded.id)
-            result = result.data
+            user = await getUserById(req.decoded.id)
+            if (user) {
+                result = user.data
+            } 
         }
         if (result) {
             res.send({ ok: true, result: result })

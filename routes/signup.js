@@ -19,7 +19,7 @@ routes.post('/user/signup', async (req, res) => {
                     let refreshArray = [{ token: realtoken, platform: req.body.platform, useragent: req.body.useragent, expiry: new Date(Date.now() + config.refreshExpiry) }]
 
                     let newUser = await addUser(body.email, body.firstname, body.lastname, hash, refreshArray)
-                    let accesstoken = security.jwt.sign({ email: body.email, id: newUser.insertedId },
+                    let accesstoken = security.jwt.sign({ email: body.email, id: newUser._id },
                         config.secret,
                         {
                             expiresIn: config.accessExpiry
