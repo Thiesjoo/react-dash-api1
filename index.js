@@ -117,6 +117,7 @@ if (!config.production) {
     const httpsServer = https.createServer(credentials, app);
     httpsServer.listen(config.httpsPort, () => console.log(`API1 https-app listening on port ${config.httpsPort}!`))
 } else {
+    console.log(process.env, process.env.PORT)
     app.listen(process.env.PORT, () => {
         console.log("App running without manual HTTPS on port " + process.env.port)
     })
