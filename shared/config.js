@@ -32,8 +32,24 @@ const prodErrors = {
 
 const error = process.env.NODE_ENV == "production" ? prodErrors : devErrors
 
+let url = ""
+if ( process.env.MONGOURL) {
+    url = process.env.MONGOURL
+} else {
+    let ip = "localhost"
+    const isDocker = require('is-docker');
+    const isdocker = isDocker()
+    if (isdocker) {
+        console.log("Is in docker")
+        ip = "db"
+        console.log("Debugging info: ", config)
+    }
+    url = `mongodb://${ip}:27017/`
+}
+
 module.exports = {
     production: process.env.NODE_ENV == "production" ? true : false,
+    mongoURL: url,
     zeit: true,
 
     errors: error,

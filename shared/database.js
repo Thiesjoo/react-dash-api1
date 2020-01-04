@@ -1,18 +1,11 @@
-const isDocker = require('is-docker');
 const config = require('./config.js');
 
-let ip = "localhost"
-let isdocker = isDocker()
-if (isdocker) {
-    console.log("Is in docker")
-    ip = "db"
-    console.log("Debugging info: ", config)
-}
+
 
 // #region MongoConfig
 const mongoRequire = require('mongodb')
 const mongoClient = mongoRequire.MongoClient;
-const mongoUrl = `mongodb://${ip}:27017/`;
+const mongoUrl = config.mongoURL;
 let mongoDb = null
 connectToMongo().catch(error => {
     throw error
