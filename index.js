@@ -95,23 +95,29 @@ function addCorrectMethod(name, path) {
         app.post("/user/profile/item", checkToken, require("./routes/" + path))
     } else if (name.includes("Order")) {
         app.patch("/user/profile/item", checkToken, require("./routes/" + path))
-    }else if (name.includes("update")) {
+    } else if (name.includes("update")) {
         app.put("/user/profile/item", checkToken, require("./routes/" + path))
     }
 }
 
 //Certs
-const https = require('https');
+if (!config.production) {
+    const https = require('https');
 
-const privateKey = fs.readFileSync('certs/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('certs/cert.pem', 'utf8');
-const ca = fs.readFileSync('certs/chain.pem', 'utf8');
+    const privateKey = fs.readFileSync('certs/privkey.pem', 'utf8');
+    const certificate = fs.readFileSync('certs/cert.pem', 'utf8');
+    const ca = fs.readFileSync('certs/chain.pem', 'utf8');
 
-const credentials = {
-    key: privateKey,
-    cert: certificate,
-    ca: ca
-};
+    const credentials = {
+        key: privateKey,
+        cert: certificate,
+        ca: ca
+    };
 
-const httpsServer = https.createServer(credentials, app);
-httpsServer.listen(config.httpsPort, () => console.log(`API1 https-app listening on port ${config.httpsPort}!`))
+    const httpsServer = https.createServer(credentials, app);
+    httpsServer.listen(config.httpsPort, () => console.log(`API1 https-app listening on port ${config.httpsPort}!`))
+} else {
+    app.listen(process.env.PORT, () => {
+        console.log("App running without manual HTTPS on port " + process.env.port)
+    })
+}

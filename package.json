@@ -22,9 +22,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongo": "^0.1.0",
     "randomstring": "^1.1.5",
-    "xss-clean": "^0.1.1"
-  },
-  "devDependencies": {
+    "xss-clean": "^0.1.1",
     "trianglify": "^2.0.0-alpha.2"
   }
 }
