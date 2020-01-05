@@ -7,27 +7,27 @@ const devErrors = {
     noRefresh: "Refresh token doesn't exist",
     general: "Something went wrong",
     alreadyExists: "Account already exists",
-    regexNotMatch: "The regex is not valid",
-    rateLimit: "You're doing that too fast",
+    regexNotMatch: "Invalid input",
     noPerms: "You have no permissions to access this route",
     notEnoughInfoTokens: "Token is not present",
-    invalidInfo: "The info supplied is not valid"
+    invalidInfo: "Invalid input",
+    tooMuchSpace: "Your account occupies too much space in the database. Please stop adding more items"
 }
 
 const prodErrors = {
-    accountNotFound: "Not found",
-    notFound: "Not found",
-    wrongPassword: "Not found",
+    accountNotFound: "Email/password combination in not correct",
+    notFound: "Item not found",
+    wrongPassword: "Email/password combination in not correct",
     invalidToken: "Something went wrong",
     notEnoughInfo: "There is not enough info",
-    noRefresh: "Something went wrong",
+    noRefresh: "There is not enough info",
     general: "Something went wrong",
-    alreadyExists: "Account already exists",
-    regexNotMatch: "Something went wrong",
-    rateLimit: "You're doing that too fast",
+    alreadyExists: "Account already occupied",
+    regexNotMatch: "Invalid input",
     noPerms: "Something went wrong",
     notEnoughInfoTokens: "There is not enough info",
-    invalidInfo: "The info supplied is not valid"
+    invalidInfo: "Invalid input",
+    tooMuchSpace: "Your account occupies too much space in the database. Please stop adding more items"
 }
 
 const error = process.env.NODE_ENV == "production" ? prodErrors : devErrors
@@ -49,6 +49,8 @@ if ( process.env.MONGOURL) {
 
 module.exports = {
     production: process.env.NODE_ENV == "production" ? true : false,
+    databaseName: this.production ? "users" : "users_dev",
+
     mongoURL: url,
     zeit: true,
 

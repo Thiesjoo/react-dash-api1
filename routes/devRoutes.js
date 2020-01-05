@@ -4,10 +4,7 @@ const routes = require('express').Router();
 console.error("USING DEV ROUTES.")
 console.error("DEV ROUTE CONSEQUENSES: CORS IS ENABLED, DEV ROUTES ARE ON(Delete entire tables, list all data), DEV COOKIES ARE ON, USING LOCAL DATABASE")
 
-routes.get('/', (req, res) => {
-    console.log(req.ip)
-    res.send("Welcome to my API. This is not meant for people to see. If you see this: PLEASE GO AWAY")
-})
+
 
 routes.get("/mongo", async (req,res) => {
     try {

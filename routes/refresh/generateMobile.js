@@ -39,11 +39,11 @@ async function generateMobile(req, res) {
                             res.status(400).send({ ok: false, msg: config.errors.rateLimit })
                         }
                     } else {
-                        res.status(401).send({ ok: false, error: config.errors.invalidToken })
+                        res.status(401).send({ ok: false, msg: config.errors.invalidToken })
                     }
                 }
             } else {
-                res.status(401).send({ ok: false, error: config.errors.invalidToken })
+                res.status(401).send({ ok: false, msg: config.errors.invalidToken })
             }
         } else {
             res.json({
@@ -52,8 +52,8 @@ async function generateMobile(req, res) {
             });
         }
     } catch (error) {
-        console.error("\x1b[31mGetRefresh: ", error, req.body)
-        res.status(500).send({ ok: false, msg: config.errors.general })
+        console.error("\x1b[31m generateMobile: ", error, req.body)
+        res.status(500).send({ ok: false, msg: error })
     }
 }
 

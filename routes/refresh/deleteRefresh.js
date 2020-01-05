@@ -24,11 +24,11 @@ async function deleteRefresh(req, res) {
                         await simpleQuery("UPDATE users SET token = '" + JSON.stringify(filtered) + "' WHERE email = ?", [accesstoken.email])
                         res.send({ ok: true, tokens: filtered })
                     } else {
-                        res.status(401).send({ ok: false, error: config.errors.invalidToken })
+                        res.status(401).send({ ok: false, msg: config.errors.invalidToken })
                     }
                 }
             } else {
-                res.status(401).send({ ok: false, error: config.errors.invalidToken })
+                res.status(401).send({ ok: false, msg: config.errors.invalidToken })
             }
         } else {
             res.json({
@@ -37,7 +37,7 @@ async function deleteRefresh(req, res) {
             });
         }
     } catch (error) {
-        console.error("\x1b[31mDeleteRefresh: ", error, req.body)
+        console.error("\x1b[31m DeleteRefresh: ", error, req.body)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }

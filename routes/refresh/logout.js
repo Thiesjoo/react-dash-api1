@@ -26,7 +26,7 @@ async function logout(req, res) {
                         res.status(401).send({ ok: false, msg: config.errors.noPerms })
                     }
                 } else {
-                    res.status(400).send({ ok: false, msg: config.errors.notFound })
+                    res.status(400).send({ ok: false, msg: config.errors.accountNotFound })
                 }
             } else {
                 res.status(401).send({ ok: false, msg: config.errors.noPerms })
@@ -35,7 +35,7 @@ async function logout(req, res) {
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (error) {
-        console.error("\x1b[31mLogout: ", error, req.body)
+        console.error("\x1b[31m Logout: ", error, req.body)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }

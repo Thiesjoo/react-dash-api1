@@ -47,6 +47,10 @@ app.use(xss());
 
 //ROUTES PREP
 const checkToken = require("./shared/security").checkToken
+app.get('/', (req, res) => {
+    console.log(req.ip)
+    res.send("Welcome to my API. This is not meant for people to see. If you see this: PLEASE GO AWAY")
+})
 
 //ROUTES. All auto load from the folders so you don;t have to pay attention when creating a new one
 const fs = require("fs")

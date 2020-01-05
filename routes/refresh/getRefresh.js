@@ -35,11 +35,11 @@ async function getRefresh(req, res) {
                     if (valid2) {
                         res.send({ ok: true, tokens: tokens })
                     } else {
-                        res.status(401).send({ ok: false, error: config.errors.invalidToken })
+                        res.status(401).send({ ok: false, msg: config.errors.invalidToken })
                     }
                 }
             } else {
-                res.status(401).send({ ok: false, error: config.errors.invalidToken })
+                res.status(401).send({ ok: false, msg: config.errors.invalidToken })
             }
         } else {
             res.json({
@@ -48,7 +48,7 @@ async function getRefresh(req, res) {
             });
         }
     } catch (error) {
-        console.error("\x1b[31mGetRefresh: ", error, req.body)
+        console.error("\x1b[31m GetRefresh: ", error, req.body)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }

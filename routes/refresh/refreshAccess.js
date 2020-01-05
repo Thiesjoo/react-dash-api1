@@ -53,7 +53,7 @@ async function refreshAccess(req, res) {
         }
     } catch (error) {
         res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", sameSite: "none", secure: true })
-        console.error("\x1b[31mRefreshaccess: ", error, req.body)
+        console.error("\x1b[31m Refreshaccess: ", error, req.body)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }

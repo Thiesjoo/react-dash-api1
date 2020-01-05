@@ -25,8 +25,8 @@ routes.post('/errors', async (req, res) => {
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (error) {
-        console.error("\x1b[31m Errors: ", error, req.body)
-        res.status(500).send({ ok: false, msg: config.errors.general })
+        console.error("\x1b[31m  addError: ", error, req.body)
+        res.status(500).send({ ok: false, msg: error })
     }
 })
 

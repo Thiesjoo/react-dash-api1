@@ -24,8 +24,8 @@ async function getItemFunc(req, res) {
         }
 
     } catch (error) {
-        console.error("\x1b[31mgetItem: ", error, req.body)
-        res.status(500).send({ ok: false, msg: config.errors.general })
+        console.error("\x1b[31m getItem:", error, req.body)
+        res.status(500).send({ ok: false, msg: error })
     }
 }
 

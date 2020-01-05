@@ -10,7 +10,13 @@ routes.post('/user/signup', async (req, res) => {
             if (security.emailRegex.test(body.email) && security.passwordRegex.test(body.password)) {
                 let user = await getUserByEmail(body.email)
                 if (user) {
-                    res.status(400).send({ ok: false, msg: config.errors.alreadyExists })
+                    if (user.timeOfDeletion) {
+                        const diffTime = Math.abs(Date.now() - user.timeOfDeletion);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        res.status(401).send({ ok: false, msg: `This account was deleted ${diffDays} days ago. It is blocked due to user spoofing reasons` })
+                    } else {
+                        res.status(400).send({ ok: false, msg: config.errors.alreadyExists })
+                     }
                 } else {
                     //Same as login but also adding the user to database
                     let hash = await security.bcrypt.hash(body.password, security.saltRounds)
@@ -38,7 +44,7 @@ routes.post('/user/signup', async (req, res) => {
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (err) {
-        console.log("Signup: ", err)
+        console.log("\x1b[31m Signup: ", err)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 })

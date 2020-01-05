@@ -1,8 +1,7 @@
 const config = require('./config.js');
 
-
-
 // #region MongoConfig
+
 const mongoRequire = require('mongodb')
 const mongoClient = mongoRequire.MongoClient;
 const mongoUrl = config.mongoURL;
@@ -14,10 +13,11 @@ connectToMongo().catch(error => {
 async function connectToMongo() {
     let newCon = await mongoClient.connect(mongoUrl,
         { useNewUrlParser: true, useUnifiedTopology: true })
-    mongoDb = newCon.db("users_test")
+    mongoDb = newCon.db(config.databaseName)
 }
 
 // #endregion
+
 
 // #region CRUD
 
@@ -107,10 +107,10 @@ async function getItem(id, list, type, userId) {
                     return null
                 }
             } else {
-                throw "No user"
+                throw config.errors.accountNotFound
             }
         } else {
-            throw "Not allowed"
+            throw config.errors.noPerms
         }
     } catch (error) {
         throw error
@@ -134,39 +134,43 @@ async function addItem(item, list, type, userId) {
                     item.id = new mongoRequire.ObjectID()
                     let user = await getUserById(mongoRequire.ObjectID(userId))
                     if (user) {
-                        if (user.data[type] && !user.data[type][list]) {
-                            user.data[type][list] = []
-                        } else if (!user.data[type]) {
-                            user.data[type] = {}
-                            user.data[type][list] = []
-                        }
-                        if (item.parentId) {
-                            console.log("Adding item as subitem")
-                            let parentIndex = user.data[type][list].findIndex(x => x.id == item.parentId)
-                            if (parentIndex > -1) {
-                                let parentItem = user.data[type][list][parentIndex]
-                                parentItem.children.push(mongoRequire.ObjectID(item.id))
-                                user.data[type][list].splice(parentIndex, 1, parentItem)
-                            } else {
-                                throw "Parent not found"
+                        if (getSize(user) < 10000000) { // 10 MB
+                            if (user.data[type] && !user.data[type][list]) {
+                                user.data[type][list] = []
+                            } else if (!user.data[type]) {
+                                user.data[type] = {}
+                                user.data[type][list] = []
                             }
-                            delete item.parentId
+                            if (item.parentId) {
+                                console.log("Adding item as subitem")
+                                let parentIndex = user.data[type][list].findIndex(x => x.id == item.parentId)
+                                if (parentIndex > -1) {
+                                    let parentItem = user.data[type][list][parentIndex]
+                                    parentItem.children.push(mongoRequire.ObjectID(item.id))
+                                    user.data[type][list].splice(parentIndex, 1, parentItem)
+                                } else {
+                                    throw "Parent not found"
+                                }
+                                delete item.parentId
+                            }
+                            user.data[type][list].push(item)
+                            let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
+                            if (mongoResult.result.ok != 1) throw "Database unresponsive"
+                            return user.data[type][list]
+                        } else {
+                            throw config.errors.tooMuchSpace
                         }
-                        user.data[type][list].push(item)
-                        let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
-                        if (mongoResult.result.ok != 1) throw "Database unresponsive"
-                        return user.data[type][list]
                     } else {
-                        throw "No user"
+                        throw config.errors.accountNotFound
                     }
                 } else {
-                    throw "Not a valid item"
+                    throw config.errors.invalidInfo
                 }
             } else {
-                throw "Not allowed"
+                throw config.errors.noPerms
             }
         } else {
-            throw "Not allowed"
+            throw config.errors.noPerms
         }
     } catch (error) {
         throw error
@@ -188,16 +192,16 @@ async function deleteItem(id, list, type, userId) {
                         if (mongoResult.result.ok != 1) throw "Database unresponsive"
                         return user.data[type][list]
                     } else {
-                        throw "List does not exist"
+                        throw config.errors.notFound
                     }
                 } else {
-                    throw "No user"
+                    throw config.errors.accountNotFound
                 }
             } else {
-                throw "Not allowed"
+                throw config.errors.noPerms
             }
         } else {
-            throw "Not allowed"
+            throw config.errors.noPerms
         }
     } catch (error) {
         throw error
@@ -206,10 +210,8 @@ async function deleteItem(id, list, type, userId) {
 
 async function updateItem(id, newItem, list, type, userId) {
     try {
-
         if (config.permissions[type] && config.permissions[type].includes("w")) {
             if (config.allowedTypes.includes(type)) {
-
                 let valid = true
                 config.allowedFormats[type].forEach(x => {
                     if (!(x in newItem)) {
@@ -229,32 +231,30 @@ async function updateItem(id, newItem, list, type, userId) {
                                 if (mongoResult.result.ok != 1) throw "Database unresponsive"
                                 return user.data[type][list]
                             } else {
-                                throw "No task with id"
+                                throw config.errors.notFound
                             }
                         } else {
-                            throw "List does not exist"
+                            throw config.errors.notFound
                         }
                     } else {
-                        throw "No user"
+                        throw config.errors.accountNotFound
                     }
                 } else {
-                    throw "Not a valid object"
+                    throw config.errors.invalidInfo
                 }
             } else {
-                throw "Not allowed"
+                throw config.errors.noPerms
             }
         } else {
-            throw "Not allowed"
+            throw config.errors.noPerms
         }
     } catch (error) {
         throw error
     }
 }
 
-//neworder: [{id: _parentId, children: [childId]}] 
 async function updateOrder(newOrder, list, type, userId) {
     try {
-
         if (config.permissions[type] && config.permissions[type].includes("w")) {
             if (config.allowedTypes.includes(type)) {
                 let user = await getUserById(mongoRequire.ObjectID(userId))
@@ -281,14 +281,14 @@ async function updateOrder(newOrder, list, type, userId) {
                                             alsoNewItem.child = true
                                             newList.push(alsoNewItem)
                                         } else {
-                                            throw "Invalid sub-id given"
+                                            throw config.errors.invalidInfo
                                         }
                                     })
                                 }
                                 item.children = x.children
                                 newList.push(item)
                             } else {
-                                throw "Invalid id given"
+                                throw config.errors.invalidInfo
                             }
                         })
                         // FIXME: If you add items to the list and another user edit's the list: all added items gon
@@ -298,22 +298,55 @@ async function updateOrder(newOrder, list, type, userId) {
                         if (mongoResult.result.ok != 1) throw "Database unresponsive"
                         return newList
                     } else {
-                        throw "List does not exist"
+                        throw config.errors.notFound
                     }
                 } else {
-                    throw "No user"
+                    throw config.errors.accountNotFound
                 }
-
             } else {
-                throw "Not allowed"
+                throw config.errors.noPerms
             }
         } else {
-            throw "Not allowed"
+            throw config.errors.noPerms
         }
     } catch (error) {
         throw error
     }
 }
+
+
+async function deleteAccount(id, email) {
+    try {
+        return mongoDb.collection("users").replaceOne({_id: mongoRequire.ObjectID(id) }, {email, password: "", timeOfDeletion: Date.now() })
+    } catch (error) {
+        throw error
+    }
+}
+
+async function changePassword(hash, id) {
+    try {
+       return mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(id) }, { $set: { password: hash } })
+    } catch (error) {
+        throw error
+    }
+}
+
+// #endregion
+
+
+// #region Helper functions
+
+function getSize(object) {
+    return lengthInUtf8Bytes(JSON.stringify(object))
+}
+
+function lengthInUtf8Bytes(str) {
+    // Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
+    var m = encodeURIComponent(str).match(/%[89ABab]/g);
+    return str.length + (m ? m.length : 0);
+}
+
+function bytesToSize(a, b) { if (0 == a) return "0 Bytes"; var c = 1024, d = b || 2, e = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"], f = Math.floor(Math.log(a) / Math.log(c)); return parseFloat((a / Math.pow(c, f)).toFixed(d)) + " " + e[f] }
 
 // #endregion
 
@@ -324,6 +357,8 @@ module.exports = {
 
     addUser,
     updateTokens,
+    deleteAccount,
+    changePassword,
 
     getItem,
     addItem,
