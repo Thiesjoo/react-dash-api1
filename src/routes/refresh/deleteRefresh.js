@@ -1,5 +1,5 @@
 const security = require('../../shared/security')
-const { simpleQuery, getUser } = require("../../shared/database")
+const { simpleQuery, getUserById } = require("../../shared/database")
 const config = require('../../shared/config')
 
 async function deleteRefresh(req, res) {
@@ -9,7 +9,7 @@ async function deleteRefresh(req, res) {
             let refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
             let accesstoken = security.jwt.verify(req.cookies.accesstoken, config.secret)
             if (refreshtoken && accesstoken) {
-                let user = await getUser(accesstoken.email)
+                let user = await getUserById(accesstoken.email)
                 if (user) {
                     let tokens = JSON.parse(user.token)
                     let valid2 = false

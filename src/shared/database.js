@@ -266,37 +266,40 @@ async function updateOrder(newOrder, list, type, userId) {
                         })
 
                         let newList = []
-                        //Find the original item and push it into the list. Do the same for sub items
-                        newOrder.forEach(x => {
-                            let itemIndex = originalOrder.findIndex(item => item.id == x.id)
-                            if (itemIndex > -1) {
-                                let item = originalOrder[itemIndex]
-                                originalOrder.splice(itemIndex, 1)
-                                if (x.children.length > 0) {
-                                    x.children.forEach(y => {
-                                        let alsoNewItemIndex = originalOrder.findIndex(item => item.id == y)
-                                        if (alsoNewItemIndex > -1) {
-                                            let alsoNewItem = originalOrder[alsoNewItemIndex]
-                                            originalOrder.splice(alsoNewItemIndex, 1)
-                                            alsoNewItem.child = true
-                                            newList.push(alsoNewItem)
-                                        } else {
-                                            throw config.errors.invalidInfo
-                                        }
-                                    })
+                        //Find the original item and push it into a new list(In order). Do the same for sub items
+                        newOrder.forEach(parentItem => {
+                            let parentItemIndex = originalOrder.findIndex(item => item.id == parentItem.id)
+                            if (parentItemIndex > -1) {
+                                let originalItem = originalOrder[parentItemIndex]
+                                originalOrder.splice(parentItemIndex, 1)
+                                if (parentItem.children) {
+                                    if (parentItem.children.length > 0) {
+                                        parentItem.children.forEach(y => {
+                                            let childItemIndex = originalOrder.findIndex(item => item.id == y)
+                                            if (childItemIndex > -1) {
+                                                let childItem = originalOrder[childItemIndex]
+                                                originalOrder.splice(childItemIndex, 1)
+                                                childItem.child = true
+                                                newList.push(childItem)
+                                            } else {
+                                                throw config.errors.invalidInfo
+                                            }
+                                        })
+                                    }
+                                    originalItem.children = parentItem.children
+                                } else {
+                                    originalItem.children = [] //Always reset children
                                 }
-                                item.children = x.children
-                                newList.push(item)
+                                newList.push(originalItem)
                             } else {
                                 throw config.errors.invalidInfo
                             }
                         })
-                        // FIXME: If you add items to the list and another user edit's the list: all added items gon
-                        newList.concat(originalOrder)
-                        user.data[type][list] = newList
+                        const finalList = newList.concat(originalOrder) //If you only submit half the list it still adds the rest to the end
+                        user.data[type][list] = finalList
                         let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
                         if (mongoResult.result.ok != 1) throw "Database unresponsive"
-                        return newList
+                        return finalList
                     } else {
                         throw config.errors.notFound
                     }
@@ -317,7 +320,7 @@ async function updateOrder(newOrder, list, type, userId) {
 
 async function deleteAccount(id, email) {
     try {
-        return mongoDb.collection("users").replaceOne({_id: mongoRequire.ObjectID(id) }, {email, password: "", timeOfDeletion: Date.now() })
+        return mongoDb.collection("users").replaceOne({ _id: mongoRequire.ObjectID(id) }, { email, password: "", timeOfDeletion: Date.now() })
     } catch (error) {
         throw error
     }
@@ -325,7 +328,7 @@ async function deleteAccount(id, email) {
 
 async function changePassword(hash, id) {
     try {
-       return mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(id) }, { $set: { password: hash } })
+        return mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(id) }, { $set: { password: hash } })
     } catch (error) {
         throw error
     }
@@ -342,11 +345,11 @@ function getSize(object) {
 
 function lengthInUtf8Bytes(str) {
     // Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
-    var m = encodeURIComponent(str).match(/%[89ABab]/g);
+    let m = encodeURIComponent(str).match(/%[89ABab]/g);
     return str.length + (m ? m.length : 0);
 }
 
-function bytesToSize(a, b) { if (0 == a) return "0 Bytes"; var c = 1024, d = b || 2, e = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"], f = Math.floor(Math.log(a) / Math.log(c)); return parseFloat((a / Math.pow(c, f)).toFixed(d)) + " " + e[f] }
+function bytesToSize(a, b) { if (0 == a) return "0 Bytes"; let c = 1024, d = b || 2, e = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"], f = Math.floor(Math.log(a) / Math.log(c)); return parseFloat((a / Math.pow(c, f)).toFixed(d)) + " " + e[f] }
 
 // #endregion
 

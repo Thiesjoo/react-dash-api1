@@ -1,5 +1,5 @@
 const security = require('../../shared/security')
-const { getUser } = require("../../shared/database")
+const { getUserById } = require("../../shared/database")
 const config = require('../../shared/config')
 
 async function getRefresh(req, res) {
@@ -9,10 +9,10 @@ async function getRefresh(req, res) {
             let refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
             let accesstoken = security.jwt.verify(req.cookies.accesstoken, config.secret)
             if (refreshtoken && accesstoken) {
-                let user = await getUser(accesstoken.email)
+                let user = await getUserById(accesstoken.id)
                 if (user) {
                     // console.log("Getting refresh tokens for: ", user)
-                    let tokens = JSON.parse(user.token)
+                    let tokens = user.token
                     let valid2 = false
                     for (let i = tokens.length - 1; i > -1; i--) {
                         let x = tokens[i]

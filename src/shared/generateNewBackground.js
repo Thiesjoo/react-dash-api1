@@ -31,7 +31,7 @@ function generate() {
             cell_size: Math.random()*200 + 20 + i*2,
             x_colors: 'random',
             y_colors: (Math.random() > 0.75) ? "random" : "match_x",
-            variance: Math.random(),
+            letiance: Math.random(),
         }).png();
         
         let data = pngURI.substr(pngURI.indexOf('base64') + 7);

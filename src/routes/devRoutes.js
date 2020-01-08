@@ -15,7 +15,7 @@ if (!config.production) {
  */
     routes.get("/mongo", async (req, res) => {
         try {
-            var db = getMongoDB()
+            let db = getMongoDB()
             let test = db.collection("users")
             const result = await test.find({}).toArray();
             res.send(result);
@@ -34,7 +34,7 @@ if (!config.production) {
 */
     routes.get("/mongoDrop", async (req, res) => {
         try {
-            var db = getMongoDB()
+            let db = getMongoDB()
             let test = db.collection("users")
             test.drop()
             test = db.collection("errors")
@@ -56,7 +56,7 @@ if (!config.production) {
 
     routes.get("/errors", async (req, res) => {
         try {
-            var db = getMongoDB()
+            let db = getMongoDB()
             let test = await db.collection("errors").find({}).toArray()
             res.json(test);
         } catch (e) {

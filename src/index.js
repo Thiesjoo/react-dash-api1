@@ -40,7 +40,7 @@ const xss = require('xss-clean');
 app.use(helmet());
 app.use(xss());
 
-app.use(express.json({ limit: '10kb' })); // Body limit is 10kb too protect against large files
+app.use(express.json({ limit: '5kb' })); // Body limit is 5kb too protect against large files
 
 //ROUTES PREP
 const checkToken = require("./shared/security").checkToken

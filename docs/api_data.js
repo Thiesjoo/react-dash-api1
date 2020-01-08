@@ -4,6 +4,7 @@ define({ "api": [
     "url": "/errors/",
     "title": "Add a error to the api-errorlog",
     "name": "errors",
+    "group": "Extra",
     "parameter": {
       "fields": {
         "Parameter": [
@@ -28,8 +29,7 @@ define({ "api": [
     },
     "version": "0.0.0",
     "filename": "src/routes/addError.js",
-    "group": "/home/webadmin/react-dash-api1/src/routes/addError.js",
-    "groupTitle": "/home/webadmin/react-dash-api1/src/routes/addError.js",
+    "groupTitle": "Extra",
     "error": {
       "fields": {
         "Error 4xx": [

@@ -9,7 +9,7 @@ async function generateMobile(req, res) {
             let refreshtoken = jwt.verify(req.cookies.refreshtoken, config.secret)
             let accesstoken = jwt.verify(req.cookies.accesstoken, config.secret)
             if (refreshtoken && accesstoken) {
-                let user = await getUser(accesstoken.email)
+                let user = await getUserById(accesstoken.email)
                 if (user) {
                     let userTokens = JSON.parse(user.token)
                     console.log("Getting refresh tokens for: ", accesstoken)
