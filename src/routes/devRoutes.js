@@ -47,12 +47,12 @@ if (!config.production) {
         }
     })
 
-        /**
- * @api {get} /errors Return all errors
- * @apiName errors
- * @apiGroup DEV
- * @apiPrivate
- */
+    /**
+* @api {get} /errors Return all errors
+* @apiName errors
+* @apiGroup DEV
+* @apiPrivate
+*/
 
     routes.get("/errors", async (req, res) => {
         try {
@@ -64,7 +64,6 @@ if (!config.production) {
             res.send(e)
         }
     })
-
-    module.exports = routes;
-
 }
+
+module.exports = routes;
