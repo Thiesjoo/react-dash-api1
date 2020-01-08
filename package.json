@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "This is the first api which supplies the tesing ground",
   "main": "index.js",
+
   "scripts": {
-    "start": "forever index.js",
+    "start": "forever src/index.js",
     "dev_start": "./dev_start.sh",
     "prod_start": "./prod_start.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcryptjs": "^2.4.3",
+    "bcrypt": "^3.0.7",
     "braces": "^3.0.2",
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
@@ -22,7 +23,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongo": "^0.1.0",
     "randomstring": "^1.1.5",
-    "xss-clean": "^0.1.1",
-    "trianglify": "^2.0.0-alpha.2"
+    "trianglify": "^2.0.0-alpha.2",
+    "xss-clean": "^0.1.1"
   }
 }
