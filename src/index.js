@@ -69,7 +69,7 @@ fs.readdirSync("./routes/profile").forEach(function (file) {
     } else if (!file.includes(".")) {
         fs.readdirSync("./routes/profile/" + file).forEach(function (file2) {
             if (file2.includes("js")) {
-                let fileName = file.substr(0, file2.indexOf('.'));
+                let fileName = file2.substr(0, file2.indexOf('.'));
                 addCorrectMethod("profile/" + fileName, "profile/" + file + "/" + file2)
             }
         })

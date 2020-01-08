@@ -2,10 +2,10 @@ let { getMongoDB } = require("../shared/database")
 const routes = require('express').Router();
 const config = require("../shared/config")
 
-console.error("USING DEV ROUTES.")
-console.error("DEV ROUTE CONSEQUENSES: CORS IS ENABLED, DEV ROUTES ARE ON(Delete entire tables, list all data), DEV COOKIES ARE ON, USING LOCAL DATABASE")
-
 if (!config.production) {
+
+    console.error("USING DEV ROUTES.")
+    console.error("DEV ROUTE CONSEQUENSES: CORS IS ENABLED, DEV ROUTES ARE ON(Delete entire tables, list all data), DEV COOKIES ARE ON, USING LOCAL DATABASE")
 
     /**
  * @api {get} /mongo Return all users in database
