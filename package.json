@@ -5,7 +5,7 @@
   "main": "index.js",
 
   "scripts": {
-    "start": "forever src/index.js",
+    "start": "cd src/ && forever index.js",
     "dev_start": "./dev_start.sh",
     "prod_start": "./prod_start.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
