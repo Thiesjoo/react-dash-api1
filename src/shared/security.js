@@ -15,20 +15,13 @@ const passwordRegex = RegExp(
 let checkToken = async (req, res, next) => {
     let cookies = req.cookies
     // console.log("valid cookie in function check token: ", cookies.accesstoken ? "yes" : "no")
-    let token = cookies.accesstoken
+    let token = cookies.accesstoken || req.body.token || req.query.token
 
-    //Mobile can't use cookies so check for token in body
     if (!token) {
-        token = req.body.token
-        console.log("Token not available in cookies")
-        if (token && token.length == 5 && req.body.email) {
-            next()
-        } else {
-            return res.status(401).json({
-                ok: false,
-                message: config.errors.notEnoughInfoTokens
-            });
-        }
+        return res.status(401).json({
+            ok: false,
+            message: config.errors.notEnoughInfoTokens
+        });
     } else {
         try {
             const verifiedToken = await jwt.verify(token, config.secret)

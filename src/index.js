@@ -42,10 +42,32 @@ app.use(xss());
 
 app.use(express.json({ limit: '5kb' })); // Body limit is 5kb too protect against large files
 
-//ROUTES PREP
+//settings
 const checkToken = require("./shared/security").checkToken
+const { getUserById } = require("./shared/database")
+
+
+//Logging
+const statusMonitor = require('express-status-monitor')({ path: '', ignoreStartsWith: "/admin" });
+app.use(statusMonitor);
+app.get('/status', checkToken, async (req, res, next) => {
+    try {
+        const user = await getUserById(req.decoded.id)
+        if (user && user.admin) {
+            next()
+        } else {
+            return res.status(401).send({ ok: false, msg: config.errors.noPerms })
+        }
+    } catch (err) {
+        console.log("\x1b[31m Status: ", err)
+        res.status(500).send({ ok: false, msg: config.errors.general })
+    }
+}, statusMonitor.pageRoute)
+
+
+//ROUTES PREP
 app.get('/', (req, res) => {
-    console.log("Get request on server. IP: ",req.ip)
+    console.log("Get request on server. IP: ", req.ip)
     res.send("Welcome to my API.")
 })
 

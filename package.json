@@ -1,7 +1,7 @@
 {
   "name": "api1",
   "version": "1.0.0",
-  "description": "This is the first api which supplies the tesing ground",
+  "description": "This is my own test api for the react-dash project",
   "main": "index.js",
   "scripts": {
     "start": "cd src/ && forever index.js",
@@ -23,5 +23,9 @@
     "randomstring": "^1.1.5",
     "trianglify": "^2.0.0-alpha.2",
     "xss-clean": "^0.1.1"
+  },
+  "devDependencies": {
+    "express-status-monitor": "^1.2.8",
+    "loadtest": "^4.0.0"
   }
 }

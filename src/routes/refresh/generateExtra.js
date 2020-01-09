@@ -1,17 +1,17 @@
 const { jwt, randomstring } = require('../../shared/security')
-const { getUser, simpleQuery } = require("../../shared/database")
+const { getUserById, updateTokens } = require("../../shared/database")
 const config = require('../../shared/config')
 
-async function generateMobile(req, res) {
+async function generateExtraToken(req, res) {
     try {
         if (req.cookies.accesstoken && req.cookies.refreshtoken) {
             console.log("Gcookies exist")
             let refreshtoken = jwt.verify(req.cookies.refreshtoken, config.secret)
             let accesstoken = jwt.verify(req.cookies.accesstoken, config.secret)
             if (refreshtoken && accesstoken) {
-                let user = await getUserById(accesstoken.email)
+                let user = await getUserById(accesstoken.id)
                 if (user) {
-                    let userTokens = JSON.parse(user.token)
+                    let userTokens = user.token
                     console.log("Getting refresh tokens for: ", accesstoken)
                     let valid = true
                     let valid2 = false
@@ -27,14 +27,15 @@ async function generateMobile(req, res) {
                         }
                     });
                     if (valid2) {
-                        if (valid) {
+                        if (valid || !config.production) {
+                            const expiryTime = config.refreshExpiry * 5
                             let realtoken = randomstring.generate(5)
-                            // let newRefreshtoken = jwt.sign({ a: realtoken, mobile: true, email: accesstoken.email }, config.secret, { expiresIn: config.accessExpiry });
-                            let refreshArray = JSON.parse(user.token)
-                            refreshArray.push({ token: realtoken, platform: "mobile", expiry: new Date(Date.now() + config.refreshExpiry * 2) })
-                            let query = "UPDATE users SET token = '" + JSON.stringify(refreshArray) + "' WHERE email = '" + accesstoken.email + "'"
-                            await simpleQuery(query)
-                            res.send({ ok: true })
+                            let newRefreshtoken = jwt.sign({ token: realtoken, mobile: true, id: accesstoken.id }, config.secret, { expiresIn: expiryTime });
+                            let refreshArray = userTokens
+                            refreshArray.push({ token: realtoken, platform: "mobile", useragent: "extra", expiry: new Date(Date.now() + expiryTime) })
+
+                            await updateTokens(accesstoken.id, refreshArray)
+                            res.send({ ok: true, msg: "", token: newRefreshtoken })
                         } else {
                             res.status(400).send({ ok: false, msg: config.errors.rateLimit })
                         }
@@ -57,4 +58,4 @@ async function generateMobile(req, res) {
     }
 }
 
-module.exports = generateMobile
+module.exports = generateExtraToken

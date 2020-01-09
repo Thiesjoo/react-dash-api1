@@ -1,5 +1,5 @@
 const security = require('../../shared/security')
-const { simpleQuery, getUserById } = require("../../shared/database")
+const { updateTokens, getUserById } = require("../../shared/database")
 const config = require('../../shared/config')
 
 async function deleteRefresh(req, res) {
@@ -9,9 +9,9 @@ async function deleteRefresh(req, res) {
             let refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
             let accesstoken = security.jwt.verify(req.cookies.accesstoken, config.secret)
             if (refreshtoken && accesstoken) {
-                let user = await getUserById(accesstoken.email)
+                let user = await getUserById(accesstoken.id)
                 if (user) {
-                    let tokens = JSON.parse(user.token)
+                    let tokens = user.token
                     let valid2 = false
                     let filtered = tokens.filter(function (value, index) {
                         if (value.token == refreshtoken.token) {
@@ -20,8 +20,7 @@ async function deleteRefresh(req, res) {
                         return !req.body.todelete.includes(index)
                     });
                     if (valid2) {
-                        console.log(tokens.length, filtered.length)
-                        await simpleQuery("UPDATE users SET token = '" + JSON.stringify(filtered) + "' WHERE email = ?", [accesstoken.email])
+                        updateTokens(filtered)
                         res.send({ ok: true, tokens: filtered })
                     } else {
                         res.status(401).send({ ok: false, msg: config.errors.invalidToken })

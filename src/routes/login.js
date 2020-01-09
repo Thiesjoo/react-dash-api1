@@ -31,7 +31,6 @@ const { bcrypt, jwt, randomstring, emailRegex, passwordRegex } = require('../sha
  */
 
 routes.post('/user/login', async (req, res) => {
-    // console.log("Trying to login", req.body)
     try {
         let body = req.body
         if (body.email && body.password) {
@@ -83,7 +82,8 @@ routes.post('/user/login', async (req, res) => {
                 res.status(400).send({ ok: false, msg: config.errors.regexNotMatch })
             }
         } else {
-            res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
+            res.sendStatus(400)
+            // res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
 
     } catch (error) {

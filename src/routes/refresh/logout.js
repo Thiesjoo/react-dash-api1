@@ -1,4 +1,4 @@
-const { updateTokens,getUserByEmail } = require("../../shared/database")
+const { updateTokens,getUserById } = require("../../shared/database")
 const security = require("../../shared/security")
 const config = require("../../shared/config")
 
@@ -8,7 +8,7 @@ async function logout(req, res) {
             let refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
             let accesstoken = security.jwt.verify(req.cookies.accesstoken, config.secret)
             if (accesstoken.email === req.body.email) {
-                let user = await getUserByEmail(accesstoken.email)
+                let user = await getUserById(accesstoken.id)
                 if (user) {
                     let userTokens = user.token
                     let tokenExists = userTokens.find(obj => {
@@ -16,7 +16,7 @@ async function logout(req, res) {
                     }) !== undefined
                     if (tokenExists) {
                         userTokens = userTokens.filter(object => object.token != refreshtoken.token)
-                        updateTokens(user._id,userTokens)
+                        updateTokens(accesstoken.id,userTokens)
 
                         res.clearCookie("accesstoken", { httpOnly: true, path: "/user/", sameSite: "none", secure: true })
                         res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", sameSite: "none", secure: true })

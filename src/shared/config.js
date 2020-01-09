@@ -30,11 +30,12 @@ module.exports = {
         general: "Something went wrong",
         alreadyExists: "Account already occupied",
         regexNotMatch: "Invalid input",
-        noPerms: "Something went wrong",
+        noPerms: "Not enough permissions to do this action",
         notEnoughInfoTokens: "There is not enough info",
         invalidInfo: "Invalid input",
         tooMuchSpace: "Your account occupies too much space in the database. Please stop adding more items",
-        accountDeletion: "This account was deleted and it is blocked due to user spoofing reasons "
+        accountDeletion: "This account was deleted and it is blocked due to user spoofing reasons",
+        rateLimit: "You're doing that too fast"
     },
     secret: process.env.JWT_SECRET,
     saltRounds: 14,

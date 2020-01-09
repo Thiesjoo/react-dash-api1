@@ -47,6 +47,31 @@ if (!config.production) {
         }
     })
 
+
+    /**
+* @api {get} /promote Promote user to admin
+* @apiName promote
+* @apiParam {String} email Users unique email.
+* @apiGroup DEV
+* @apiPrivate
+*/
+    routes.get("/promote", async (req, res) => {
+        try {
+            if (req.query.email) {
+                let db = getMongoDB()
+                let test = db.collection("users")
+                test.updateOne({ email: req.query.email }, { $set: { admin: true } })
+                res.send(true);
+
+            } else {
+                res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
+            }
+        } catch (e) {
+            console.error(e)
+            res.send(e)
+        }
+    })
+
     /**
 * @api {get} /errors Return all errors
 * @apiName errors
@@ -65,5 +90,9 @@ if (!config.production) {
         }
     })
 }
+
+routes.get("/test", function(req,res) {
+    res.send(req.body)
+})
 
 module.exports = routes;
