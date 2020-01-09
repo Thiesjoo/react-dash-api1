@@ -22,10 +22,10 @@
     "mongo": "^0.1.0",
     "randomstring": "^1.1.5",
     "trianglify": "^2.0.0-alpha.2",
-    "xss-clean": "^0.1.1"
+    "xss-clean": "^0.1.1",
+     "express-status-monitor": "^1.2.8"
   },
   "devDependencies": {
-    "express-status-monitor": "^1.2.8",
     "loadtest": "^4.0.0"
   }
 }
