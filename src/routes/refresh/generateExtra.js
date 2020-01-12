@@ -30,9 +30,9 @@ async function generateExtraToken(req, res) {
                         if (valid || !config.production) {
                             const expiryTime = config.refreshExpiry * 5
                             let realtoken = randomstring.generate(5)
-                            let newRefreshtoken = jwt.sign({ token: realtoken, mobile: true, id: accesstoken.id }, config.secret, { expiresIn: expiryTime });
+                            let newRefreshtoken = jwt.sign({ token: realtoken, extra: true, id: accesstoken.id }, config.secret, { expiresIn: expiryTime });
                             let refreshArray = userTokens
-                            refreshArray.push({ token: realtoken, platform: "mobile", useragent: "extra", expiry: new Date(Date.now() + expiryTime) })
+                            refreshArray.push({ token: realtoken, platform: "Extra Token", useragent: "To be used in API's or on mobile phones", expiry: new Date(Date.now() + expiryTime) })
 
                             await updateTokens(accesstoken.id, refreshArray)
                             res.send({ ok: true, msg: "", token: newRefreshtoken })

@@ -5,7 +5,7 @@ const config = require('../../shared/config')
 async function deleteRefresh(req, res) {
     try {
         if (req.cookies.accesstoken && req.cookies.refreshtoken && req.body.todelete) {
-            console.log("cookies exist")
+            console.log("Deleting refresh tokens.")
             let refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
             let accesstoken = security.jwt.verify(req.cookies.accesstoken, config.secret)
             if (refreshtoken && accesstoken) {
@@ -16,11 +16,12 @@ async function deleteRefresh(req, res) {
                     let filtered = tokens.filter(function (value, index) {
                         if (value.token == refreshtoken.token) {
                             valid2 = true
+                            return true
                         }
                         return !req.body.todelete.includes(index)
                     });
                     if (valid2) {
-                        updateTokens(filtered)
+                        updateTokens(accesstoken.id, filtered)
                         res.send({ ok: true, tokens: filtered })
                     } else {
                         res.status(401).send({ ok: false, msg: config.errors.invalidToken })

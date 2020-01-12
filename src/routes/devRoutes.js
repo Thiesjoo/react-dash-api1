@@ -1,6 +1,8 @@
 let { getMongoDB } = require("../shared/database")
 const routes = require('express').Router();
 const config = require("../shared/config")
+const security = require("../shared/security")
+
 
 if (!config.production) {
 
@@ -91,8 +93,15 @@ if (!config.production) {
     })
 }
 
-routes.get("/test", function(req,res) {
+routes.post("/test", function(req,res) {
+    console.log("Received test request with body", req.body)
     res.send(req.body)
+})
+
+routes.post("/testCookie", security.checkToken,function (req,res) {
+    console.log("Received testCOOKIe request with body", req.body, req.decoded)
+
+    res.send({ok:true, result: req.decoded})
 })
 
 module.exports = routes;

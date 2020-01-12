@@ -6,8 +6,6 @@ const config = require('./shared/config.js');
 const express = require('express')
 const app = express()
 app.use(express.json());
-app.use("/assets", express.static("assets"))
-
 
 //-CHANGING HEADERS AND FUN STUFF
 // let fun = ["Nice try FBI", "Not today, CIA", "Dirty tricks, MI6", "Not deceptive enough for me, KGB", "Cease to liten what I say, NSA", "Good attempt at obscurity, Department of Homeland Security"]

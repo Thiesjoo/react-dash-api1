@@ -12,6 +12,7 @@ async function getRefresh(req, res) {
                 if (user) {
                     let tokens = user.token
                     let valid2 = false
+                    //Loop backwards to avoid skipping tokens when splicing.
                     for (let i = tokens.length - 1; i > -1; i--) {
                         let x = tokens[i]
                         if (x.token == refreshtoken.token) {
