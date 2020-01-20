@@ -13,7 +13,6 @@ if (!config.production) {
  * @api {get} /mongo Return all users in database
  * @apiName mongo
  * @apiGroup DEV
- * @apiPrivate
  */
     routes.get("/mongo", async (req, res) => {
         try {
@@ -32,7 +31,6 @@ if (!config.production) {
 * @api {get} /mongoDROP Delete all users
 * @apiName mongoDrop
 * @apiGroup DEV
-* @apiPrivate
 */
     routes.get("/mongoDrop", async (req, res) => {
         try {
@@ -55,7 +53,6 @@ if (!config.production) {
 * @apiName promote
 * @apiParam {String} email Users unique email.
 * @apiGroup DEV
-* @apiPrivate
 */
     routes.get("/promote", async (req, res) => {
         try {
@@ -78,7 +75,6 @@ if (!config.production) {
 * @api {get} /errors Return all errors
 * @apiName errors
 * @apiGroup DEV
-* @apiPrivate
 */
 
     routes.get("/errors", async (req, res) => {

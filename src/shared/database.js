@@ -68,7 +68,7 @@ async function addUser(email, firstname, lastname, password, token) {
             ]
         }
         const items = {
-            home: [{ name: "tasks", options: { list: "Your first list" } }]
+            home: [{ type: "tasks", options: [ "Your first list" ], id: new mongoRequire.ObjectID()}]
         }
 
         let mongoResult = await mongoDb.collection("users").insertOne({ email, password, token, data: { items, tasks, notifications, profile: { firstname, lastname, email, emailVerified: false } } })

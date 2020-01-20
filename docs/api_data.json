@@ -1,5 +1,58 @@
 [
   {
+    "type": "get",
+    "url": "/errors",
+    "title": "Return all errors",
+    "name": "errors",
+    "group": "DEV",
+    "version": "0.0.0",
+    "filename": "src/routes/devRoutes.js",
+    "groupTitle": "DEV"
+  },
+  {
+    "type": "get",
+    "url": "/mongo",
+    "title": "Return all users in database",
+    "name": "mongo",
+    "group": "DEV",
+    "version": "0.0.0",
+    "filename": "src/routes/devRoutes.js",
+    "groupTitle": "DEV"
+  },
+  {
+    "type": "get",
+    "url": "/mongoDROP",
+    "title": "Delete all users",
+    "name": "mongoDrop",
+    "group": "DEV",
+    "version": "0.0.0",
+    "filename": "src/routes/devRoutes.js",
+    "groupTitle": "DEV"
+  },
+  {
+    "type": "get",
+    "url": "/promote",
+    "title": "Promote user to admin",
+    "name": "promote",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "email",
+            "description": "<p>Users unique email.</p>"
+          }
+        ]
+      }
+    },
+    "group": "DEV",
+    "version": "0.0.0",
+    "filename": "src/routes/devRoutes.js",
+    "groupTitle": "DEV"
+  },
+  {
     "type": "post",
     "url": "/errors/",
     "title": "Add a error to the api-errorlog",

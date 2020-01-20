@@ -57,8 +57,8 @@ routes.post('/user/signup', async (req, res) => {
                         }
                     );
 
-                    res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/", sameSite: "none", secure: true })
-                    res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refresh", sameSite: "none", secure: true })
+                    res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/", samesite: config.production ? "none" : "", secure: config.production })
+                    res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refresh", samesite: config.production ? "none" : "", secure: config.production })
 
                     res.send({ ok: true, data: newUser.data })
                 }

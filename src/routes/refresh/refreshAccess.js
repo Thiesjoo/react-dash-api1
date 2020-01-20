@@ -25,34 +25,34 @@ async function refreshAccess(req, res) {
                                     expiresIn: config.accessExpiry
                                 }
                             );
-                            res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, secure: true, sameSite: "none", path: "/user/" })
+                            res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, secure: config.production, samesite: config.production ? "none" : "", path: "/user/" })
                             res.send({ ok: true })
                         } else {
-                            res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", sameSite: "none", secure: true })
+                            res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", samesite: config.production ? "none" : "", secure: config.production })
                             console.log("Token is invalid")
                             res.status(401).send({ ok: false, msg: config.errors.noPerms })
                         }
                     } else {
-                        res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", sameSite: "none", secure: true })
+                        res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", samesite: config.production ? "none" : "", secure: config.production })
                         return res.json({
                             ok: false,
                             message: config.errors.invalidToken
                         });
                     }
                 } else {
-                    res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", sameSite: "none", secure: true })
+                    res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", samesite: config.production ? "none" : "", secure: config.production })
                      res.status(404).send({ ok: false, msg: config.errors.accountNotFound })
                 }
             } else {
-                res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", sameSite: "none", secure: true })
+                res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", samesite: config.production ? "none" : "", secure: config.production })
                 res.status(400).send({ ok: false, msg: config.errors.regexNotMatch })
             }
         } else {
-            res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", sameSite: "none", secure: true })
+            res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", samesite: config.production ? "none" : "", secure: config.production })
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (error) {
-        res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", sameSite: "none", secure: true })
+        res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", samesite: config.production ? "none" : "", secure: config.production })
         console.error("\x1b[31m Refreshaccess: ", error, req.body)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }

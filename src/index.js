@@ -118,25 +118,7 @@ function addCorrectMethod(name, path) {
     }
 }
 
-//Certs
-if (!config.production) {
-    const https = require('https');
 
-    const privateKey = fs.readFileSync('../certs/privkey.pem', 'utf8');
-    const certificate = fs.readFileSync('../certs/cert.pem', 'utf8');
-    const ca = fs.readFileSync('../certs/chain.pem', 'utf8');
-
-    const credentials = {
-        key: privateKey,
-        cert: certificate,
-        ca: ca
-    };
-
-    const httpsServer = https.createServer(credentials, app);
-    httpsServer.listen(config.port, () => console.log(`API1 https-app listening on port ${config.port}!`))
-
-} else {
-    app.listen(config.port, () => {
-        console.log("App running without manual HTTPS on port " + config.port)
-    })
-}
+app.listen(config.port, () => {
+    console.log("API1 (For react-dash) running on port " + config.port)
+})

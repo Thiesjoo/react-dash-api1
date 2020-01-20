@@ -13,9 +13,11 @@ if ( process.env.MONGOURL) {
     url = `mongodb://${ip}:27017/`
 }
 
+const production = process.env.NODE_ENV == "production" ? true : false
+
 module.exports = {
-    production: process.env.NODE_ENV == "production" ? true : false,
-    databaseName: process.env.NODE_ENV == "production" ? "users" : "users_dev",
+    production,
+    databaseName: production ? "users" : "users_dev",
     mongoURL: url,
     port: process.env.PORT || 8090,
     zeit: true,
@@ -38,12 +40,12 @@ module.exports = {
         rateLimit: "You're doing that too fast"
     },
     secret: process.env.JWT_SECRET,
-    saltRounds: 14,
+    saltRounds: production ? 14 : 2,
     accessExpiry: 900000,
     refreshExpiry: 604800000,
     tokenLength: 20,
     allowedTypes: ["tasks", "notifications", "banking", "profile", "items"],
-    allowedFormats: { tasks: ["title", "msg", "priority", "children", /*List of id's*/ "child" /* Boolean:if current object is a child */], notifications: ["title", "message", "type", "created", "ttl", "color"], banking: ["title", "amount", "msg", "time", "repeatInterval"], items: ["name", "options"] },
+    allowedFormats: { tasks: ["title", "msg", "priority", "children", /*List of id's*/ "child" /* Boolean:if current object is a child */], notifications: ["title", "message", "type", "created", "ttl", "color"], banking: ["title", "amount", "msg", "time", "repeatInterval"], items: ["type", "options"] },
     permissions: { tasks: "r/w", notifications: "r/w", banking: "r/w", profile: "r", items: "r/w" }
 }
 

@@ -11,7 +11,6 @@ async function updateItemFunc(req, res) {
             && typeof req.body.list === "string"
             && req.body.id
             && typeof req.body.id === "string") {
-                console.log("Test")
             let result = await updateItem(req.body.id, req.body.item, req.body.list, req.body.type, req.decoded.id)
             res.send({ ok: true, result: result })
         } else {

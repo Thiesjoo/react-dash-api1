@@ -18,8 +18,8 @@ async function logout(req, res) {
                         userTokens = userTokens.filter(object => object.token != refreshtoken.token)
                         updateTokens(accesstoken.id,userTokens)
 
-                        res.clearCookie("accesstoken", { httpOnly: true, path: "/user/", sameSite: "none", secure: true })
-                        res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", sameSite: "none", secure: true })
+                        res.clearCookie("accesstoken", { httpOnly: true, path: "/user/", samesite: config.production ? "none" : "", secure: config.production })
+                        res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", samesite: config.production ? "none" : "", secure: config.production })
 
                         res.send({ ok: true })
                     } else {
