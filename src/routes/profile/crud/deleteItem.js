@@ -3,7 +3,6 @@ const config = require('../../../shared/config')
 
 async function deleteItemFunc(req, res) {
     try {
-        console.log(req.decoded)
         if (req.body.id
             && typeof req.body.id === "string"
             && req.body.list

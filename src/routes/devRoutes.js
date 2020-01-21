@@ -93,17 +93,33 @@ if (!config.production) {
             res.send(e)
         }
     })
+
+    /**
+* @api {get} /stats Return the database status
+* @apiName Stats
+* @apiGroup DEV
+*/
+    routes.get("/stats", async (req, res) => {
+        try {
+            let db = getMongoDB()
+            let test = await db.stats()
+            res.json(test);
+        } catch (e) {
+            console.error(e)
+            res.send(e)
+        }
+    })
 }
 
-routes.post("/test", function(req,res) {
+routes.post("/test", function (req, res) {
     console.log("Received test request with body", req.body)
     res.send(req.body)
 })
 
-routes.post("/testCookie", security.checkToken,function (req,res) {
+routes.post("/testCookie", security.checkToken, function (req, res) {
     console.log("Received testCOOKIe request with body", req.body, req.decoded)
 
-    res.send({ok:true, result: req.decoded})
+    res.send({ ok: true, result: req.decoded })
 })
 
 module.exports = routes;

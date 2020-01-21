@@ -68,7 +68,7 @@ async function addUser(email, firstname, lastname, password, token) {
             ]
         }
         const items = {
-            home: [{ type: "tasks", options: [ "Your first list" ], id: new mongoRequire.ObjectID()}]
+            home: [{ type: "tasks", options: ["Your first list"], id: new mongoRequire.ObjectID() }]
         }
 
         let mongoResult = await mongoDb.collection("users").insertOne({ email, password, token, data: { items, tasks, notifications, profile: { firstname, lastname, email, emailVerified: false } } })
@@ -118,7 +118,7 @@ async function getItem(id, list, type, userId) {
 }
 
 
-async function addItem(item, list, type, userId) {
+async function addItem(item, list, type, index, userId) {
     try {
         if (config.permissions[type] && config.permissions[type].includes("w")) {
             if (config.allowedTypes.includes(type)) {
@@ -153,7 +153,11 @@ async function addItem(item, list, type, userId) {
                                 }
                                 delete item.parentId
                             }
-                            user.data[type][list].push(item)
+                            if (index && index > 0 && index < user.data[type][list].length) {
+                                user.data[type][list].splice(index, 0, item)
+                            } else {
+                                user.data[type][list].push(item)
+                            }
                             let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
                             if (mongoResult.result.ok != 1) throw "Database unresponsive"
                             return user.data[type][list]

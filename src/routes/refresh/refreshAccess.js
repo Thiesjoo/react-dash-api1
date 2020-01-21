@@ -14,11 +14,8 @@ async function refreshAccess(req, res) {
                     let refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
                     if (refreshtoken) {
                         let refreshArray = user.token
-                        // console.log(refreshArray)
-                        let newresult = refreshArray.find(x => x.token === refreshtoken.token);
-                        // console.log(newresult)
-                        if (newresult) {
-                            console.log("Cookie verified")
+                        let findTokenResult = refreshArray.find(x => x.token === refreshtoken.token);
+                        if (findTokenResult) {
                             let accesstoken = security.jwt.sign({ email: body.email, id: user._id },
                                 config.secret,
                                 {
@@ -29,7 +26,6 @@ async function refreshAccess(req, res) {
                             res.send({ ok: true })
                         } else {
                             res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", samesite: config.production ? "none" : "", secure: config.production })
-                            console.log("Token is invalid")
                             res.status(401).send({ ok: false, msg: config.errors.noPerms })
                         }
                     } else {

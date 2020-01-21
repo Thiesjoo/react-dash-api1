@@ -29,7 +29,7 @@ routes.post('/errors', async (req, res) => {
             console.log(errors)
             let valid = true
             errors.forEach(element => {
-                if (!element.time || !element.error || !element.level) valid = false
+                if (!element.time || !element.error || !element.level || !element.errorinfo) valid = false
             });
             if (valid) {
                 const mongoDb = getMongoDB()
