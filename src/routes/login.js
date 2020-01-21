@@ -82,8 +82,7 @@ routes.post('/user/login', async (req, res) => {
                 res.status(400).send({ ok: false, msg: config.errors.regexNotMatch })
             }
         } else {
-            res.sendStatus(400)
-            // res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
+            res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
 
     } catch (error) {

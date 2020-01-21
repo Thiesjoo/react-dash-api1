@@ -69,6 +69,7 @@ app.get('/', (req, res) => {
     res.send("Welcome to my API.")
 })
 
+
 //ROUTES. All auto load from the folders so you don;t have to pay attention when creating a new one
 const fs = require("fs")
 

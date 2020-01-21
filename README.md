@@ -1,12 +1,43 @@
 # API1
-##### By: Thies Nieborg, for: react-dash
-To start the app ```node index.js```
-The app get it's config from ```config.js``` which gets a few values from .env files or EXPORT.
+This is the REST api I made for my ```react-dash``` app. It includes logging in (With JWT-Tokens and bcrypt hashing), a CRUD interface and refreshtokens
 
+## Gettings started
+To get this API running locally:
+
+- Clone this repo
+- `npm install` to install all required dependencies
+- Install docker ([https://docs.docker.com/install/](https://docs.docker.com/install/)). This way you can easily fire up many instances of the same database
+- `npm start` to start the local server
+
+
+## ENV Variables
+
+* MONGOURL=```url to your mongodb instance(Optional: leave empty to connect to localhost)``` 
+* NODE_ENV=```production for more security, or dev for development```
+* JWT_SECRET=```the secret that is used to encode the JWT-tokens```
+* PORT=```the port where the application runs```
+
+
+# Code Overview
+
+## Structure
+All files and folders in the `routes/` folder are automatically loaded and given the correct `url` and `method`. If you want to add something to this api, you can just add the file and you don't have to import anything.
 
 ## Docs
 You can find the docs in `HTML` format in the folder: `docs/`
 Use something like `serve docs/ -p 8080` to serve the folder
+
+
+## Dependencies
+
+- [expressjs](https://github.com/expressjs/express) - The server for handling and routing HTTP requests
+- [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) - For generating JWTs used by authentication
+- [express-status-monitor](https://github.com/RafalWilinski/express-status-monitor) - For having a handy status page
+- [bcrypt](https://github.com/kelektiv/node.bcrypt.js) - For haashing the passwords of the users
+
+
+## Authentication
+When the user is logged in, the server hands out 2 cookies: `accesstoken` - valid for 15min and used to get data from the server, `refreshtoken` - valid for a week and used to retrieve new `accesstokens`
 
 ## Userdata structure
 
@@ -59,3 +90,13 @@ user
         └── email
         └── emailVerified
 ```
+
+# Misc
+
+## Author
+
+* **Thies Nieborg** - *Initial work* - [Thiesjoo](https://github.com/Thiesjoo)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details

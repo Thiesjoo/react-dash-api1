@@ -3,13 +3,6 @@ if ( process.env.MONGOURL) {
     url = process.env.MONGOURL
 } else {
     let ip = "localhost"
-    const isDocker = require('is-docker');
-    const isdocker = isDocker()
-    if (isdocker) {
-        console.log("Is in docker")
-        ip = "db"
-        console.log("Debugging info: ", config)
-    }
     url = `mongodb://${ip}:27017/`
 }
 
@@ -39,8 +32,8 @@ module.exports = {
         accountDeletion: "This account was deleted and it is blocked due to user spoofing reasons",
         rateLimit: "You're doing that too fast"
     },
-    secret: process.env.JWT_SECRET,
-    saltRounds: production ? 14 : 2,
+    secret: process.env.JWT_SECRET || "YaYeet",
+    saltRounds: production ? 14 : 14,
     accessExpiry: 900000,
     refreshExpiry: 604800000,
     tokenLength: 20,

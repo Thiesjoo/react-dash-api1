@@ -12,23 +12,23 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^3.0.7",
     "braces": "^3.0.2",
+    "bcrypt": "^3.0.7",
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
     "express-status-monitor": "^1.2.8",
-    "forever": "^1.0.0",
     "helmet": "^3.21.2",
-    "is-docker": "^2.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongo": "^0.1.0",
     "randomstring": "^1.1.5",
-    "serve": "^11.3.0",
     "trianglify": "^2.0.0-alpha.2",
-    "xss-clean": "^0.1.1"
+    "xss-clean": "^0.1.1",
+    "forever": "^1.0.0"
   },
   "devDependencies": {
     "apidoc": "^0.19.1",
-    "loadtest": "^4.0.0"
+    "loadtest": "^4.0.0",
+    "node-fetch": "^2.6.0",
+    "serve": "^11.3.0"
   }
 }

@@ -8,8 +8,8 @@ const object = {
 }
 
 const options = {
-    url: 'https://192.168.178.150:8090/user/login',
-    maxRequests: 1000,
+    url: 'http://localhost:8090/user/login',
+    maxRequests: 10,
     concurrency: 10,
     method: "POST",
     contentType: "application/json",

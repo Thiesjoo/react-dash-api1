@@ -18,6 +18,7 @@ if (!config.production) {
         try {
             let db = getMongoDB()
             let test = db.collection("users")
+            if (!test) res.sendStatus(404)
             const result = await test.find({}).toArray();
             res.send(result);
         } catch (e) {
@@ -35,10 +36,15 @@ if (!config.production) {
     routes.get("/mongoDrop", async (req, res) => {
         try {
             let db = getMongoDB()
-            let test = db.collection("users")
-            test.drop()
-            test = db.collection("errors")
-            test.drop()
+            // let test = db.collection("users")
+            // console.log(test)
+            // if (test) test.drop()
+            // test = db.collection("errors")
+            // console.log(test)
+
+            // if (test) test.drop()
+
+            await db.dropDatabase()
 
             res.send(true);
         } catch (e) {
