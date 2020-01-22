@@ -14,7 +14,7 @@ async function updateItemFunc(req, res) {
             let result = await updateItem(req.body.id, req.body.item, req.body.list, req.body.type, req.decoded.id)
             res.send({ ok: true, result: result })
         } else {
-            console.log(req.body)
+            console.warn(req.body)
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (error) {

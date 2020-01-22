@@ -26,7 +26,6 @@ routes.post('/errors', async (req, res) => {
     try {
         if (req.body.errors) {
             const errors = req.body.errors
-            console.log(errors)
             let valid = true
             errors.forEach(element => {
                 if (!element.time || !element.error || !element.level || !element.errorinfo) valid = false
@@ -34,7 +33,6 @@ routes.post('/errors', async (req, res) => {
             if (valid) {
                 const mongoDb = getMongoDB()
                 const result = await mongoDb.collection("errors").insertMany(errors)
-                console.log("Error insert result:",result.result)
                 res.send({ ok: true })
             } else {
                 res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })

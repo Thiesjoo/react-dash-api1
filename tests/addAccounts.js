@@ -24,8 +24,12 @@ function main() {
                 return res.json()
             })
             .then(json => {
-                console.log(`Added user ${json.data.profile.firstname} with email: ${json.data.profile.email}`)
-                if (json.ok) addItems(cookies)
+                if (json.ok) {
+                    console.log(`${login ? "Logged in" : "Added"} user ${json.data.profile.firstname} with email: ${json.data.profile.email}`)
+                    addItems(cookies)
+                } else {
+                    console.log(login ? "User does not exist" : "User already exists")
+                }
             })
             .catch(error => {
                 console.error(error)
@@ -37,7 +41,7 @@ function main() {
 async function addItems(cookies) {
     try {
         for (var j = 0; j < 10; j++) {
-            await fetch(baseUrl + "user/profile/item", {
+            const fetchResult = await fetch(baseUrl + "user/profile/item", {
                 method: "POST",
                 body: JSON.stringify({
                     item: {
@@ -53,7 +57,11 @@ async function addItems(cookies) {
                     "cookie": cookies.join(";")
                 },
             })
-            console.log("Added items")
+            if (fetchResult.status == 200) {
+                console.log("Added items")
+            } else {
+                console.error("Adding items failed: ", fetchResult.statusText)
+            }
         }
     } catch (error) {
         throw error

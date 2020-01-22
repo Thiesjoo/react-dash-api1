@@ -12,7 +12,7 @@ async function updateOrderFunc(req, res) {
             let result = await updateOrder(req.body.newOrder, req.body.list, req.body.type, req.decoded.id)
             res.send({ ok: true, result: result })
         } else {
-            console.log(req.body)
+            console.warn(req.body)
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (error) {

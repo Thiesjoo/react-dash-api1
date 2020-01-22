@@ -69,7 +69,7 @@ routes.post('/user/signup', async (req, res) => {
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (err) {
-        console.log("\x1b[31m Signup: ", err)
+        console.error("\x1b[31m Signup: ", err)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 })

@@ -14,7 +14,6 @@ const passwordRegex = RegExp(
 
 let checkToken = async (req, res, next) => {
     let cookies = req.cookies
-    // console.log("valid cookie in function check token: ", cookies.accesstoken ? "yes" : "no")
     let token = cookies.accesstoken || req.body.token || req.query.token
 
     if (!token) {

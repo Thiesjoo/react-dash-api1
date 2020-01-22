@@ -1,4 +1,4 @@
-// FIXME: Add email status notifactions for account.
+// TODO: Add email status notifactions for account.
 //Maybe make seperate server for that(Or worker tthreas)
 
 const config = require('./shared/config.js');
@@ -44,6 +44,9 @@ app.use(express.json({ limit: '5kb' })); // Body limit is 5kb too protect agains
 const checkToken = require("./shared/security").checkToken
 const { getUserById } = require("./shared/database")
 
+const nocache = require('nocache');
+app.use(nocache());
+app.set("etag", false)
 
 //Logging
 const statusMonitor = require('express-status-monitor')({ path: '', ignoreStartsWith: "/admin" });
@@ -57,7 +60,7 @@ app.get('/status', checkToken, async (req, res, next) => {
             return res.status(401).send({ ok: false, msg: config.errors.noPerms })
         }
     } catch (err) {
-        console.log("\x1b[31m Status: ", err)
+        console.error("\x1b[31m Status: ", err)
         res.status(500).send({ ok: false, msg: config.errors.general })
     }
 }, statusMonitor.pageRoute)

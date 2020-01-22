@@ -5,7 +5,6 @@ const config = require('../../shared/config')
 async function deleteRefresh(req, res) {
     try {
         if (req.cookies.accesstoken && req.cookies.refreshtoken && req.body.todelete) {
-            console.log("Deleting refresh tokens.")
             let refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
             let accesstoken = security.jwt.verify(req.cookies.accesstoken, config.secret)
             if (refreshtoken && accesstoken) {

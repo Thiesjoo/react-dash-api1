@@ -5,14 +5,12 @@ const config = require('../../shared/config')
 async function generateExtraToken(req, res) {
     try {
         if (req.cookies.accesstoken && req.cookies.refreshtoken) {
-            console.log("Gcookies exist")
             let refreshtoken = jwt.verify(req.cookies.refreshtoken, config.secret)
             let accesstoken = jwt.verify(req.cookies.accesstoken, config.secret)
             if (refreshtoken && accesstoken) {
                 let user = await getUserById(accesstoken.id)
                 if (user) {
                     let userTokens = user.token
-                    console.log("Getting refresh tokens for: ", accesstoken)
                     let valid = true
                     let valid2 = false
                     userTokens.forEach(element => {

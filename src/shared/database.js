@@ -1,4 +1,5 @@
 const config = require('./config');
+var assert = require('assert');
 
 // #region MongoConfig
 
@@ -12,8 +13,9 @@ connectToMongo().catch(error => {
 
 async function connectToMongo() {
     let newCon = await mongoClient.connect(mongoUrl,
-        { useNewUrlParser: true, useUnifiedTopology: true })
+        { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000 })
     mongoDb = newCon.db(config.databaseName)
+    console.log("CONNECTED TO DB!")
 }
 
 // #endregion
@@ -22,6 +24,7 @@ async function connectToMongo() {
 // #region CRUD
 
 function getMongoDB() {
+    assert(mongoDb !== null)
     return mongoDb
 }
 
@@ -142,7 +145,6 @@ async function addItem(item, list, type, index, userId) {
                                 user.data[type][list] = []
                             }
                             if (item.parentId) {
-                                console.log("Adding item as subitem")
                                 let parentIndex = user.data[type][list].findIndex(x => x.id == item.parentId)
                                 if (parentIndex > -1) {
                                     let parentItem = user.data[type][list][parentIndex]
@@ -157,6 +159,7 @@ async function addItem(item, list, type, index, userId) {
                                 user.data[type][list].splice(index, 0, item)
                             } else {
                                 user.data[type][list].push(item)
+                                //TODO: Does this work?
                             }
                             let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
                             if (mongoResult.result.ok != 1) throw "Database unresponsive"

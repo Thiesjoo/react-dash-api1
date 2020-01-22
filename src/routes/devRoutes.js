@@ -1,4 +1,4 @@
-let { getMongoDB } = require("../shared/database")
+let { getMongoDB, addUser, deleteAccount } = require("../shared/database")
 const routes = require('express').Router();
 const config = require("../shared/config")
 const security = require("../shared/security")
@@ -36,16 +36,9 @@ if (!config.production) {
     routes.get("/mongoDrop", async (req, res) => {
         try {
             let db = getMongoDB()
-            // let test = db.collection("users")
-            // console.log(test)
-            // if (test) test.drop()
-            // test = db.collection("errors")
-            // console.log(test)
-
-            // if (test) test.drop()
-
             await db.dropDatabase()
-
+            const user = await addUser("temp@temp.com", "Temp", "Temp", "", [])
+            await deleteAccount(user._id, user.email)
             res.send(true);
         } catch (e) {
             console.error(e)
