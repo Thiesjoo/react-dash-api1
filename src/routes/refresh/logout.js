@@ -2,6 +2,29 @@ const { updateTokens,getUserById } = require("../../shared/database")
 const security = require("../../shared/security")
 const config = require("../../shared/config")
 
+
+/**
+ * @api {post} /user/refresh/logout Log the user out(Delete token from database)
+ * @apiName logout
+ * @apiGroup refresh
+ *
+ * @apiParam {String} email Users unique email.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "ok": true,
+ *     }
+ *
+ * @apiUse UserNotFoundError
+ * @apiUse RegexNotMatchError
+ * @apiUse NotEnoughInfoError
+ * @apiUse InvalidToken
+ * @apiUse NotEnoughPermissions
+ * 
+ * @apiUse SomethingWentWrongError
+ */
+
 async function logout(req, res) {
     try {
         if (req.cookies.accesstoken && req.cookies.refreshtoken && req.body.email) {

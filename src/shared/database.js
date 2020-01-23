@@ -151,18 +151,17 @@ async function addItem(item, list, type, index, userId) {
                                     parentItem.children.push(mongoRequire.ObjectID(item.id))
                                     user.data[type][list].splice(parentIndex, 1, parentItem)
                                 } else {
-                                    throw "Parent not found"
+                                    throw config.errors.invalidInfo
                                 }
                                 delete item.parentId
                             }
-                            if (index && index > 0 && index < user.data[type][list].length) {
+                            if (typeof index === "number" && index > -1 && index < user.data[type][list].length) {
                                 user.data[type][list].splice(index, 0, item)
                             } else {
                                 user.data[type][list].push(item)
-                                //TODO: Does this work?
                             }
                             let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
-                            if (mongoResult.result.ok != 1) throw "Database unresponsive"
+                            if (mongoResult.result.ok != 1) throw config.errors.general
                             return user.data[type][list]
                         } else {
                             throw config.errors.tooMuchSpace
@@ -196,7 +195,7 @@ async function deleteItem(id, list, type, userId) {
                             return value.id != id
                         });
                         let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
-                        if (mongoResult.result.ok != 1) throw "Database unresponsive"
+                        if (mongoResult.result.ok != 1) throw config.errors.general
                         return user.data[type][list]
                     } else {
                         throw config.errors.notFound
@@ -235,7 +234,7 @@ async function updateItem(id, newItem, list, type, userId) {
                             if (index > -1) {
                                 user.data[type][list].splice(index, 1, newItem)
                                 let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
-                                if (mongoResult.result.ok != 1) throw "Database unresponsive"
+                                if (mongoResult.result.ok != 1) throw config.errors.general
                                 return user.data[type][list]
                             } else {
                                 throw config.errors.notFound
@@ -305,7 +304,7 @@ async function updateOrder(newOrder, list, type, userId) {
                         const finalList = newList.concat(originalOrder) //If you only submit half the list it still adds the rest to the end
                         user.data[type][list] = finalList
                         let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
-                        if (mongoResult.result.ok != 1) throw "Database unresponsive"
+                        if (mongoResult.result.ok != 1) throw config.errors.general
                         return finalList
                     } else {
                         throw config.errors.notFound

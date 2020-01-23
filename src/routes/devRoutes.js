@@ -13,6 +13,7 @@ if (!config.production) {
  * @api {get} /mongo Return all users in database
  * @apiName mongo
  * @apiGroup DEV
+ * @apiUse RawError
  */
     routes.get("/mongo", async (req, res) => {
         try {
@@ -23,15 +24,17 @@ if (!config.production) {
             res.send(result);
         } catch (e) {
             console.error(e)
-            res.send(e)
+            res.status(500).send(e)
         }
     })
 
 
     /**
-* @api {get} /mongoDROP Delete all users
+* @api {get} /mongoDROP Drop database
+* @apiDescription Drop all collections and regenerate user collection
 * @apiName mongoDrop
 * @apiGroup DEV
+* @apiUse RawError
 */
     routes.get("/mongoDrop", async (req, res) => {
         try {
@@ -42,7 +45,7 @@ if (!config.production) {
             res.send(true);
         } catch (e) {
             console.error(e)
-            res.send(e)
+            res.status(500).send(e)
         }
     })
 
@@ -52,6 +55,7 @@ if (!config.production) {
 * @apiName promote
 * @apiParam {String} email Users unique email.
 * @apiGroup DEV
+* @apiUse RawError
 */
     routes.get("/promote", async (req, res) => {
         try {
@@ -60,13 +64,12 @@ if (!config.production) {
                 let test = db.collection("users")
                 test.updateOne({ email: req.query.email }, { $set: { admin: true } })
                 res.send(true);
-
             } else {
                 res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
             }
         } catch (e) {
             console.error(e)
-            res.send(e)
+            res.status(500).send(e)
         }
     })
 
@@ -74,6 +77,7 @@ if (!config.production) {
 * @api {get} /errors Return all errors
 * @apiName errors
 * @apiGroup DEV
+* @apiUse RawError
 */
 
     routes.get("/errors", async (req, res) => {
@@ -83,36 +87,39 @@ if (!config.production) {
             res.json(test);
         } catch (e) {
             console.error(e)
-            res.send(e)
+            res.status(500).send(e)
         }
     })
 
     /**
-* @api {get} /stats Return the database status
+* @api {get} /mnongoStatus Return the database status
 * @apiName Stats
 * @apiGroup DEV
+* @apiUse RawError
 */
-    routes.get("/stats", async (req, res) => {
+    routes.get("/mongoStatus", async (req, res) => {
         try {
             let db = getMongoDB()
             let test = await db.stats()
             res.json(test);
         } catch (e) {
             console.error(e)
-            res.send(e)
+            res.status(500).send(e)
         }
     })
+
+
+    routes.post("/test", function (req, res) {
+        console.log("Received test request with body", req.body)
+        res.send(req.body)
+    })
+
+    routes.post("/testCookie", security.checkToken, function (req, res) {
+        console.log("Received testCOOKIe request with body", req.body, req.decoded)
+
+        res.send({ ok: true, result: req.decoded })
+    })
+
 }
-
-routes.post("/test", function (req, res) {
-    console.log("Received test request with body", req.body)
-    res.send(req.body)
-})
-
-routes.post("/testCookie", security.checkToken, function (req, res) {
-    console.log("Received testCOOKIe request with body", req.body, req.decoded)
-
-    res.send({ ok: true, result: req.decoded })
-})
 
 module.exports = routes;

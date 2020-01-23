@@ -3,7 +3,6 @@ const config = require('../shared/config')
 const { getUserByEmail, updateTokens } = require("../shared/database")
 const { bcrypt, jwt, randomstring, emailRegex, passwordRegex } = require('../shared/security')
 
-
 /**
  * @api {post} /user/login Log in to the api
  * @apiName login

@@ -2,6 +2,26 @@ const security = require('../../shared/security')
 const { getUserById } = require("../../shared/database")
 const config = require('../../shared/config')
 
+/**
+ * @api {post} /user/refresh/getRefresh Get data about your refresh tokens
+ * @apiName getRefresh
+ * @apiGroup refresh
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "ok": true,
+ *       "tokens": (User's tokens)
+ *     }
+ *
+ * @apiUse UserNotFoundError
+ * @apiUse NotEnoughInfoError
+ * @apiUse InvalidToken
+ * 
+ * @apiUse SomethingWentWrongError
+ */
+
+
 async function getRefresh(req, res) {
     try {
         if (req.cookies.accesstoken && req.cookies.refreshtoken) {
@@ -25,6 +45,8 @@ async function getRefresh(req, res) {
                     } else {
                         res.status(401).send({ ok: false, msg: config.errors.invalidToken })
                     }
+                } else {
+                    res.status(404).send({ok:false, msg: config.errors.accountNotFound})
                 }
             } else {
                 res.status(401).send({ ok: false, msg: config.errors.invalidToken })

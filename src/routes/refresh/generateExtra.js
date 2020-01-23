@@ -2,6 +2,25 @@ const { jwt, randomstring } = require('../../shared/security')
 const { getUserById, updateTokens } = require("../../shared/database")
 const config = require('../../shared/config')
 
+/**
+ * @api {post} /user/refresh/generateExtra Generate a mobile token
+ * @apiName generateExtra
+ * @apiGroup refresh
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "ok": true,
+ *       "token": (A new refreshtoken)
+ *     }
+ *
+ * @apiUse UserNotFoundError
+ * @apiUse NotEnoughInfoError
+ * @apiUse InvalidToken
+ * 
+ * @apiUse SomethingWentWrongError
+ */
+
 async function generateExtraToken(req, res) {
     try {
         if (req.cookies.accesstoken && req.cookies.refreshtoken) {
@@ -35,7 +54,7 @@ async function generateExtraToken(req, res) {
                             await updateTokens(accesstoken.id, refreshArray)
                             res.send({ ok: true, msg: "", token: newRefreshtoken })
                         } else {
-                            res.status(400).send({ ok: false, msg: config.errors.rateLimit })
+                            res.status(429).send({ ok: false, msg: config.errors.rateLimit })
                         }
                     } else {
                         res.status(401).send({ ok: false, msg: config.errors.invalidToken })

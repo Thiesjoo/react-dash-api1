@@ -1,13 +1,13 @@
 # API1
 This is the REST api I made for my ```react-dash``` app. It includes logging in (With JWT-Tokens and bcrypt hashing), a CRUD interface and refreshtokens
 
-## Gettings started
+## Getting started
 To get this API running locally:
 
 - Clone this repo
 - `npm install` to install all required dependencies
-- Install docker ([https://docs.docker.com/install/](https://docs.docker.com/install/)). This way you can easily fire up many instances of the same database
-- `npm start` to start the local server
+- *If you dont have a mongodb this step is required* Install docker ([https://docs.docker.com/install/](https://docs.docker.com/install/)). This way you can easily fire up many instances of the same database
+- `npm start` to start the local server(You have to specify the MongoURL). or `./dev_start.sh` on linux to start a docker container with mongodb
 
 
 ## ENV Variables
@@ -24,8 +24,8 @@ To get this API running locally:
 All files and folders in the `routes/` folder are automatically loaded and given the correct `url` and `method`. If you want to add something to this api, you can just add the file and you don't have to import anything.
 
 ## Docs
-You can find the docs in `HTML` format in the folder: `docs/`
-Use something like `serve docs/ -p 8080` to serve the folder
+You can find the docs on [Github Pages](https://thiesjoo.github.io/react-dash-api1/) or host them yourself:
+(They are in `HTML` format in the folder: `docs/` and you can use something like `serve docs/ -p 8080` to serve the folder)
 
 
 ## Dependencies

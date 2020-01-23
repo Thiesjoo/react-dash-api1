@@ -4,9 +4,9 @@ const { getMongoDB } = require("../shared/database")
 const config = require('../shared/config')
 
 /**
- * @api {post} /errors/ Add a error to the api-errorlog
+ * @api {post} /errors/ Add a error to the errorlog
  * @apiName errors
- * @apiGroup Extra
+ * @apiGroup Monitoring
  *
  * @apiParam {Array} errors Array with seperate error objects
  *

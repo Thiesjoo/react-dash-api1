@@ -2,6 +2,29 @@ const { getUserById, deleteAccount } = require("../../shared/database")
 const config = require("../../shared/config")
 const security = require("../../shared/security")
 
+/**
+ * @api {post} /user/refresh/deleteAccount Delete a user's account
+ * @apiName deleteAccount
+ * @apiGroup refresh
+ *
+ * @apiParam {String} password Users password.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "ok": true,
+ *     }
+ *
+ * @apiUse UserNotFoundError
+ * @apiUse RegexNotMatchError
+ * @apiUse NotEnoughInfoError
+ * @apiUse InvalidToken
+ * @apiUse NoRefresh
+ * @apiUse WrongPasswordError
+ * 
+ * @apiUse SomethingWentWrongError
+ */
+
 async function deleteAccountFunction(req, res) {
     try {
         let body = req.body
@@ -20,8 +43,7 @@ async function deleteAccountFunction(req, res) {
                             if (result.ok === 1) {
                                 res.send({ ok: true })
                             } else {
-                                throw "Database unresponsive"
-                                // res.send({ ok: false, msg: config.errors.da })
+                                throw config.errors.general
                             }
                         } else {
                             res.status(401).send({ ok: false, msg: config.errors.wrongPassword })

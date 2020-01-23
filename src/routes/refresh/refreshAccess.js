@@ -2,6 +2,29 @@ const security = require('../../shared/security')
 const { getUserByEmail } = require("../../shared/database")
 const config = require('../../shared/config')
 
+/**
+ * @api {post} /user/refresh/refreshAccess Refresh the accesstoken
+ * @apiName refreshAccess
+ * @apiGroup refresh
+ *
+ * @apiParam {String} email Users unique email.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "ok": true,
+ *     }
+ *
+ * @apiUse UserNotFoundError
+ * @apiUse RegexNotMatchError
+ * @apiUse NotEnoughInfoError
+ * @apiUse InvalidToken
+ * @apiUse NotEnoughPermissions
+ * 
+ * @apiUse SomethingWentWrongError
+ */
+
+
 async function refreshAccess(req, res) {
     try {
         let body = req.body
@@ -30,7 +53,7 @@ async function refreshAccess(req, res) {
                         }
                     } else {
                         res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", samesite: config.production ? "none" : "", secure: config.production })
-                        return res.json({
+                        return res.status(401).send({
                             ok: false,
                             message: config.errors.invalidToken
                         });
