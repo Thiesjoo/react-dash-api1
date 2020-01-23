@@ -2,10 +2,28 @@ const security = require('../../shared/security')
 const { updateTokens, getUserById } = require("../../shared/database")
 const config = require('../../shared/config')
 
+/**
+ * @api {post} /user/refresh/deleteRefresh Revoke one or more refresh tokens
+ * @apiName deleteRefresh
+ * @apiGroup refresh
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "ok": true,
+ *       "tokens": (User's tokens)
+ *     }
+ *
+ * @apiUse UserNotFoundError
+ * @apiUse NotEnoughInfoError
+ * @apiUse InvalidToken
+ * 
+ * @apiUse SomethingWentWrongError
+ */
+
 async function deleteRefresh(req, res) {
     try {
         if (req.cookies.accesstoken && req.cookies.refreshtoken && req.body.todelete) {
-            console.log("Deleting refresh tokens.")
             let refreshtoken = security.jwt.verify(req.cookies.refreshtoken, config.secret)
             let accesstoken = security.jwt.verify(req.cookies.accesstoken, config.secret)
             if (refreshtoken && accesstoken) {

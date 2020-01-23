@@ -3,7 +3,6 @@ const config = require('../shared/config')
 const { getUserByEmail, updateTokens } = require("../shared/database")
 const { bcrypt, jwt, randomstring, emailRegex, passwordRegex } = require('../shared/security')
 
-
 /**
  * @api {post} /user/login Log in to the api
  * @apiName login
@@ -66,8 +65,8 @@ routes.post('/user/login', async (req, res) => {
 
                             await updateTokens(user._id, refreshArray)
 
-                            res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, sameSite: "none", path: "/user/", secure: true })
-                            res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, sameSite: "none", path: "/user/refresh", secure: true })
+                            res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, samesite: config.production ? "none" : "", path: "/user/", secure: config.production })
+                            res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, samesite: config.production ? "none" : "", path: "/user/refresh", secure: config.production })
 
                             res.send({ ok: true, data: user.data })
 
@@ -82,8 +81,7 @@ routes.post('/user/login', async (req, res) => {
                 res.status(400).send({ ok: false, msg: config.errors.regexNotMatch })
             }
         } else {
-            res.sendStatus(400)
-            // res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
+            res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
 
     } catch (error) {

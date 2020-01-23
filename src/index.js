@@ -1,4 +1,4 @@
-// FIXME: Add email status notifactions for account.
+// TODO: Add email status notifactions for account.
 //Maybe make seperate server for that(Or worker tthreas)
 
 const config = require('./shared/config.js');
@@ -41,33 +41,39 @@ app.use(xss());
 app.use(express.json({ limit: '5kb' })); // Body limit is 5kb too protect against large files
 
 //settings
-const checkToken = require("./shared/security").checkToken
+const { checkToken, checkAdmin } = require("./shared/security")
 const { getUserById } = require("./shared/database")
 
+const nocache = require('nocache');
+app.use(nocache());
+app.set("etag", false)
 
 //Logging
 const statusMonitor = require('express-status-monitor')({ path: '', ignoreStartsWith: "/admin" });
 app.use(statusMonitor);
-app.get('/status', checkToken, async (req, res, next) => {
-    try {
-        const user = await getUserById(req.decoded.id)
-        if (user && user.admin) {
-            next()
-        } else {
-            return res.status(401).send({ ok: false, msg: config.errors.noPerms })
-        }
-    } catch (err) {
-        console.log("\x1b[31m Status: ", err)
-        res.status(500).send({ ok: false, msg: config.errors.general })
-    }
-}, statusMonitor.pageRoute)
+
+/**
+* @api {get} /status Return a webpage with app status
+* @apiName Stats
+* @apiPermission admin
+* @apiGroup Monitoring
+*/
+
+app.get('/status', checkToken, checkAdmin, statusMonitor.pageRoute)
 
 
 //ROUTES PREP
+/**
+* @api {get} / Returns a simple JSON message with "Hello world!"
+* @apiName home
+* @apiGroup public
+*/
+
 app.get('/', (req, res) => {
     console.log("Get request on server. IP: ", req.ip)
-    res.send("Welcome to my API.")
+    res.send({ ok: true, msg: "Hello world!" })
 })
+
 
 //ROUTES. All auto load from the folders so you don;t have to pay attention when creating a new one
 const fs = require("fs")
@@ -90,7 +96,7 @@ fs.readdirSync("./routes/profile").forEach(function (file) {
         fs.readdirSync("./routes/profile/" + file).forEach(function (file2) {
             if (file2.includes("js")) {
                 let fileName = file2.substr(0, file2.indexOf('.'));
-                addCorrectMethod("profile/" + fileName, "profile/" + file + "/" + file2)
+                addCorrectMethod(fileName, "profile/" + file + "/" + file2)
             }
         })
     }
@@ -118,25 +124,7 @@ function addCorrectMethod(name, path) {
     }
 }
 
-//Certs
-if (!config.production) {
-    const https = require('https');
 
-    const privateKey = fs.readFileSync('../certs/privkey.pem', 'utf8');
-    const certificate = fs.readFileSync('../certs/cert.pem', 'utf8');
-    const ca = fs.readFileSync('../certs/chain.pem', 'utf8');
-
-    const credentials = {
-        key: privateKey,
-        cert: certificate,
-        ca: ca
-    };
-
-    const httpsServer = https.createServer(credentials, app);
-    httpsServer.listen(config.port, () => console.log(`API1 https-app listening on port ${config.port}!`))
-
-} else {
-    app.listen(config.port, () => {
-        console.log("App running without manual HTTPS on port " + config.port)
-    })
-}
+app.listen(config.port, () => {
+    console.log("API1 (For react-dash) running on port " + config.port)
+})

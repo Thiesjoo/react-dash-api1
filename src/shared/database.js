@@ -1,4 +1,5 @@
 const config = require('./config');
+var assert = require('assert');
 
 // #region MongoConfig
 
@@ -12,8 +13,9 @@ connectToMongo().catch(error => {
 
 async function connectToMongo() {
     let newCon = await mongoClient.connect(mongoUrl,
-        { useNewUrlParser: true, useUnifiedTopology: true })
+        { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000 })
     mongoDb = newCon.db(config.databaseName)
+    console.log("CONNECTED TO DB!")
 }
 
 // #endregion
@@ -22,6 +24,7 @@ async function connectToMongo() {
 // #region CRUD
 
 function getMongoDB() {
+    assert(mongoDb !== null)
     return mongoDb
 }
 
@@ -68,7 +71,7 @@ async function addUser(email, firstname, lastname, password, token) {
             ]
         }
         const items = {
-            home: [{ name: "tasks", options: { list: "Your first list" } }]
+            home: [{ type: "tasks", options: ["Your first list"], id: new mongoRequire.ObjectID() }]
         }
 
         let mongoResult = await mongoDb.collection("users").insertOne({ email, password, token, data: { items, tasks, notifications, profile: { firstname, lastname, email, emailVerified: false } } })
@@ -118,7 +121,7 @@ async function getItem(id, list, type, userId) {
 }
 
 
-async function addItem(item, list, type, userId) {
+async function addItem(item, list, type, index, userId) {
     try {
         if (config.permissions[type] && config.permissions[type].includes("w")) {
             if (config.allowedTypes.includes(type)) {
@@ -142,20 +145,23 @@ async function addItem(item, list, type, userId) {
                                 user.data[type][list] = []
                             }
                             if (item.parentId) {
-                                console.log("Adding item as subitem")
                                 let parentIndex = user.data[type][list].findIndex(x => x.id == item.parentId)
                                 if (parentIndex > -1) {
                                     let parentItem = user.data[type][list][parentIndex]
                                     parentItem.children.push(mongoRequire.ObjectID(item.id))
                                     user.data[type][list].splice(parentIndex, 1, parentItem)
                                 } else {
-                                    throw "Parent not found"
+                                    throw config.errors.invalidInfo
                                 }
                                 delete item.parentId
                             }
-                            user.data[type][list].push(item)
+                            if (typeof index === "number" && index > -1 && index < user.data[type][list].length) {
+                                user.data[type][list].splice(index, 0, item)
+                            } else {
+                                user.data[type][list].push(item)
+                            }
                             let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
-                            if (mongoResult.result.ok != 1) throw "Database unresponsive"
+                            if (mongoResult.result.ok != 1) throw config.errors.general
                             return user.data[type][list]
                         } else {
                             throw config.errors.tooMuchSpace
@@ -189,7 +195,7 @@ async function deleteItem(id, list, type, userId) {
                             return value.id != id
                         });
                         let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
-                        if (mongoResult.result.ok != 1) throw "Database unresponsive"
+                        if (mongoResult.result.ok != 1) throw config.errors.general
                         return user.data[type][list]
                     } else {
                         throw config.errors.notFound
@@ -228,7 +234,7 @@ async function updateItem(id, newItem, list, type, userId) {
                             if (index > -1) {
                                 user.data[type][list].splice(index, 1, newItem)
                                 let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
-                                if (mongoResult.result.ok != 1) throw "Database unresponsive"
+                                if (mongoResult.result.ok != 1) throw config.errors.general
                                 return user.data[type][list]
                             } else {
                                 throw config.errors.notFound
@@ -298,7 +304,7 @@ async function updateOrder(newOrder, list, type, userId) {
                         const finalList = newList.concat(originalOrder) //If you only submit half the list it still adds the rest to the end
                         user.data[type][list] = finalList
                         let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
-                        if (mongoResult.result.ok != 1) throw "Database unresponsive"
+                        if (mongoResult.result.ok != 1) throw config.errors.general
                         return finalList
                     } else {
                         throw config.errors.notFound

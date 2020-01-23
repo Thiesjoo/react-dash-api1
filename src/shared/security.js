@@ -14,7 +14,6 @@ const passwordRegex = RegExp(
 
 let checkToken = async (req, res, next) => {
     let cookies = req.cookies
-    // console.log("valid cookie in function check token: ", cookies.accesstoken ? "yes" : "no")
     let token = cookies.accesstoken || req.body.token || req.query.token
 
     if (!token) {
@@ -38,4 +37,18 @@ let checkToken = async (req, res, next) => {
     }
 };
 
-module.exports = { emailRegex, passwordRegex, saltRounds, bcrypt, randomstring, jwt, checkToken }
+let checkAdmin = async (req, res, next) => {
+    try {
+        const user = await getUserById(req.decoded.id)
+        if (user && user.admin) {
+            next()
+        } else {
+            return res.status(401).send({ ok: false, msg: config.errors.noPerms })
+        }
+    } catch (err) {
+        console.error("\x1b[31m checkAdmin: ", err)
+        res.status(500).send({ ok: false, msg: config.errors.general })
+    }
+}
+
+module.exports = { emailRegex, passwordRegex, saltRounds, bcrypt, randomstring, jwt, checkToken, checkAdmin }
