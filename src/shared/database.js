@@ -7,15 +7,27 @@ const mongoRequire = require('mongodb')
 const mongoClient = mongoRequire.MongoClient;
 const mongoUrl = config.mongoURL;
 let mongoDb = null
-connectToMongo().catch(error => {
-    throw error
-})
+
+function init(app) {
+    return connectToMongo()
+        .then(result => {
+            app.emit("ready")
+        })
+        .catch(error => {
+            throw error
+        })
+}
 
 async function connectToMongo() {
+    try {
+    console.log("Trying to connect to database with url: ",mongoUrl)
     let newCon = await mongoClient.connect(mongoUrl,
-        { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000 })
-    mongoDb = newCon.db(config.databaseName)
+        { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000, socketTimeoutMS: 5000 })
+    mongoDb = await newCon.db(config.databaseName)
     console.log("CONNECTED TO DB!")
+    } catch(error) {
+        throw error
+    }
 }
 
 // #endregion
@@ -282,12 +294,16 @@ async function updateOrder(newOrder, list, type, userId) {
                                     if (parentItem.children.length > 0) {
                                         parentItem.children.forEach(y => {
                                             let childItemIndex = originalOrder.findIndex(item => item.id == y)
-                                            if (childItemIndex > -1) {
+                                            console.log(y)
+                                            if (y.id === "temp") {
+                                                return
+                                            } else if (childItemIndex > -1) {
                                                 let childItem = originalOrder[childItemIndex]
                                                 originalOrder.splice(childItemIndex, 1)
                                                 childItem.child = true
-                                                newList.push(childItem)
+                                                newList.push(childItem)                                                
                                             } else {
+                                                console.log("Or hejrer?")
                                                 throw config.errors.invalidInfo
                                             }
                                         })
@@ -298,6 +314,7 @@ async function updateOrder(newOrder, list, type, userId) {
                                 }
                                 newList.push(originalItem)
                             } else {
+                                console.log("Error herre")
                                 throw config.errors.invalidInfo
                             }
                         })
@@ -360,6 +377,8 @@ function bytesToSize(a, b) { if (0 == a) return "0 Bytes"; let c = 1024, d = b |
 // #endregion
 
 module.exports = {
+    init,
+
     getUserById,
     getUserByEmail,
     getMongoDB,

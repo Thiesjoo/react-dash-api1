@@ -42,7 +42,6 @@ app.use(express.json({ limit: '5kb' })); // Body limit is 5kb too protect agains
 
 //settings
 const { checkToken, checkAdmin } = require("./shared/security")
-const { getUserById } = require("./shared/database")
 
 const nocache = require('nocache');
 app.use(nocache());
@@ -70,7 +69,9 @@ app.get('/status', checkToken, checkAdmin, statusMonitor.pageRoute)
 */
 
 app.get('/', (req, res) => {
-    console.log("Get request on server. IP: ", req.ip)
+//TODO: Add checks for localhost and pass some handy routes: /mongo /mongoStatus /mongoDROP /promote?email= 
+
+console.log("Get request on server. IP: ", req.ip)
     res.send({ ok: true, msg: "Hello world!" })
 })
 
@@ -124,7 +125,11 @@ function addCorrectMethod(name, path) {
     }
 }
 
+const init = require("./shared/database").init
+init(app).catch(error => { throw error })
 
-app.listen(config.port, () => {
-    console.log("API1 (For react-dash) running on port " + config.port)
+app.on('ready', function () {
+    app.listen(config.port, () => {
+        console.log("API1 (For react-dash) running on port " + config.port)
+    })
 })
