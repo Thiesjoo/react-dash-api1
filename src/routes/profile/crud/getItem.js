@@ -5,7 +5,9 @@ const config = require('../../../shared/config')
  * @api {get} /user/profile/item Get item
  * @apiDescription All errors are returned with http code 500, due to a limitation with the database. GET requests use PARAMS and the rest uses the request BODY
  * @apiName getItem
- * @apiGroup CRUD
+ * @apiGroup CRUD 
+ * @apiHeader {String} Cookie:accesstoken Users unique access-token.
+
  *
  * @apiParam {String} list *Optional* When not specified gather all data from specified type else: The list of items
  * @apiParam {String} type *Optional* When not specified gather all data else: Category of the item(tasks, banking and notifications)

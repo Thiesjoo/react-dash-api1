@@ -6,6 +6,8 @@ const config = require('../../shared/config')
  * @api {post} /user/refresh/getRefresh Get data about your refresh tokens
  * @apiName getRefresh
  * @apiGroup refresh
+ * @apiHeader {String} Cookie:accesstoken Users unique access-token.
+ * @apiHeader {String} Cookie:refreshtoken Users unique refresh-token.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK

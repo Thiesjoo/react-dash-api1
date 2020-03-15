@@ -17,6 +17,7 @@ let checkToken = async (req, res, next) => {
     let token = cookies.accesstoken || req.body.token || req.query.token
 
     if (!token) {
+        console.log("No token found for: ", req.ip)
         return res.status(401).json({
             ok: false,
             message: config.errors.notEnoughInfoTokens
@@ -28,7 +29,7 @@ let checkToken = async (req, res, next) => {
             req.decoded = verifiedToken;
             next();
         } catch (error) {
-            console.error("Error in security tokencheck")
+            console.error("Error in security tokencheck. Invalid token for ip: ", req.ip)
             return res.status(401).send({
                 ok: false,
                 message: config.errors.invalidToken,

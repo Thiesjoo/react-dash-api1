@@ -1,16 +1,15 @@
-const { updateItem } = require("../../../shared/database")
+const { updateOrder } = require("../../../shared/database")
 const config = require('../../../shared/config')
 
 /**
- * @api {put} /user/profile/item Update item
+ * @api {patch} /user/profile/items Update order of items
  * @apiDescription All errors are returned with http code 500, due to a limitation with the database. GET requests use PARAMS and the rest uses the request BODY
- * @apiName updateItem
+ * @apiName updateOrder
  * @apiGroup CRUD 
  * @apiHeader {String} Cookie:accesstoken Users unique access-token.
 
  *
- * @apiParam {Object} item Updated item. Has to comply with config of type
- * @apiParam {String} id Id of the item to add.
+ * @apiParam {Object} item List of the order of items. Format: [{id: (item_id), children: [(item_id)]}]
  * @apiParam {String} list The list to add the item to
  * @apiParam {String} type Category of the item(tasks, banking and notifications)
  *
@@ -33,26 +32,25 @@ const config = require('../../../shared/config')
  */
 
 
-async function updateItemFunc(req, res) {
+
+async function updateOrderFunc(req, res) {
     try {
-        if (req.body.item
-            && typeof req.body.item === "object"
+        if (req.body.newOrder
+            && typeof req.body.newOrder === "object"
             && req.body.type
             && typeof req.body.type === "string"
             && req.body.list
-            && typeof req.body.list === "string"
-            && req.body.id
-            && typeof req.body.id === "string") {
-            let result = await updateItem(req.body.id, req.body.item, req.body.list, req.body.type, req.decoded.id)
+            && typeof req.body.list === "string") {
+            let result = await updateOrder(req.body.newOrder, req.body.list, req.body.type, req.decoded.id)
             res.send({ ok: true, result: result })
         } else {
             console.warn(req.body)
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (error) {
-        console.error("\x1b[31m updateItem: ", error, req.body)
+        console.error("\x1b[31m updateOrder: ", error, req.body)
         res.status(500).send({ ok: false, msg: error })
     }
 }
 
-module.exports = updateItemFunc
+module.exports = updateOrderFunc

@@ -18,9 +18,13 @@ const security = require('../shared/security')
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *     {
+ *     JSON: {
  *       "ok": true,
  *       "data": userData
+ *     }
+ *     Cookie: {
+ *          accesstoken,
+ *          refreshtoken
  *     }
  *
  * @apiUse AccountDeletionError
@@ -57,8 +61,8 @@ routes.post('/user/signup', async (req, res) => {
                         }
                     );
 
-                    res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/", samesite: config.production ? "none" : "", secure: config.production })
-                    res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refresh", samesite: config.production ? "none" : "", secure: config.production })
+                    res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, path: "/user/", sameSite: config.production ? "none" : "", secure: config.production })
+                    res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, path: "/user/refresh", sameSite: config.production ? "none" : "", secure: config.production })
 
                     res.send({ ok: true, data: newUser.data })
                 }

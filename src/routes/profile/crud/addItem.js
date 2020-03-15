@@ -5,7 +5,9 @@ const config = require('../../../shared/config')
  * @api {post} /user/profile/item Add item
  * @apiDescription All errors are returned with http code 500, due to a limitation with the database. GET requests use PARAMS and the rest uses the request BODY
  * @apiName addItem
- * @apiGroup CRUD
+ * @apiGroup CRUD 
+ * @apiHeader {String} Cookie:accesstoken Users unique access-token.
+
  *
  * @apiParam {Object} item Item to add. Has to comply with config of type
  * @apiParam {String} list The list to add the item to
@@ -21,7 +23,6 @@ const config = require('../../../shared/config')
  *     }
  *
  * @apiUse UserNotFoundError
- * @apiUse WrongPasswordError
  * @apiUse InvalidInfoError
  * @apiUse NotEnoughPermissions
  * @apiUse NotEnoughInfoError

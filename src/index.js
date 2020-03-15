@@ -1,5 +1,4 @@
 // TODO: Add email status notifactions for account.
-//Maybe make seperate server for that(Or worker tthreas)
 
 const config = require('./shared/config.js');
 //EXPRESS SETUP
@@ -43,6 +42,7 @@ app.use(express.json({ limit: '5kb' })); // Body limit is 5kb too protect agains
 //settings
 const { checkToken, checkAdmin } = require("./shared/security")
 
+//Dont cache any response, every request is different
 const nocache = require('nocache');
 app.use(nocache());
 app.set("etag", false)
@@ -69,9 +69,7 @@ app.get('/status', checkToken, checkAdmin, statusMonitor.pageRoute)
 */
 
 app.get('/', (req, res) => {
-//TODO: Add checks for localhost and pass some handy routes: /mongo /mongoStatus /mongoDROP /promote?email= 
-
-console.log("Get request on server. IP: ", req.ip)
+    console.log("Get request on server. IP: ", req.ip)
     res.send({ ok: true, msg: "Hello world!" })
 })
 
@@ -101,7 +99,7 @@ fs.readdirSync("./routes/profile").forEach(function (file) {
             }
         })
     }
-});
+}); 
 
 //All routes in refresh get assigned to /user/refresh, without tokencheck
 fs.readdirSync("./routes/refresh").forEach(function (file) {
@@ -112,22 +110,25 @@ fs.readdirSync("./routes/refresh").forEach(function (file) {
 })
 
 function addCorrectMethod(name, path) {
+    const items = name.includes("List") || name.includes("Order")
+    const endUrl = `/user/profile/item${items ? "s" : ""}`
     if (name.includes("get")) {
-        app.get("/user/profile/item", checkToken, require("./routes/" + path))
+        app.get(endUrl, checkToken, require("./routes/" + path))
     } else if (name.includes("delete")) {
-        app.delete("/user/profile/item", checkToken, require("./routes/" + path))
+        app.delete(endUrl, checkToken, require("./routes/" + path))
     } else if (name.includes("add")) {
-        app.post("/user/profile/item", checkToken, require("./routes/" + path))
+        app.post(endUrl, checkToken, require("./routes/" + path))
     } else if (name.includes("Order")) {
-        app.patch("/user/profile/item", checkToken, require("./routes/" + path))
+        app.patch(endUrl, checkToken, require("./routes/" + path))
     } else if (name.includes("update")) {
-        app.put("/user/profile/item", checkToken, require("./routes/" + path))
+        app.put(endUrl, checkToken, require("./routes/" + path))
     }
 }
 
 const init = require("./shared/database").init
 init(app).catch(error => { throw error })
 
+//Wait for the database to be connected before accepting requests
 app.on('ready', function () {
     app.listen(config.port, () => {
         console.log("API1 (For react-dash) running on port " + config.port)

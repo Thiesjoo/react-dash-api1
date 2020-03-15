@@ -6,6 +6,8 @@ const security = require("../../shared/security")
  * @api {post} /user/refresh/changePW Change password for a user
  * @apiName changePW
  * @apiGroup refresh
+ * @apiHeader {String} Cookie:accesstoken Users unique access-token.
+ * @apiHeader {String} Cookie:refreshtoken Users unique refresh-token.
  *
  * @apiParam {String} password Users password.
  * @apiParam {String} newPassword Users password.

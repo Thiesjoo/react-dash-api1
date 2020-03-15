@@ -6,6 +6,19 @@
     "description": "<p>All errors are returned with http code 500, due to a limitation with the database. GET requests use PARAMS and the rest uses the request BODY</p>",
     "name": "addItem",
     "group": "CRUD",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          }
+        ]
+      }
+    },
     "parameter": {
       "fields": {
         "Parameter": [
@@ -68,12 +81,6 @@
           {
             "group": "Error 4xx",
             "optional": false,
-            "field": "WrongPassword",
-            "description": "<p>The password for this user is incorrect.</p>"
-          },
-          {
-            "group": "Error 4xx",
-            "optional": false,
             "field": "InvalidInfo",
             "description": "<p>You do not meet the request's parameters.</p>"
           },
@@ -100,11 +107,6 @@
         ]
       },
       "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 404 Not Found\n{\n  \"ok\": false,\n  \"msg\": \"Email/password combination in not correct\"\n}",
-          "type": "json"
-        },
         {
           "title": "Error-Response:",
           "content": "HTTP/1.1 404 Not Found\n{\n  \"ok\": false,\n  \"msg\": \"Email/password combination in not correct\"\n}",
@@ -140,6 +142,19 @@
     "description": "<p>All errors are returned with http code 500, due to a limitation with the database. GET requests use PARAMS and the rest uses the request BODY</p>",
     "name": "deleteItem",
     "group": "CRUD",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          }
+        ]
+      }
+    },
     "parameter": {
       "fields": {
         "Parameter": [
@@ -268,12 +283,154 @@
     }
   },
   {
+    "type": "delete",
+    "url": "/user/profile/items",
+    "title": "Delete a list",
+    "description": "<p>All errors are returned with http code 500, due to a limitation with the database. GET requests use PARAMS and the rest uses the request BODY</p>",
+    "name": "deleteList",
+    "group": "CRUD",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "list",
+            "description": "<p>The list to delete</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "type",
+            "description": "<p>Category of the item(tasks, banking and notifications)</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "data",
+            "description": "<p>All the data from the user.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n  \"ok\": true,\n  \"result\": (result)\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "src/routes/profile/crudList/deleteList.js",
+    "groupTitle": "CRUD",
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "UserNotFound",
+            "description": "<p>The id/email of the User was not found.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "InvalidInfo",
+            "description": "<p>You do not meet the request's parameters.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "NotEnoughPermissions",
+            "description": "<p>Not enough permissions to do this action</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "NotEnoughInfo",
+            "description": "<p>You do not meet the request's parameters.</p>"
+          }
+        ],
+        "500 Internal Server Error": [
+          {
+            "group": "500 Internal Server Error",
+            "optional": false,
+            "field": "SomethingWentWrong",
+            "description": "<p>Something went wrong with the server.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 404 Not Found\n{\n  \"ok\": false,\n  \"msg\": \"Email/password combination in not correct\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 Bad request\n{\n  \"ok\": false,\n  \"msg\": \"Invalid input\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Unauthorized\n{\n  \"ok\": false,\n  \"msg\": \"Not enough permissions to do this action\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 400 Bad request\n{\n  \"ok\": false,\n  \"msg\": \"There is not enough info\"\n}",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 500 Internal server error\n{\n  \"ok\": false,\n  \"msg\": \"Something went wrong\"\n}",
+          "type": "json"
+        }
+      ]
+    }
+  },
+  {
     "type": "get",
     "url": "/user/profile/item",
     "title": "Get item",
     "description": "<p>All errors are returned with http code 500, due to a limitation with the database. GET requests use PARAMS and the rest uses the request BODY</p>",
     "name": "getItem",
     "group": "CRUD",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          }
+        ]
+      }
+    },
     "parameter": {
       "fields": {
         "Parameter": [
@@ -401,6 +558,19 @@
     "description": "<p>All errors are returned with http code 500, due to a limitation with the database. GET requests use PARAMS and the rest uses the request BODY</p>",
     "name": "updateItem",
     "group": "CRUD",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          }
+        ]
+      }
+    },
     "parameter": {
       "fields": {
         "Parameter": [
@@ -537,11 +707,24 @@
   },
   {
     "type": "patch",
-    "url": "/user/profile/item",
+    "url": "/user/profile/items",
     "title": "Update order of items",
     "description": "<p>All errors are returned with http code 500, due to a limitation with the database. GET requests use PARAMS and the rest uses the request BODY</p>",
     "name": "updateOrder",
     "group": "CRUD",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          }
+        ]
+      }
+    },
     "parameter": {
       "fields": {
         "Parameter": [
@@ -590,7 +773,7 @@
       ]
     },
     "version": "0.0.0",
-    "filename": "src/routes/profile/crud/updateOrder.js",
+    "filename": "src/routes/profile/crudList/updateOrder.js",
     "groupTitle": "CRUD",
     "error": {
       "fields": {
@@ -671,170 +854,6 @@
   },
   {
     "type": "get",
-    "url": "/mnongoStatus",
-    "title": "Return the database status",
-    "name": "Stats",
-    "group": "DEV",
-    "version": "0.0.0",
-    "filename": "src/routes/devRoutes.js",
-    "groupTitle": "Dev",
-    "groupDescription": "<p>This is a group for routes that are not meant for production. They all return the literal error that is generated.</p>",
-    "error": {
-      "fields": {
-        "500 Internal Server Error": [
-          {
-            "group": "500 Internal Server Error",
-            "optional": false,
-            "field": "RawError",
-            "description": "<p>Something went wrong</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 500 Internal server error\n{\n  \"ok\": false,\n  \"msg\": (Error message)\n}",
-          "type": "json"
-        }
-      ]
-    }
-  },
-  {
-    "type": "get",
-    "url": "/errors",
-    "title": "Return all errors",
-    "name": "errors",
-    "group": "DEV",
-    "version": "0.0.0",
-    "filename": "src/routes/devRoutes.js",
-    "groupTitle": "Dev",
-    "groupDescription": "<p>This is a group for routes that are not meant for production. They all return the literal error that is generated.</p>",
-    "error": {
-      "fields": {
-        "500 Internal Server Error": [
-          {
-            "group": "500 Internal Server Error",
-            "optional": false,
-            "field": "RawError",
-            "description": "<p>Something went wrong</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 500 Internal server error\n{\n  \"ok\": false,\n  \"msg\": (Error message)\n}",
-          "type": "json"
-        }
-      ]
-    }
-  },
-  {
-    "type": "get",
-    "url": "/mongo",
-    "title": "Return all users in database",
-    "name": "mongo",
-    "group": "DEV",
-    "version": "0.0.0",
-    "filename": "src/routes/devRoutes.js",
-    "groupTitle": "Dev",
-    "groupDescription": "<p>This is a group for routes that are not meant for production. They all return the literal error that is generated.</p>",
-    "error": {
-      "fields": {
-        "500 Internal Server Error": [
-          {
-            "group": "500 Internal Server Error",
-            "optional": false,
-            "field": "RawError",
-            "description": "<p>Something went wrong</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 500 Internal server error\n{\n  \"ok\": false,\n  \"msg\": (Error message)\n}",
-          "type": "json"
-        }
-      ]
-    }
-  },
-  {
-    "type": "get",
-    "url": "/mongoDROP",
-    "title": "Drop database",
-    "description": "<p>Drop all collections and regenerate user collection</p>",
-    "name": "mongoDrop",
-    "group": "DEV",
-    "version": "0.0.0",
-    "filename": "src/routes/devRoutes.js",
-    "groupTitle": "Dev",
-    "groupDescription": "<p>This is a group for routes that are not meant for production. They all return the literal error that is generated.</p>",
-    "error": {
-      "fields": {
-        "500 Internal Server Error": [
-          {
-            "group": "500 Internal Server Error",
-            "optional": false,
-            "field": "RawError",
-            "description": "<p>Something went wrong</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 500 Internal server error\n{\n  \"ok\": false,\n  \"msg\": (Error message)\n}",
-          "type": "json"
-        }
-      ]
-    }
-  },
-  {
-    "type": "get",
-    "url": "/promote",
-    "title": "Promote user to admin",
-    "name": "promote",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "email",
-            "description": "<p>Users unique email.</p>"
-          }
-        ]
-      }
-    },
-    "group": "DEV",
-    "version": "0.0.0",
-    "filename": "src/routes/devRoutes.js",
-    "groupTitle": "Dev",
-    "groupDescription": "<p>This is a group for routes that are not meant for production. They all return the literal error that is generated.</p>",
-    "error": {
-      "fields": {
-        "500 Internal Server Error": [
-          {
-            "group": "500 Internal Server Error",
-            "optional": false,
-            "field": "RawError",
-            "description": "<p>Something went wrong</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 500 Internal server error\n{\n  \"ok\": false,\n  \"msg\": (Error message)\n}",
-          "type": "json"
-        }
-      ]
-    }
-  },
-  {
-    "type": "get",
     "url": "/status",
     "title": "Return a webpage with app status",
     "name": "Stats",
@@ -856,6 +875,19 @@
     "title": "Add a error to the errorlog",
     "name": "errors",
     "group": "Monitoring",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          }
+        ]
+      }
+    },
     "parameter": {
       "fields": {
         "Parameter": [
@@ -955,7 +987,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n  \"ok\": true,\n  \"data\": userData\n}",
+          "content": "HTTP/1.1 200 OK\nJSON: {\n  \"ok\": true,\n  \"data\": userData\n}\nCookie: {\n     accesstoken,\n     refreshtoken\n}",
           "type": "json"
         }
       ]
@@ -1095,7 +1127,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n  \"ok\": true,\n  \"data\": userData\n}",
+          "content": "HTTP/1.1 200 OK\nJSON: {\n  \"ok\": true,\n  \"data\": userData\n}\nCookie: {\n     accesstoken,\n     refreshtoken\n}",
           "type": "json"
         }
       ]
@@ -1175,6 +1207,26 @@
     "title": "Change password for a user",
     "name": "changePW",
     "group": "refresh",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:refreshtoken",
+            "description": "<p>Users unique refresh-token.</p>"
+          }
+        ]
+      }
+    },
     "parameter": {
       "fields": {
         "Parameter": [
@@ -1302,6 +1354,26 @@
     "title": "Delete a user's account",
     "name": "deleteAccount",
     "group": "refresh",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:refreshtoken",
+            "description": "<p>Users unique refresh-token.</p>"
+          }
+        ]
+      }
+    },
     "parameter": {
       "fields": {
         "Parameter": [
@@ -1422,6 +1494,26 @@
     "title": "Revoke one or more refresh tokens",
     "name": "deleteRefresh",
     "group": "refresh",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:refreshtoken",
+            "description": "<p>Users unique refresh-token.</p>"
+          }
+        ]
+      }
+    },
     "success": {
       "examples": [
         {
@@ -1496,6 +1588,26 @@
     "title": "Generate a mobile token",
     "name": "generateExtra",
     "group": "refresh",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:refreshtoken",
+            "description": "<p>Users unique refresh-token.</p>"
+          }
+        ]
+      }
+    },
     "success": {
       "examples": [
         {
@@ -1570,6 +1682,26 @@
     "title": "Get data about your refresh tokens",
     "name": "getRefresh",
     "group": "refresh",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:refreshtoken",
+            "description": "<p>Users unique refresh-token.</p>"
+          }
+        ]
+      }
+    },
     "success": {
       "examples": [
         {
@@ -1644,6 +1776,26 @@
     "title": "Log the user out(Delete token from database)",
     "name": "logout",
     "group": "refresh",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:refreshtoken",
+            "description": "<p>Users unique refresh-token.</p>"
+          }
+        ]
+      }
+    },
     "parameter": {
       "fields": {
         "Parameter": [
@@ -1753,6 +1905,26 @@
     "title": "Refresh the accesstoken",
     "name": "refreshAccess",
     "group": "refresh",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:accesstoken",
+            "description": "<p>Users unique access-token.</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Cookie:refreshtoken",
+            "description": "<p>Users unique refresh-token.</p>"
+          }
+        ]
+      }
+    },
     "parameter": {
       "fields": {
         "Parameter": [

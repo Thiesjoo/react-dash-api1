@@ -14,12 +14,13 @@ if (!config.production) {
  * @apiName mongo
  * @apiGroup DEV
  * @apiUse RawError
+ * @apiPrivate
  */
     routes.get("/mongo", async (req, res) => {
         try {
             let db = getMongoDB()
             let test = db.collection("users")
-            if (!test) res.sendStatus(404)
+            if (!test) res.sendStatus(500)
             const result = await test.find({}).toArray();
             res.send(result);
         } catch (e) {
@@ -35,6 +36,7 @@ if (!config.production) {
 * @apiName mongoDrop
 * @apiGroup DEV
 * @apiUse RawError
+* @apiPrivate
 */
     routes.get("/mongoDrop", async (req, res) => {
         try {
@@ -56,6 +58,7 @@ if (!config.production) {
 * @apiParam {String} email Users unique email.
 * @apiGroup DEV
 * @apiUse RawError
+* @apiPrivate
 */
     routes.get("/promote", async (req, res) => {
         try {
@@ -78,6 +81,7 @@ if (!config.production) {
 * @apiName errors
 * @apiGroup DEV
 * @apiUse RawError
+* @apiPrivate
 */
 
     routes.get("/errors", async (req, res) => {
@@ -92,10 +96,11 @@ if (!config.production) {
     })
 
     /**
-* @api {get} /mnongoStatus Return the database status
+* @api {get} /mongoStatus Return the database status
 * @apiName Stats
 * @apiGroup DEV
 * @apiUse RawError
+* @apiPrivate
 */
     routes.get("/mongoStatus", async (req, res) => {
         try {
@@ -110,12 +115,12 @@ if (!config.production) {
 
 
     routes.post("/test", function (req, res) {
-        console.log("Received test request with body", req.body)
+        console.log("Received test request with body: ", req.body)
         res.send(req.body)
     })
 
     routes.post("/testCookie", security.checkToken, function (req, res) {
-        console.log("Received testCOOKIe request with body", req.body, req.decoded)
+        console.log("Received testCOOKIE request with body: ", req.body, " and cookie: ",req.decoded)
 
         res.send({ ok: true, result: req.decoded })
     })
