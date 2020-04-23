@@ -13,7 +13,7 @@ connectToMongo().catch(error => {
 
 async function connectToMongo() {
     let newCon = await mongoClient.connect(mongoUrl,
-        { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000 })
+        { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000,serverSelectionTimeoutMS: 5000 })
     mongoDb = newCon.db(config.databaseName)
     console.log("CONNECTED TO DB!")
 }
