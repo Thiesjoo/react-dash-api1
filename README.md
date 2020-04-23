@@ -6,7 +6,7 @@ To get this API running locally:
 
 - Clone this repo
 - `npm install` to install all required dependencies
-- *If you dont have a mongodb this step is required* Install docker ([https://docs.docker.com/install/](https://docs.docker.com/install/)). This way you can easily fire up many instances of the same database
+- *If you dont have a local mongodb instance this step is required* Install docker ([https://docs.docker.com/install/](https://docs.docker.com/install/)). This way you can easily fire up many instances of the same database
 - `npm start` to start the local server(You have to specify the MongoURL). or `./dev_start.sh` on linux to start a docker container with mongodb
 
 
@@ -37,7 +37,7 @@ You can find the docs on [Github Pages](https://thiesjoo.github.io/react-dash-ap
 
 
 ## Authentication
-When the user is logged in, the server hands out 2 cookies: `accesstoken` - valid for 15min and used to get data from the server, `refreshtoken` - valid for a week and used to retrieve new `accesstokens`
+When the user is logged in, the server hands out 2 cookies: `accesstoken` - valid for 15min and used to get data from the server, `refreshtoken` - valid for a week and used to retrieve new `accesstoken`s
 
 ## Userdata structure
 

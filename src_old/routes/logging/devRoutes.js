@@ -1,7 +1,7 @@
-let { getMongoDB, addUser, deleteAccount } = require("../shared/database")
+let { getMongoDB, addUser, deleteAccount } = require("../../shared/database")
 const routes = require('express').Router();
-const config = require("../shared/config")
-const security = require("../shared/security")
+const config = require("../../shared/config")
+const security = require("../../shared/security")
 
 
 if (!config.production) {
