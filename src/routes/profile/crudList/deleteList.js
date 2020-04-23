@@ -1,17 +1,18 @@
-const { updateOrder } = require("../../../shared/database")
+const { deleteList } = require("../../../shared/database")
 const config = require('../../../shared/config')
 
 /**
- * @api {patch} /user/profile/item Update order of items
+ * @api {delete} /user/profile/items Delete a list
  * @apiDescription All errors are returned with http code 500, due to a limitation with the database. GET requests use PARAMS and the rest uses the request BODY
- * @apiName updateOrder
- * @apiGroup CRUD
+ * @apiName deleteList
+ * @apiGroup CRUD 
+ * @apiHeader {String} Cookie:accesstoken Users unique access-token.
+
  *
- * @apiParam {Object} item List of the order of items. Format: [{id: (item_id), children: [(item_id)]}]
- * @apiParam {String} list The list to add the item to
+ * @apiParam {String} list The list to delete
  * @apiParam {String} type Category of the item(tasks, banking and notifications)
  *
- * @apiSuccess {Object} data All the data from the requested list(From type).
+ * @apiSuccess {Object} data All the data from the user.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -21,7 +22,6 @@ const config = require('../../../shared/config')
  *     }
  *
  * @apiUse UserNotFoundError
- * @apiUse WrongPasswordError
  * @apiUse InvalidInfoError
  * @apiUse NotEnoughPermissions
  * @apiUse NotEnoughInfoError
@@ -29,26 +29,23 @@ const config = require('../../../shared/config')
  * @apiUse SomethingWentWrongError
  */
 
-
-
-async function updateOrderFunc(req, res) {
+async function deleteListFunc(req, res) {
     try {
-        if (req.body.newOrder
-            && typeof req.body.newOrder === "object"
+        if (req.body.list
+            && typeof req.body.list === "string"
             && req.body.type
-            && typeof req.body.type === "string"
-            && req.body.list
-            && typeof req.body.list === "string") {
-            let result = await updateOrder(req.body.newOrder, req.body.list, req.body.type, req.decoded.id)
+            && typeof req.body.type === "string") {
+                
+            let result = await deleteList(req.body.list, req.body.type, req.decoded.id)
             res.send({ ok: true, result: result })
         } else {
             console.warn(req.body)
             res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
         }
     } catch (error) {
-        console.error("\x1b[31m updateOrder: ", error, req.body)
+        console.error("\x1b[31m addItem:", error, req.body)
         res.status(500).send({ ok: false, msg: error })
     }
 }
 
-module.exports = updateOrderFunc
+module.exports = deleteListFunc

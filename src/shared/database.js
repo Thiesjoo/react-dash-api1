@@ -7,15 +7,27 @@ const mongoRequire = require('mongodb')
 const mongoClient = mongoRequire.MongoClient;
 const mongoUrl = config.mongoURL;
 let mongoDb = null
-connectToMongo().catch(error => {
-    throw error
-})
+
+function init(app) {
+    return connectToMongo()
+        .then(result => {
+            app.emit("ready")
+        })
+        .catch(error => {
+            throw error
+        })
+}
 
 async function connectToMongo() {
-    let newCon = await mongoClient.connect(mongoUrl,
-        { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000,serverSelectionTimeoutMS: 5000 })
-    mongoDb = newCon.db(config.databaseName)
-    console.log("CONNECTED TO DB!")
+    try {
+        console.log("Trying to connect to database with url: ", mongoUrl)
+        let newCon = await mongoClient.connect(mongoUrl,
+            { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000, socketTimeoutMS: 5000,serverSelectionTimeoutMS: 5000 })
+        mongoDb = await newCon.db(config.databaseName)
+        console.log("CONNECTED TO DB!")
+    } catch (error) {
+        throw error
+    }
 }
 
 // #endregion
@@ -282,7 +294,9 @@ async function updateOrder(newOrder, list, type, userId) {
                                     if (parentItem.children.length > 0) {
                                         parentItem.children.forEach(y => {
                                             let childItemIndex = originalOrder.findIndex(item => item.id == y)
-                                            if (childItemIndex > -1) {
+                                            if (y === "temp") {
+                                                return
+                                            } else if (childItemIndex > -1) {
                                                 let childItem = originalOrder[childItemIndex]
                                                 originalOrder.splice(childItemIndex, 1)
                                                 childItem.child = true
@@ -305,7 +319,7 @@ async function updateOrder(newOrder, list, type, userId) {
                         user.data[type][list] = finalList
                         let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
                         if (mongoResult.result.ok != 1) throw config.errors.general
-                        return finalList
+                        return user.data
                     } else {
                         throw config.errors.notFound
                     }
@@ -314,6 +328,42 @@ async function updateOrder(newOrder, list, type, userId) {
                 }
             } else {
                 throw config.errors.noPerms
+            }
+        } else {
+            throw config.errors.noPerms
+        }
+    } catch (error) {
+        throw error
+    }
+}
+
+async function deleteList(list, type, userId) {
+    try {
+        if (config.permissions[type].includes("w")) {
+            let user = await getUserById(mongoRequire.ObjectID(userId))
+            if (user) {
+                if (user.data[type] && user.data[type][list]) {
+                    delete user.data[type][list]
+                    //For every location
+                    Object.keys(user.data.items).forEach(x => {
+                        console.log(x, user.data.items, user.data.items[x])
+                        //For every type
+                        user.data.items[x].forEach((y, index) => {
+                            //Filter the deleted list
+                            user.data.items[x][index].options = y.options.filter(item => item !== list)
+                        })
+                        // [x] accesses the location object("home") and [0] gets the array of items that is stored
+                        //FIXME: Fix this!
+                        // user.data.items[x][0].options = user.data.items[x][0].options.filter(item => item === list)
+                    })
+                    let mongoResult = await mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(userId) }, { $set: { data: user.data } })
+                    if (mongoResult.result.ok != 1) throw config.errors.general
+                    return user.data
+                } else {
+                    throw config.errors.notFound
+                }
+            } else {
+                throw config.errors.accountNotFound
             }
         } else {
             throw config.errors.noPerms
@@ -360,6 +410,8 @@ function bytesToSize(a, b) { if (0 == a) return "0 Bytes"; let c = 1024, d = b |
 // #endregion
 
 module.exports = {
+    init,
+
     getUserById,
     getUserByEmail,
     getMongoDB,
@@ -373,6 +425,7 @@ module.exports = {
     addItem,
     deleteItem,
     updateItem,
-    updateOrder
+    updateOrder,
+    deleteList
 }
 

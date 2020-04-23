@@ -6,7 +6,9 @@ const security = require("../../shared/security")
  * @api {post} /user/refresh/deleteAccount Delete a user's account
  * @apiName deleteAccount
  * @apiGroup refresh
- *
+ * @apiHeader {String} Cookie:accesstoken Users unique access-token.
+ * @apiHeader {String} Cookie:refreshtoken Users unique refresh-token.
+ * 
  * @apiParam {String} password Users password.
  *
  * @apiSuccessExample Success-Response:

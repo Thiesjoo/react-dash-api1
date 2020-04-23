@@ -7,14 +7,17 @@ const config = require("../../shared/config")
  * @api {post} /user/refresh/logout Log the user out(Delete token from database)
  * @apiName logout
  * @apiGroup refresh
+ * @apiHeader {String} Cookie:accesstoken Users unique access-token.
+ * @apiHeader {String} Cookie:refreshtoken Users unique refresh-token.
  *
  * @apiParam {String} email Users unique email.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *     {
+ *     JSON: {
  *       "ok": true,
  *     }
+ *     Cookie: {}
  *
  * @apiUse UserNotFoundError
  * @apiUse RegexNotMatchError
@@ -41,8 +44,8 @@ async function logout(req, res) {
                         userTokens = userTokens.filter(object => object.token != refreshtoken.token)
                         updateTokens(accesstoken.id,userTokens)
 
-                        res.clearCookie("accesstoken", { httpOnly: true, path: "/user/", samesite: config.production ? "none" : "", secure: config.production })
-                        res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", samesite: config.production ? "none" : "", secure: config.production })
+                        res.clearCookie("accesstoken", { httpOnly: true, path: "/user/", sameSite: config.production ? "none" : "", secure: config.production })
+                        res.clearCookie("refreshtoken", { httpOnly: true, path: "/user/refreshAccess", sameSite: config.production ? "none" : "", secure: config.production })
 
                         res.send({ ok: true })
                     } else {

@@ -15,9 +15,13 @@ const { bcrypt, jwt, randomstring, emailRegex, passwordRegex } = require('../sha
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *     {
+ *     JSON: {
  *       "ok": true,
  *       "data": userData
+ *     }
+ *     Cookie: {
+ *          accesstoken,
+ *          refreshtoken
  *     }
  *
  * @apiUse UserNotFoundError
@@ -65,8 +69,8 @@ routes.post('/user/login', async (req, res) => {
 
                             await updateTokens(user._id, refreshArray)
 
-                            res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, samesite: config.production ? "none" : "", path: "/user/", secure: config.production })
-                            res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, samesite: config.production ? "none" : "", path: "/user/refresh", secure: config.production })
+                            res.cookie("accesstoken", accesstoken, { expires: new Date(Date.now() + config.accessExpiry), httpOnly: true, sameSite: config.production ? "none" : "", path: "/user/", secure: config.production })
+                            res.cookie("refreshtoken", refreshtoken, { expires: new Date(Date.now() + config.refreshExpiry), httpOnly: true, sameSite: config.production ? "none" : "", path: "/user/refresh", secure: config.production })
 
                             res.send({ ok: true, data: user.data })
 

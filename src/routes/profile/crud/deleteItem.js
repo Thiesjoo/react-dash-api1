@@ -5,7 +5,9 @@ const config = require('../../../shared/config')
  * @api {delete} /user/profile/item Delete item
  * @apiDescription All errors are returned with http code 500, due to a limitation with the database. GET requests use PARAMS and the rest uses the request BODY
  * @apiName deleteItem
- * @apiGroup CRUD
+ * @apiGroup CRUD 
+ * @apiHeader {String} Cookie:accesstoken Users unique access-token.
+
  *
  * @apiParam {String} id Id of item to delete
  * @apiParam {String} list List of the item

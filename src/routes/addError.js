@@ -2,11 +2,13 @@ const express = require('express')
 const routes = express.Router();
 const { getMongoDB } = require("../shared/database")
 const config = require('../shared/config')
+const checkToken = require("../shared/security").checkToken
 
 /**
  * @api {post} /errors/ Add a error to the errorlog
  * @apiName errors
  * @apiGroup Monitoring
+ * @apiHeader {String} Cookie:accesstoken Users unique access-token.
  *
  * @apiParam {Array} errors Array with seperate error objects
  *
