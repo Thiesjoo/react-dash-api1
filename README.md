@@ -16,6 +16,7 @@ To get this API running locally:
 * NODE_ENV=```production for more security, or dev for development```
 * JWT_SECRET=```the secret that is used to encode the JWT-tokens```
 * PORT=```the port where the application runs```
+* LOG_LEVEL=```log level that winston uses```
 
 
 # Code Overview

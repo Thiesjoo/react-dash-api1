@@ -1,5 +1,9 @@
+const Container = require("typedi").Container
+const Logger = Container.get("logger")
+
+
 module.exports = (app) => {
-     /// catch 404 and forward to error handler
+  /// catch 404 and forward to error handler
   app.use((req, res, next) => {
     const err = new Error('Not Found');
     err['status'] = 404;
@@ -8,11 +12,11 @@ module.exports = (app) => {
 
 
   app.use((err, req, res, next) => {
+    Logger.error(err)
     res.status(err.status || 500);
     res.json({
-      errors: {
-        message: err.message,
-      },
+      ok: false,
+      msg: err.message,
     });
   });
 }

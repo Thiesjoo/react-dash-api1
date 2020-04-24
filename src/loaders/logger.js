@@ -2,8 +2,8 @@ const config = require("../config")
 const winston = require("winston")
 
 
-const transports = [];
-if(config.production) {
+let transports = [];
+if (config.production) {
   transports.push(
     new winston.transports.Console()
   )

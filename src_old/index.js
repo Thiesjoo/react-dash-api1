@@ -23,19 +23,19 @@ const app = express()
 //     }
 //     next()
 // })
-const whitelist = ["https://react-dash.now.sh/"]
-const cors = require("cors")
-app.use(cors({
-    origin: function (origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
-            callback(null, true)
-        } else {
-            callback(new Error('Not allowed by CORS'))
-        }
-    }
-}))
+// const whitelist = ["https://react-dash.now.sh/"]
+// const cors = require("cors")
+// app.use(cors({
+//     origin: function (origin, callback) {
+//         if (whitelist.indexOf(origin) !== -1) {
+//             callback(null, true)
+//         } else {
+//             callback(new Error('Not allowed by CORS'))
+//         }
+//     }
+// }))
 
-app.options('*', cors());
+// app.options('*', cors());
 
 
 

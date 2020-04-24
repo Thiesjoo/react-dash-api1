@@ -1,12 +1,14 @@
-const Logger = require("/loaders/logger")
+const Container =  require("typedi").Container
 
+const Logger = Container.get("logger")
+const config = Container.get("config")
 
-modules.exports = async (req, res, next) => {
+module.exports = async (req, res, next) => {
     let cookies = req.cookies
     let token = cookies.accesstoken || req.body.token || req.query.token
 
     if (!token) {
-        console.log("No token found for: ", req.ip)
+        Logger.debug(`No token found for: ${req.ip}`)
         return res.status(401).json({
             ok: false,
             message: config.errors.notEnoughInfoTokens
@@ -18,12 +20,12 @@ modules.exports = async (req, res, next) => {
             req.decoded = verifiedToken;
             next();
         } catch (error) {
-            // Logger
             // console.error("Error in security tokencheck. Invalid token for ip: ", req.ip)
-            return res.status(401).send({
-                ok: false,
-                message: config.errors.invalidToken,
-            });
+            next(new Error(config.errors.invalidToken))
+            // return res.status(401).send({
+            //     ok: false,
+            //     message: ,
+            // });
         }
     }
 };
