@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-
+const config = require("../config")
 
 const errorHandling = require("../helpers/errorHandling")
 const routes = require("../api")
@@ -10,20 +10,25 @@ module.exports = ({ app }) => {
   // It shows the real origin IP in the heroku or Cloudwatch logs
   app.enable('trust proxy');
 
-  // const whitelist = ["https://react-dash.now.sh/", "http://localhost:8090"]
-  // app.use(cors({
-  //   origin: function (origin, callback) {
-  //     if (whitelist.indexOf(origin) !== -1) {
-  //       callback(null, true)
-  //     } else {
-  //       callback(new Error('Not allowed by CORS'))
-  //     }
-  //   }
-  // }))
-  //FIXME: Add CORS back
+  const whitelist = ["https://react-dash.now.sh/"]
+  
+  //Add localhost and postwoman to whitelist when developing
+  if (!config.production) {
+    whitelist.push("http://localhost:3000")
+    whitelist.push("https://postwoman.io")
+  }
 
-  //CORS for all options requests
-  app.options('*', cors());
+  app.use(cors({
+    origin: function (origin, callback) {
+      if (whitelist.indexOf(origin) !== -1) {
+        callback(null, true)
+      } else {
+        callback(new Error(`Not allowed by CORS. Your host was ${origin}`))
+      }
+    },credentials: true,
+  }))
+  // app.options('*', cors());
+
 
   //Cookie setup
   let cookieParser = require('cookie-parser')
@@ -42,7 +47,7 @@ module.exports = ({ app }) => {
   const nocache = require('nocache');
   app.use(nocache());
   app.set("etag", false)
-  
+
 
 
   // Load API routes

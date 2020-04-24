@@ -15,9 +15,10 @@ const server = app.listen(config.port, err => {
     Logger.info(`Server listening on port: ${config.port}`);
 });
 
-process.on('exit', function () {
-    gracefulShutdown()
-});
+server.on("error", (err) => {
+    Logger.error(err)
+    process.exit()
+})
 
 process.once('SIGUSR2', function () {
     gracefulShutdown(function () {

@@ -4,8 +4,8 @@ const Logger = Container.get("logger")
 const config = Container.get("config")
 const TokenValidation = Container.get("middlewares").checkToken
 
-// let { addUser, deleteAccount } = require("../shared/database")
 const routes = require('express').Router();
+const {addUser, deleteAccount} = require("../../../helpers/dbFunctions")
 
 
 if (!config.production) {
@@ -40,16 +40,16 @@ if (!config.production) {
 * @apiUse RawError
 * @apiPrivate
 */
-    // routes.get("/mongoDrop", async (req, res, next) => {
-    //     try {
-    //         await db.dropDatabase()
-    //         const user = await addUser("temp@temp.com", "Temp", "Temp", "", [])
-    //         await deleteAccount(user._id, user.email)
-    //         res.send(true);
-    //     } catch (e) {
-    //         next(e)
-    //     }
-    // })
+    routes.get("/mongoDrop", async (req, res, next) => {
+        try {
+            await db.dropDatabase()
+            const user = await addUser("temp@temp.com", "Temp", "Temp", "", [])
+            await deleteAccount(user._id, user.email)
+            res.send(true);
+        } catch (e) {
+            next(e)
+        }
+    })
 
 
     /**
@@ -114,11 +114,15 @@ if (!config.production) {
         res.send(req.body)
     })
 
-    routes.post("/testValidation", TokenValidation, function (req, res) {
+    routes.post("/user/testValidation", TokenValidation, function (req, res) {
         Logger.debug(`Validated user account: ${req.decoded.id}`)
         res.send({ ok: true, result: req.decoded })
     })
 
+    routes.post("/user/testCookies", (req,res) => {
+        Logger.debug("Got cookie request")
+        res.json(req.cookies)
+    })
 }
 
 module.exports = routes;

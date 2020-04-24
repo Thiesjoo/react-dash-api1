@@ -44,5 +44,13 @@ module.exports = {
         passwordRegex: RegExp(
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[0-9]).{5,100}$/
         )
-    }
+    },
+    secret: process.env.JWT_SECRET || "ThisIsASuperSecureBackupSecret",
+    saltRounds: production ? 14 : 2,
+    accessExpiry: 900000,
+    refreshExpiry: 604800000,
+    tokenLength: 20,
+    allowedTypes: ["tasks", "notifications", "banking", "profile", "items"],
+    allowedFormats: { tasks: ["title", "msg", "priority", "children", /*List of id's*/ "child" /* Boolean:if current object is a child */], notifications: ["title", "message", "type", "created", "ttl", "color"], banking: ["title", "amount", "msg", "time", "repeatInterval"], items: ["type", "options"] },
+    permissions: { tasks: "r/w", notifications: "r/w", banking: "r/w", profile: "r", items: "r/w" }
 }
