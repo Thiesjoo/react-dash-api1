@@ -10,7 +10,7 @@ module.exports = ({ app }) => {
   // It shows the real origin IP in the heroku or Cloudwatch logs
   app.enable('trust proxy');
 
-  const whitelist = ["https://react-dash.now.sh/"]
+  const whitelist = ["https://react-dash.now.sh"]
   
   //Add localhost and postwoman to whitelist when developing
   if (!config.production) {
