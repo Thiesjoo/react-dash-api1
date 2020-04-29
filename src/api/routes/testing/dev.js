@@ -3,10 +3,9 @@ const db = Container.get("db")
 const Logger = Container.get("logger")
 const config = Container.get("config")
 const TokenValidation = Container.get("middlewares").checkToken
+const UserModel = require("../../../models/user").UserModel
 
 const routes = require('express').Router();
-const {addUser, deleteAccount} = require("../../../helpers/dbFunctions")
-
 
 if (!config.production) {
 
@@ -22,9 +21,7 @@ if (!config.production) {
  */
     routes.get("/mongo", async (req, res, next) => {
         try {
-            let test = db.collection("users")
-            if (!test) throw new Error("Collection not found")
-            const result = await test.find({}).toArray();
+            const result = await UserModel.find({})
             res.send(result);
         } catch (e) {
             next(e)
@@ -42,9 +39,7 @@ if (!config.production) {
 */
     routes.get("/mongoDrop", async (req, res, next) => {
         try {
-            await db.dropDatabase()
-            const user = await addUser("temp@temp.com", "Temp", "Temp", "", [])
-            await deleteAccount(user._id, user.email)
+            await UserModel.deleteMany({})
             res.send(true);
         } catch (e) {
             next(e)
@@ -63,12 +58,11 @@ if (!config.production) {
     routes.get("/promote", async (req, res, next) => {
         try {
             if (req.query.email) {
-                let test = db.collection("users")
-                test.updateOne({ email: req.query.email }, { $set: { admin: true } })
+                UserModel.updateOne({ email: req.query.email }, { $set: { admin: true } })
                 Logger.warn(`Promoted user: ${req.query.email}`)
                 res.send(true);
             } else {
-                res.status(400).send({ ok: false, msg: config.errors.notEnoughInfo })
+                throw new Error(config.errors.notEnoughInfo)
             }
         } catch (e) {
             next(e)
@@ -83,14 +77,14 @@ if (!config.production) {
 * @apiPrivate
 */
 
-    routes.get("/errors", async (req, res, next) => {
-        try {
-            let test = await db.collection("errors").find({}).toArray()
-            res.json(test);
-        } catch (e) {
-            next(e)
-        }
-    })
+    // routes.get("/errors", async (req, res, next) => {
+    //     try {
+    //         let test = await db.collection("errors").find({}).toArray()
+    //         res.json(test);
+    //     } catch (e) {
+    //         next(e)
+    //     }
+    // })
 
     /**
 * @api {get} /mongoStatus Return the database status

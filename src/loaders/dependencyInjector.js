@@ -10,8 +10,14 @@ module.exports = async (mongoConnection) => {
         Logger.debug("Loaded config, db-connection and logger")
 
 
+        const DBModels = require("../models/user.js")
+        await Container.set("models",DBModels )
+        Logger.debug("Loaded DB models")
+
+
         const dbFunctions = require("../helpers/dbFunctions")
         await Container.set("db-functions", dbFunctions)
+        Logger.debug("Loaded DB Functions")
 
         const middlewares = require("../api/middelwares/index.js")
         await Container.set("middlewares", middlewares)

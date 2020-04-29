@@ -3,6 +3,8 @@ const crudHelper = require("./crud")
 
 
 const mongoRequire = require("mongodb")
+const models = Container.get("models")
+const UserModel = models.UserModel
 const config = Container.get("config")
 const mongoDb = Container.get("db")
 
@@ -10,23 +12,22 @@ const mongoDb = Container.get("db")
 // #region CRUD
 
 async function getUserById(id) {
-    return mongoDb.collection("users").findOne(mongoRequire.ObjectID(id))
+    return UserModel.findOne(mongoRequire.ObjectID(id))
 }
 
 async function getUserByEmail(email) {
-    return mongoDb.collection("users").findOne({ email })
+    return UserModel.findOne({ email })
 }
 
 async function addUser(email, firstname, lastname, password, token) {
-    let tempProfile = crudHelper.generateUser()
-    let mongoResult = await mongoDb.collection("users").insertOne({ email, password, token, data: { ...tempProfile, profile: { firstname, lastname, email, emailVerified: false } } })
-    return mongoResult.ops[0]
+    let newUser = new UserModel({ email, password, token, data: { profile: { firstname, lastname, email } } })
+    await newUser.save()
+    return newUser
 }
 
 async function updateTokens(id, newTokens) {
-    return mongoDb.collection("users").updateOne({ _id: mongoRequire.ObjectID(id) }, { $set: { token: newTokens } })
+    return UserModel.updateOne({ _id: mongoRequire.ObjectID(id) }, { $set: { token: newTokens } })
 }
-
 
 
 async function getItem(id, list, type, userId) {
@@ -35,7 +36,7 @@ async function getItem(id, list, type, userId) {
     if (!user) throw new Error(config.errors.accountNotFound)
     if (user.data[type] && list !== undefined && user.data[type][list]) {
         let withId;
-        
+
         if (id) withId = user.data[type][list].find(item => item.id == id)
         if (withId) return withId
 

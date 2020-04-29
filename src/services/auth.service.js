@@ -60,6 +60,7 @@ async function login(email, password, platform, useragent) {
 
 async function signup(email, password, firstname, lastname, platform, useragent) {
     if (!email || !password || !firstname || !lastname) throw new Error(config.errors.notEnoughInfo)
+    Logger.silly("Body parts are available")
     if (!config.security.emailRegex.test(email) || !config.security.passwordRegex.test(password)) throw new Error(config.errors.regexNotMatch)
     Logger.silly("Validated email and first/last name")
 

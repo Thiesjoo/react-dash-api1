@@ -1,11 +1,11 @@
 const config = require('../config');
-const mongoClient = require('mongodb').MongoClient
+const mongoose = require("mongoose")
 
 async function connectToMongo() {
     try {
-        let newCon = await mongoClient.connect(config.mongoURL,
+        let newCon = await mongoose.connect(config.mongoURL,
             { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 5000, socketTimeoutMS: 5000,serverSelectionTimeoutMS: 5000 })
-        return await newCon.db(config.databaseName)
+        return newCon.connection.db
     } catch (error) {
         throw error
     }

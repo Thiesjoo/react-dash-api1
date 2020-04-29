@@ -1,5 +1,7 @@
 const { getItem, getUserById } = require("../../../../helpers/dbFunctions")
-const config = require('typedi').Container.get("config")
+const Container = require('typedi').Container
+const config = Container.get("config")
+const Logger = Container.get("logger")
 /**
  * @api {get} /user/profile/item Get item
  * @apiDescription All errors are returned with http code 500, due to a limitation with the database. GET requests use PARAMS and the rest uses the request BODY
